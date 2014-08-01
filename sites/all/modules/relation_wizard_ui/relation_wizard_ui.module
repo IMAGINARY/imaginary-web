@@ -1,0 +1,859 @@
+<?php
+
+/**
+ * TODO: that's ok for node and user, extend to work with all entities (maybe with plugin architecture?)
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function relation_wizard_ui_menu() {
+  $items = array();
+
+  /** nodes **/
+
+  $items['node/%node/relation'] = array(
+    'title' => 'Relations',
+    'page callback' => 'relation_wizard_ui_page',
+    'page arguments' => array(1, 'node'),
+    'access callback' => 'relation_wizard_ui_access',
+    'access arguments' => array(1, 'node'),
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['node/%node/relation/nojs/add'] = array(
+    'title' => 'Add a new relation',
+    'page callback' => 'relation_wizard_ui_add_form',
+    'page arguments' => array(3, 1, 'node'),
+    'access arguments' => array('access relation_wizard_ui'),
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  $items['node/%node/relation/ajax/add'] = array(
+    'title' => 'Add a new relation',
+    'page callback' => 'relation_wizard_ui_add_form',
+    'page arguments' => array(3, 1, 'node'),
+    'access arguments' => array('access relation_wizard_ui'),
+    'type' => MENU_CALLBACK,
+  );
+
+  /** users **/
+
+  $items['user/%user/relation'] = array(
+    'title' => 'Relations',
+    'page callback' => 'relation_wizard_ui_page',
+    'page arguments' => array(1, 'user'),
+    'access callback' => 'relation_wizard_ui_access',
+    'access arguments' => array(1, 'user'),
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['user/%user/relation/nojs/add'] = array(
+    'title' => 'Add a new relation',
+    'page callback' => 'relation_wizard_ui_add_form',
+    'page arguments' => array(3, 1, 'user'),
+    'access arguments' => array('access relation_wizard_ui'),
+    'type' => MENU_LOCAL_ACTION,
+  );
+
+  $items['user/%user/relation/ajax/add'] = array(
+    'title' => 'Add a new relation',
+    'page callback' => 'relation_wizard_ui_add_form',
+    'page arguments' => array(3, 1, 'user'),
+    'access arguments' => array('access relation_wizard_ui'),
+    'type' => MENU_CALLBACK,
+  );
+
+  /** internal paths **/
+
+  $items['relation_wizard_ui/%ctools_js/%relation/edit'] = array(
+    'title' => 'Edit relation',
+    'page callback' => 'relation_wizard_ui_edit',
+    'page arguments' => array(1, 2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['relation_wizard_ui/datatable_ajax'] = array(
+    'page callback' => '_relation_wizard_ui_datatable_ajax',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+
+}
+
+/**
+ * Access control.
+ * Relations tab should appears only if user has 'access relation_wizard_ui' permission
+ * and if this entity is part of some relation.
+ *
+ */
+function relation_wizard_ui_access($entity, $entity_type) {
+  if (user_access('access relation_wizard_ui')) {
+    $info = entity_get_info($entity_type);
+    $entity_bundle = $info['entity keys']['bundle'];
+
+    $query = db_select('relation_bundles', 'rb')
+      ->fields('rb')
+      ->condition('entity_type', $entity_type);
+
+    if ($entity_bundle) {
+      $query->condition('bundle', $entity->{$entity_bundle});
+    }
+
+    $results = $query->countQuery()
+      ->execute()
+      ->fetchAssoc();
+
+    if ($results['expression'] > 0) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implement hook_permission().
+ */
+function relation_wizard_ui_permission() {
+  return array(
+    'access relation_wizard_ui' => array(
+      'description' => t('Add, edit and remove relations.'),
+      'title' => t('Access Relation UI'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_custom_theme().
+ */
+function relation_wizard_ui_custom_theme() {
+  if (user_access('view the administration theme') && (arg(0) == 'node' && arg(2) == 'relation')) {
+    return variable_get('admin_theme');
+  }
+
+  if (user_access('view the administration theme') && (arg(0) == 'user' && arg(2) == 'relation')) {
+    return variable_get('admin_theme');
+  }
+
+  if (user_access('view the administration theme') && (arg(0) == 'relation' && arg(2) == 'edit')) {
+    return variable_get('admin_theme');
+  }
+
+  if (user_access('view the administration theme') && (arg(0) == 'relation' && arg(2) == 'delete')) {
+    return variable_get('admin_theme');
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * @param $theme_registry
+ */
+function relation_wizard_ui_theme_registry_alter(&$theme_registry) {
+  if (!empty($theme_registry['menu_local_action'])) {
+    $theme_registry['menu_local_action']['function'] = 'relation_wizard_ui_menu_local_action';
+  }
+}
+
+/**
+ * @param $variables
+ * @return string
+ */
+function relation_wizard_ui_menu_local_action($variables) {
+  $link = $variables['element']['#link'];
+
+  $output = '<li>';
+  if (isset($link['href'])) {
+    if (preg_match("/[node|user]\/[0-9]*\/relation\/nojs\/add/", $link['href'])) {
+      $link['localized_options']['attributes'] = array(
+        'class' => array(
+          'ctools-use-modal',
+          'ctools-modal-relation-ui-theme'
+        )
+      );
+    }
+    $output .= l($link['title'], $link['href'], isset($link['localized_options']) ? $link['localized_options'] : array());
+  }
+  elseif (!empty($link['localized_options']['html'])) {
+    $output .= $link['title'];
+  }
+  else {
+    $output .= check_plain($link['title']);
+  }
+  $output .= "</li>\n";
+
+  return $output;
+}
+
+/**
+ * @param $entity
+ * @param $entity_type
+ * @return string
+ */
+function relation_wizard_ui_page($entity, $entity_type) {
+  // Include the CTools tools that we need.
+  ctools_include('ajax');
+  ctools_include('modal');
+
+  // Add CTools' javascript to the page.
+  ctools_modal_add_js();
+
+  $sample_style = array(
+    'relation-ui-theme' => array(
+      'modalSize' => array(
+        'type' => 'fixed',
+        'width' => 700,
+        'height' => 400,
+      ),
+      'modalOptions' => array(
+        'opacity' => .5,
+        'background-color' => '#000',
+      ),
+      'animation' => 'fadeIn',
+      'modalTheme' => 'CToolsRelationUIModal',
+    ),
+  );
+
+  ctools_add_js('relation-wizard-ui-theme', 'relation_wizard_ui');
+  ctools_add_js('relation-wizard-ui', 'relation_wizard_ui');
+  ctools_add_css('relation-wizard-ui-theme', 'relation_wizard_ui');
+  ctools_add_css('relation-wizard-ui', 'relation_wizard_ui');
+
+  drupal_add_js($sample_style, 'setting');
+
+  drupal_add_js(libraries_get_path('datatables') . '/media/js/jquery.dataTables.min.js');
+  drupal_add_css(libraries_get_path('datatables') . '/media/css/jquery.dataTables.css');
+  drupal_add_css(libraries_get_path('datatables') . '/media/css/jquery.dataTables_themeroller.css');
+
+  $output = _relation_wizard_ui_get_table($entity, $entity_type, TRUE);
+  $output .= '<br/><br/>';
+  $output .= _relation_wizard_ui_get_table($entity, $entity_type, FALSE);
+
+  return $output;
+}
+
+/**
+ * @param null $js
+ * @param null $relation
+ */
+function relation_wizard_ui_edit($js = NULL, $relation = NULL) {
+  if ($js) {
+    ctools_include('modal');
+    ctools_include('ajax');
+  }
+  else {
+    drupal_access_denied();
+    drupal_exit();
+  }
+
+  $form_state = array(
+    'title' => t('Relation edit form.'),
+    'ajax' => TRUE,
+    'relation' => $relation,
+  );
+  $output = ctools_modal_form_wrapper('relation_wizard_ui_edit_form', $form_state);
+  if (!empty($form_state['cancel']) || !empty($form_state['executed'])) {
+    $output = array();
+    $output[] = ctools_modal_command_dismiss();
+  }
+
+  print drupal_json_encode($output);
+  exit();
+}
+
+/**
+ * @param $form_state
+ * @return array
+ */
+function relation_wizard_ui_edit_form($form, &$form_state) {
+  $relation = $form_state['relation'];
+  $instances = field_read_instances(array('entity_type' => 'relation', 'bundle' => $relation->relation_type));
+
+  $form['buttons'] = array(
+    '#type' => 'actions',
+    '#weight' => 1000,
+  );
+
+  $has_field = FALSE;
+  foreach ($instances as $instance) {
+    if ($instance['field_name'] != 'endpoints') {
+      $has_field = TRUE;
+    }
+  }
+
+  if ($has_field) {
+    field_attach_form('relation', $relation, $form, $form_state);
+    unset($form['endpoints']);
+
+    $form['buttons']['save'] = array(
+      '#type' => 'submit',
+      '#op' => 'save',
+      '#value' => t('Save'),
+    );
+  }
+  else {
+    $form['no_customization'] = array(
+      '#markup' => '<p>' . t('No customizations available.') . '</p>',
+    );
+  }
+
+  $form['buttons']['cancel'] = array(
+    '#type' => 'button',
+    '#value' => t('Cancel'),
+    '#attributes' => array('class' => array('ctools-close-modal')),
+  );
+
+  return $form;
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ */
+function relation_wizard_ui_edit_form_submit(&$form, &$form_state) {
+  $type = $form_state['clicked_button']['#op'];
+
+  if ($type == 'save') {
+    $relation = $form_state['relation'];
+    entity_form_submit_build_entity('relation', $relation, $form, $form_state);
+    $rid = relation_save($relation);
+    $form_state['saved'] = TRUE;
+  }
+  else {
+    if ($type == 'cancel') {
+      $form_state['cancel'] = TRUE;
+    }
+  }
+}
+
+/**
+ * @param null $js
+ * @param null $entity
+ * @param null $step
+ */
+function relation_wizard_ui_add_form($js = NULL, $entity = NULL, $entity_type = NULL, $step = NULL) {
+  if ($js) {
+    ctools_include('modal');
+    ctools_include('ajax');
+  }
+  else {
+    drupal_access_denied();
+    drupal_exit();
+  }
+
+  $info = entity_get_info($entity_type);
+  $uri_callback = $info['uri callback'];
+  $url = $uri_callback($entity);
+  $path = $url['path'];
+
+  $form_info = array(
+    'id' => 'relation_wizard_ui',
+    'path' => $path . '/relation/' . ($js ? 'ajax' : 'nojs') . "/add/%step",
+    'show trail' => FALSE,
+    'show back' => TRUE,
+    'show cancel' => TRUE,
+    'show return' => FALSE,
+    'next callback' => '_relation_wizard_ui_add_form_next',
+    'finish callback' => '_relation_wizard_ui_add_form_wizard_finish',
+    'cancel callback' => '_relation_wizard_ui_add_form_wizard_cancel',
+    'order' => array(
+      'step1' => t('Choose relation type'),
+      'step2' => t('Choose the other endpoint'),
+      'step3' => t('Customize the relation'),
+    ),
+    'forms' => array(
+      'step1' => array(
+        'form id' => 'relation_wizard_ui_add_form_step1'
+      ),
+      'step2' => array(
+        'form id' => 'relation_wizard_ui_add_form_step2'
+      ),
+      'step3' => array(
+        'form id' => 'relation_wizard_ui_add_form_step3'
+      ),
+    ),
+  );
+
+  $object_id = 1;
+
+  if (empty($step)) {
+    _relation_wizard_ui_cache_clear($object_id);
+    $step = 'step1';
+  }
+
+  $object = _relation_wizard_ui_cache_get($object_id);
+  $object->entity = $entity;
+  $object->entity_type = $entity_type;
+
+  $entity_label = entity_label($entity_type, $entity);
+  $object->entity_label = $entity_label;
+
+  $form_state = array(
+    'ajax' => $js,
+    'object_id' => $object_id,
+    'object' => &$object,
+  );
+  ctools_include('wizard');
+  $form = ctools_wizard_multistep_form($form_info, $step, $form_state);
+  $output = drupal_render($form);
+
+  if ($js) {
+    $commands = array();
+    if ($output === FALSE || !empty($form_state['complete'])) {
+      //$commands[] = ajax_command_html('#ctools-sample', _relation_wizard_ui_add_finish($form_state['object']));
+      $commands[] = ctools_modal_command_dismiss();
+      $commands[] = ctools_ajax_command_reload();
+    }
+    else {
+      if (!empty($form_state['cancel'])) {
+        $commands[] = ctools_modal_command_dismiss();
+      }
+      else {
+        $commands = ctools_modal_form_render($form_state, $output);
+      }
+    }
+
+    print ajax_render($commands);
+    exit();
+  }
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ * @return array
+ */
+function relation_wizard_ui_add_form_step1($form, &$form_state) {
+  $form_state['title'] = t('Choose relation type');
+
+  $entity = $form_state['object']->entity;
+  $entity_type = $form_state['object']->entity_type;
+  $entity_label = $form_state['object']->entity_label;
+
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  $relation_types = relation_get_available_types($entity_type, $bundle);
+  $reverse_types = relation_get_available_types($entity_type, $bundle, 'target');
+
+  // Relation type selector.
+  $types = array();
+  foreach ($relation_types as $relation_type) {
+    $types[$relation_type->relation_type] = $relation_type->label;
+  }
+  foreach ($reverse_types as $relation_type) {
+    if ($relation_type->directional && $relation_type->max_arity == 2) {
+      // Machine name doesn't have colons, so we add a suffix for reverse relations, which we explode off later.
+      $types[$relation_type->relation_type . ':reverse'] = $relation_type->reverse_label ? $relation_type->reverse_label : 'reverse ' . $relation_type->reverse_label;
+    }
+  }
+  ksort($types);
+
+  $form['from'] = array(
+    '#markup' => '<h3>' . t('Create a relation from "@start"', array('@start' => $entity_label)) . '</h3>'
+  );
+
+  $form['relation_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Relation type'),
+    '#options' => $types,
+  );
+
+  // set default
+  if (isset($form_state['object']->relation_type)) {
+    $form['relation_type']['#default_value'] = $form_state['object']->relation_type;
+  }
+
+  return $form;
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ */
+function relation_wizard_ui_add_form_step1_submit(&$form, &$form_state) {
+  $form_state['object']->relation_type = $form_state['values']['relation_type'];
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ * @return array
+ */
+function relation_wizard_ui_add_form_step2($form, &$form_state) {
+  $form_state['title'] = t('Choose the other endpoint');
+
+  $relation_type = $form_state['object']->relation_type;
+  $type_array = explode(':', $relation_type);
+  $type = $type_array[0];
+  $direction = (isset($type_array[1]) && $type_array[1] == 'reverse') ? 'source' : 'target';
+  $direction_id = (isset($type_array[1]) && $type_array[1] == 'reverse') ? 1 : 0;
+
+  //$entity = $form_state['object']->entity;
+  //$entity_type = $form_state['object']->entity_type;
+  $entity_label = $form_state['object']->entity_label;
+
+  $form['type'] = array(
+    '#type' => 'value',
+    '#value' => $type,
+  );
+
+  $form['direction_id'] = array(
+    '#type' => 'value',
+    '#value' => $direction_id,
+  );
+
+  $form['from'] = array(
+    '#markup' => '<h3>' . t('Create a relation from "@start"', array('@start' => $entity_label)) . '</h3>',
+  );
+
+  $form['relation_endpoint_table'] = array(
+    '#markup' => _relation_wizard_ui_entity_table($type, $direction),
+  );
+
+  $form['relation_endpoint'] = array(
+    '#type' => 'textfield',
+    '#attributes' => array('style' => "display:none"),
+  );
+
+  return $form;
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ */
+function relation_wizard_ui_add_form_step2_validate(&$form, &$form_state) {
+  $endpoint2 = $form_state['values']['relation_endpoint'];
+  preg_match('/(.*?(?=\[))\[([\w\d]+):(\d+)\]/', $endpoint2, $matches);
+  if(!$matches) {
+    form_set_error('relation_endpoint');
+  }
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ */
+function relation_wizard_ui_add_form_step2_submit(&$form, &$form_state) {
+  $form_state['object']->endpoint2 = $form_state['values']['relation_endpoint'];
+  $form_state['object']->type = $form_state['values']['type'];
+  $form_state['object']->direction_id = $form_state['values']['direction_id'];
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ * @return array
+ */
+function relation_wizard_ui_add_form_step3($form, &$form_state) {
+  $form_state['title'] = t('Customize the relation');
+
+  //$entity = $form_state['object']->entity;
+  //$entity_type = $form_state['object']->entity_type;
+  $entity_label = $form_state['object']->entity_label;
+
+  $endpoint2 = $form_state['object']->endpoint2;
+  $type = $form_state['object']->type;
+  $direction_id = $form_state['object']->direction_id;
+
+  $matches = array();
+  preg_match('/(.*?(?=\[))\[([\w\d]+):(\d+)\]/', $endpoint2, $matches);
+
+  $entity_keys[] = array(
+    'entity_label' => $matches[1],
+    'entity_type' => $matches[2],
+    'entity_id' => $matches[3],
+    'r_index' => $direction_id,
+  );
+
+  $form_state['object']->entity_keys = $entity_keys;
+
+  $form['from'] = array(
+    '#markup' => '<h3>' . t('Customize the relation from "@start" to "@end"', array(
+      '@start' => $entity_label,
+      '@end' => trim($matches[1])
+    )) . '</h3>',
+  );
+
+  $form['direction_id'] = array(
+    '#type' => 'value',
+    '#value' => $direction_id,
+  );
+
+  $instances = field_read_instances(array('entity_type' => 'relation', 'bundle' => $type));
+
+  $has_field = FALSE;
+  foreach ($instances as $instance) {
+    if ($instance['field_name'] != 'endpoints') {
+      $has_field = TRUE;
+    }
+  }
+
+  if ($has_field) {
+    $relation = (object) relation_create($type, array());
+    field_attach_form('relation', $relation, $form, $form_state);
+    unset($form['endpoints']);
+  }
+  else {
+    $form['no_customization'] = array(
+      '#markup' => '<p>' . t('No customizations available.') . '</p>',
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ */
+function relation_wizard_ui_add_form_step3_submit(&$form, &$form_state) {
+  $entity = $form_state['object']->entity;
+  $entity_type = $form_state['object']->entity_type;
+  $entity_label = $form_state['object']->entity_label;
+
+  $info = entity_get_info($entity_type);
+  $id = $info['entity keys']['id'];
+
+  $entity_keys = $form_state['object']->entity_keys;
+  $direction_id = $form_state['object']->direction_id;
+  $type = $form_state['object']->type;
+
+  $entity_keys[] = array(
+    'entity_label' => $entity_label,
+    'entity_type' => $entity_type,
+    'entity_id' => $entity->{$id},
+    'r_index' => ($direction_id) ? 0 : 1,
+  );
+
+  uasort($entity_keys, '_relation_wizard_ui_sort_endpoints');
+
+  $relation = relation_create($type, $entity_keys);
+  entity_form_submit_build_entity('relation', $relation, $form, $form_state);
+  $rid = relation_save($relation);
+}
+
+function _relation_wizard_ui_sort_endpoints($a, $b) {
+  if ($a['r_index'] > $b['r_index']) {
+    return -1;
+  }
+  else {
+    if ($a['r_index'] < $b['r_index']) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  }
+}
+
+
+/** private functions **/
+
+/**
+ * @param $form_state
+ */
+function _relation_wizard_ui_add_form_next(&$form_state) {
+  _relation_wizard_ui_cache_set($form_state['object_id'], $form_state['object']);
+}
+
+/**
+ * @param $form_state
+ */
+function _relation_wizard_ui_add_form_wizard_finish(&$form_state) {
+  $form_state['complete'] = TRUE;
+}
+
+/**
+ * @param $form_state
+ */
+function _relation_wizard_ui_add_form_wizard_cancel(&$form_state) {
+  $form_state['cancel'] = TRUE;
+}
+
+/**
+ * @param $object_id
+ */
+function _relation_wizard_ui_cache_clear($object_id) {
+  ctools_include('object-cache');
+  ctools_object_cache_clear('relation_wizard_ui', $object_id);
+}
+
+/**
+ * @param $object_id
+ * @return null
+ */
+function _relation_wizard_ui_cache_get($object_id) {
+  ctools_include('object-cache');
+  return ctools_object_cache_get('relation_wizard_ui', $object_id);
+}
+
+/**
+ * @param $id
+ * @param $object
+ */
+function _relation_wizard_ui_cache_set($id, $object) {
+  ctools_include('object-cache');
+  ctools_object_cache_set('relation_wizard_ui', $id, $object);
+}
+
+/**
+ * @param $object
+ */
+function _relation_wizard_ui_add_finish($object) {
+  return NULL;
+}
+
+/**
+ * @param $entity
+ * @param $entity_type
+ * @param bool $direct
+ * @return string
+ */
+function _relation_wizard_ui_get_table($entity, $entity_type, $direct = TRUE) {
+  $info = entity_get_info($entity_type);
+  $entity_id = $info['entity keys']['id'];
+  $entity_path = entity_uri($entity_type, $entity);
+
+  $query = new RelationQuery($entity_type, $entity->{$entity_id}, ($direct) ? 1 : 0);
+  $query->pager(5, ($direct) ? 1 : 2);
+  $results = $query->execute();
+
+  $aggrs = array();
+  foreach ($results as $result) {
+    $relation = relation_load($result->rid);
+    $aggrs[$relation->relation_type][] = $relation;
+  }
+
+  $output = '';
+  foreach ($aggrs as $key => $relations) {
+    $relation_type = relation_type_load($key);
+    $group_label = ($direct) ? $relation_type->reverse_label : $relation_type->label;
+
+    $output .= '<div>' . $group_label . '</div>';
+    $rows = array();
+    foreach ($relations as $relation) {
+      $endpoints = field_get_items('relation', $relation, 'endpoints');
+      $endpoint = $endpoints[($direct) ? 0 : 1];
+
+      $endpoint_entities = entity_load($endpoint['entity_type'], array($endpoint['entity_id']));
+      $endpoint_entity = reset($endpoint_entities);
+      $endpoint_path = entity_uri($endpoint['entity_type'], $endpoint_entity);
+      list($endpoint_entity_id, $endpoint_vid, $endpoint_bundle) = entity_extract_ids($endpoint['entity_type'], $endpoint_entity);
+
+      $links = array(
+        array(
+          'title' => t('Edit relation'),
+          'href' => 'relation_wizard_ui/nojs/' . $relation->rid . '/edit',
+          'attributes' => array('class' => array('ctools-use-modal', 'ctools-modal-relation-ui-theme'))
+        ),
+        array(
+          'title' => t('Delete relation'),
+          'href' => 'relation/' . $relation->rid . '/delete',
+          'query' => array('destination' => $entity_path['path'] . '/relation'),
+        ),
+        array(
+          'title' => t('View relations'),
+          'href' => $endpoint_path['path'] . '/relation',
+        ),
+      );
+
+      $ops = theme('links__ctools_dropbutton', array(
+        'links' => $links,
+        'attributes' => array('class' => array('links', 'inline'))
+      ));
+
+      $rows[] = array(
+        l(entity_label($endpoint['entity_type'], $endpoint_entity), $endpoint_path['path']),
+        $endpoint['entity_type'] . ' (' . $endpoint_bundle . ')',
+        $ops,
+      );
+    }
+    $output .= theme('table', array(
+      'header' => array(
+        array('data' => t('Title'), 'style' => 'width:40%'),
+        array('data' => t('Type'), 'style' => 'width:30%'),
+        array('data' => t('Actions'), 'style' => 'width:30%'),
+      ),
+      'rows' => $rows
+    ));
+
+    $output .= theme('pager', array('element' => ($direct) ? 1 : 2));
+  }
+  return $output;
+}
+
+/**
+ * @param string $type
+ * @param string $direction
+ * @return string
+ */
+function _relation_wizard_ui_entity_table($type = '', $direction = 'target') {
+  $rows = array(array('', '', '')); // this is required to get a table with thead e tbody in HTML
+  $output = theme('table', array(
+    'header' => array(t('Name'), t('Type'), t('Id')),
+    'rows' => $rows,
+    'attributes' => array('rel' => $type . '|' . $direction, 'class' => 'relation-wizard-ui-endpoints'),
+    'sticky' => FALSE,
+  ));
+
+  return $output;
+}
+
+/**
+ * Returns JSON for DataTable AJAX request
+ *
+ * TODO: manage sort
+ */
+function _relation_wizard_ui_datatable_ajax() {
+  $type = $_GET['rel_type'];
+  $direction = $_GET['rel_direction'];
+  $iDisplayStart = $_GET['iDisplayStart'];
+  $iDisplayLength = $_GET['iDisplayLength'];
+  $sSearch = $_GET['sSearch'];
+
+  $relation_type = relation_type_load($type);
+  $entity_bundles = array();
+
+  // Use source bundles unless relation type is directional and we're looking in the forward direction
+  $direction = ($relation_type->directional && $direction == 'target') ? 'target_bundles' : 'source_bundles';
+  foreach ($relation_type->$direction as $entity_bundle) {
+    list($entity_type, $bundle) = explode(':', $entity_bundle, 2);
+    $entity_bundles[$entity_type][] = $bundle;
+  }
+
+  $rows = array();
+  $count = 0;
+  foreach ($entity_bundles as $entity_type => $bundles) {
+    $entity_manager = RelationEntityFactory::getInstance($entity_type);
+    $rows = array_merge($rows, $entity_manager->getRows($entity_type, $iDisplayStart, $iDisplayLength, $bundles, $sSearch));
+    $count += $entity_manager->count($entity_type, $bundles, $sSearch);
+  }
+
+  $output = array(
+    "sEcho" => intval($_GET['sEcho']),
+    "iTotalRecords" => $count,
+    "iTotalDisplayRecords" => $count,
+    "aaData" => $rows
+  );
+
+  echo json_encode($output);
+}
+
+/**
+ * Returns an entity label more detailed than the default one.
+ *
+ * TODO: create an admin interface to choose which field use to build the label for each enabled entity type
+ *
+ * @param $entity_type
+ * @param $entity
+ */
+function _relation_wizard_ui_get_entity_label($entity_type, $entity) {
+  return entity_label($entity_type, $entity);
+}

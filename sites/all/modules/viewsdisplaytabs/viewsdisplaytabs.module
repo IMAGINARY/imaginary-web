@@ -1,0 +1,501 @@
+<?php
+
+/**
+ * Copyright (C) 2010 imBridge NodeOne AB
+ *
+ * @file
+ * Views Display Tabs - A module that exposes a view's displays as tabs.
+ *
+ * Authors:
+ *   Jakob Persson (http://drupal.org/user/37564)
+ *   Joakim Stai (http://drupal.org/user/88701)
+ *
+ * Sponsors:
+ *   SF Bio (www.sf.se)
+ *   NodeOne (www.nodeone.se)
+ *
+ * @TODO: Query string overwrites existing query strings instead of
+ *        being appended:
+ *        DEFAULT: http://drupal.example.com/content/view?mode=show&action=get
+ *        FAULTY:  http://drupal.example.com/content/view?vdt=myview|page_2
+ *        CORRECT: http://drupal.example.com/content/view?mode=show&action=get&vdt=myview|page_2
+ */
+
+
+/*******************************************************************************
+ * HOOKS
+ */
+
+/**
+ * Implementation of hook_menu()
+ */
+function viewsdisplaytabs_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/viewsdisplaytabs'] = array(
+    'title' => 'Views Display Tabs',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_viewsdisplaytabs_admin'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function viewsdisplaytabs_theme($existing, $type, $theme, $path) {
+  return array(
+    '_viewsdisplaytabs_admin' => array(
+      'render element' => 'form',
+    ),
+    'viewsdisplaytabs_tab' => array(
+      'variables' => array('title' => null, 'url' => null, 'display_name' => null),
+    ),
+    'viewsdisplaytabs_tab_groups' => array(
+      'variables' => array('display' => null, 'group' => null, 'class' => null),
+    ),
+  );
+}
+
+/**
+ * Preprocess the primary theme implementation for a view.
+ *
+ * Add the display tabs to the view's header
+ */
+function viewsdisplaytabs_preprocess_views_view(&$vars) {
+  global $base_path;
+
+  // no need for tabs here
+  if (arg(0) == 'admin') {
+    return;
+  }
+
+  $view = $vars['view'];
+  $empty = !(bool) count($view->result);
+  $settings = variable_get('viewsdisplaytabs_settings', array());
+  $show = isset($settings['view_show_empty'][$view->name]) && ( $empty ? $empty && $settings['view_show_empty'][$view->name] == 1 : true );
+
+  if (isset($settings['view_enabled'][$view->name]) && $settings['view_enabled'][$view->name] == 1 && $show) {
+    $selected_displays = $settings['view_displays'][$view->name];
+
+    $use_ajax = FALSE;
+
+    // Collect displays and build grouping array
+    // If no displays are selected, include all displays
+    foreach ($view->display as $display_name => $display_data) {
+      if (!$selected_displays || !count($selected_displays) || in_array($display_name, $selected_displays)) {
+
+        // Allow grouping of tabs with grouping separator in titles/names: group[sep]title
+        // If the separator is at position 0 or does not exist it all, do not group
+        $sep = $settings['view_group_separator'][$view->name];
+        if ($sep && strpos($display_data->display_title, $sep)) {
+          list($group, $title) = explode($sep, $display_data->display_title);
+        }
+        else {
+          $title = $display_data->display_title;
+          $group = 0;
+        }
+
+        // Set current tab as active based on URL query params
+        $current_view_display = _viewsdisplaytabs_get_current_views_display_from_url();
+        if ($current_view_display && $view->name == $current_view_display->view_name) {
+          $active = ( $display_name == $current_view_display->display_name );
+        }
+        else {
+          $active = ( $display_name == $settings['view_displays_default'][$view->name] );
+        }
+
+        // Build a grouping array for later
+        $displays[$group][] = theme('viewsdisplaytabs_tab', array(
+          'title' => $title,
+          'url' => $_GET['q'],
+          'view_name' => $view->name,
+          'display_name' => $display_name,
+          'active' => $active
+        ));
+
+        // Use AJAX
+        $use_ajax = $use_ajax ? $use_ajax : $display_data->handler->view->use_ajax;
+      }
+    }
+
+    // Build header, exclude displays that are attachments (or we'll end up
+    // with two sets of tabs)
+    if ($view->display_handler->definition['handler'] != 'views_plugin_display_attachment') {
+      // Assign header
+      $vars['header'] = theme('viewsdisplaytabs_tab_groups', array('displays' => $displays, 'class' => 'viewsdisplaytabs-tab-group'));
+    }
+
+    // If one of the displays of this view uses AJAX, add JS
+    if ($use_ajax) {
+      $js = array();
+      $js['setting']['viewsdisplaytabs']['views'][$view->name] = $view->name;
+      $js['setting']['viewsdisplaytabs']['default_display'][$view->name] = $settings['view_displays_default'][$view->name];
+      $js['setting']['viewsdisplaytabs']['view_throbber'][$view->name] = $settings['view_throbber'][$view->name];
+      drupal_add_js($js['setting'], 'setting');
+      drupal_add_js(drupal_get_path('module', 'viewsdisplaytabs') .'/viewsdisplaytabs.js');
+      drupal_add_js('misc/jquery.form.js');
+    }
+  }
+}
+
+/**
+ * Implementation of hook_views_pre_view()
+ *
+ * This allows us to set the display prior to executing and rendering our view.
+ *
+ * @param <type> $view
+ * @param <type> $display_id
+ * @param <type> $args
+ */
+function viewsdisplaytabs_views_pre_view(&$view, &$display_id, &$args) {
+  // do not touch views loaded by ajax
+  if (request_path() == 'views/ajax') {
+    return;
+  }
+
+  $vdt = _viewsdisplaytabs_get_current_views_display_from_url();
+  if ($vdt && $view->name == $vdt->view_name) {
+    $view->set_display($vdt->display_name);
+  }
+}
+
+
+/*******************************************************************************
+ * THEME FUNCTIONS
+ */
+
+/**
+ * Theme the admin settings screen
+ *
+ * @param $form
+ *     A form array
+ *
+ * @return
+ *     A rendered form
+ */
+function theme__viewsdisplaytabs_admin($variables) {
+  // Overview table:
+  $header = array(t('Enabled'), t('Name'), t('Displays'), t('Default Active'), t('Show when empty'), t('Separator'), t('Throbber'), t('Edit'));
+
+  $form = $variables['form'];
+  $view_list = isset($form['views']['view_list']) ? $form['views']['view_list'] : array();
+  $rows = array();
+
+  if (isset($view_list['view_name']) && is_array($view_list['view_name'])) {
+    foreach (element_children($view_list['view_name']) as $key) {
+      $cells = array(
+        drupal_render($view_list['view_enabled'][$key]),
+        drupal_render($view_list['view_name'][$key]),
+        drupal_render($view_list['view_displays'][$key]),
+        drupal_render($view_list['view_displays_default'][$key]),
+        drupal_render($view_list['view_show_empty'][$key]),
+        drupal_render($view_list['view_group_separator'][$key]),
+        drupal_render($view_list['view_throbber'][$key]),
+        drupal_render($view_list['edit_view'][$key]),
+      );
+      $rows[] = $cells;
+    }
+  }
+  else {
+    $rows[] = array(array('data' => t('No supported views available.'), 'colspan' => count($header)));
+  }
+
+  $form['views']['view_list'] = array(
+    '#markup' => theme('table', array(
+      'header' => $header,
+      'rows' => $rows,
+      'attributes' => array('class' => array('viewsdisplaytabs-admin'))
+    ))
+  );
+
+  return drupal_render_children($form);
+}
+
+
+/**
+ * Theme a tab
+ *
+ * @param string $title
+ * @param string $url
+ * @param string $view_name
+ * @param string $display_name
+ * @param bool $active
+ *
+ * @return string A themed tab.
+ */
+function theme_viewsdisplaytabs_tab($vars) {
+  extract($vars);
+  $classes = array('viewsdisplaytabs-tab');
+  if ($active) $classes[] = 'viewsdisplaytabs-active';
+  return l(t($title), $url, array('attributes' => array('class' => $classes, 'rel' => $display_name), 'query' => array('vdt' => "$view_name|$display_name")));
+}
+
+/**
+ * Theme the groups of tabs
+ * @param <type> $display_items
+ * @param <type> $group
+ * @param <type> $class
+ * @return <type>
+ */
+function theme_viewsdisplaytabs_tab_groups($vars) {
+  $displays = $vars['displays'];
+  $class = array($vars['class']);
+  drupal_add_css(drupal_get_path('module', 'viewsdisplaytabs') .'/viewsdisplaytabs.css');
+
+  $out = '<div class="viewsdisplaytabs-wrapper">';
+  foreach ($displays as $group => $display_items) {
+    $out .= '<div class="viewsdisplaytabs-group-wrapper">';
+    $group = ( $group === 0 ? null : $group );
+    $out .= theme('item_list', array(
+      'items' => $display_items,
+      'title' => $group,
+      'type' => 'ul',
+      'attributes' => array('class' => $class)
+    ));
+    $out .= '</div>';
+  }
+  $out .= '</div>';
+  $out .= '<div class="viewsdisplaytabs-wrapper-closure"></div>';
+  return $out;
+}
+
+
+/*******************************************************************************
+ * MENU CALLBACKS
+ */
+
+/**
+ * Administration settings page callback
+ */
+function _viewsdisplaytabs_admin() {
+  // Get settings
+  $settings = variable_get('viewsdisplaytabs_settings', array());
+
+  $form = array();
+  $form['head'] = array(
+    '#markup' => t("<h4>Views Display Tabs exposes a view's displays as simple tabs which you can style as you like if you so choose.</h4>"),
+  );
+  $form['help'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Instructions'),
+    '#collapsible' => true,
+    '#collapsed' => true,
+  );
+  $form['help']['instructions'] = array(
+    '#markup' => t("<p>It works with views that have (apart from the default display) <strong>at least two displays that render as HTML</strong> (page and block for example). These will become the tabs the user can click.</p>
+
+<dl>
+	<dt>Enabled</dt>
+	<dd><p>Check to enable display tabs for this view.</p></dd>
+
+	<dt>Displays</dt>
+	<dd><p>Check the displays you want to expose as tabs. If no displays are checked all displays become tabs.</p></dd>
+
+	<dt>Default Active</dt>
+	<dd><p>The 'default active' select field allows you to set a tab to be active by default. Doing this won't make the display associated with that tab load by default it will only <em>make it seem as if that display were loaded by default</em>.</p>
+	<p>This is useful as it will give the site's users the impression that one tab is already active. They will also conclude that what they see is a result of the filtering done with that tab and that they can return to that filtering again simply by clicking that tab.</p>
+
+	<p>Note: For this to be of any use, the first display that Views loads <em>must have the same configuration as the one you set as default active</em>.</p>
+
+	<p>The first display Views will load is the display used to render the view onto your page. If you have placed you view in a block, the display of that block will load first. If your view is a page on your site with its own site path, then the display with that path will load first.</p>
+
+	<p>Make sure that the first display to load, page, block or else (there are several modules that add additional display plugins to Views) is identical to another display. Then set that other display as 'default active'.</p></dd>
+
+	<dt>Show when empty</dt>
+	<dd><p>Check this box to make display tabs show even if the view is empty, i.e. has no results to display.</p></dd>
+
+	<dt>Separators</dt>
+	<dd><p>You can group tabs by setting a separator character for a view and then using the following naming convention for your tabs. Each group will then become its own list of links. Assuming ':' (colon) is used as separator:
+	<code>[title of group]:[title of tab]</code></p>
+	<p>For example:</p>
+	<code>
+	Articles:Most viewed<br/>
+	Articles:Most commented<br/>
+	Articles:Newest<br/>
+	Blog posts:Most viewed<br/>
+	Blog posts:Most commented<br/>
+	Blog posts:Newest
+	</code></dd>
+
+        <p>Reproduced here in classic ASCII it will show as (assuming Articles:Most viewed is set as Default Active):</p>
+
+        <pre>
+  Articles                                        Blog posts
+  +-------------+ +----------------+ +--------+   +-------------+ +----------------+ +--------+
+  | Most viewed | | Most commented | | Newest |   | Most viewed | | Most commented | | Newest |
+--+             +-+----------------+–+--------+---+-------------+–+----------------+-+--------+--
+        </pre>
+
+	<dt>Throbber</dt>
+	<dd><p>Check to display a throbber while the view is loading the display. The throbber is a small animation shown next to the title of the tab to indicate to the user that the browser is loading the view.</p></dd>
+
+	<dt>Edit</dt>
+	<dd><p>A link to edit the view.<p></dd>
+</dl>"),
+);
+
+$form['views'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Views'),
+    '#collapsible' => false,
+    '#collapsed' => false,
+  );
+
+  $views = views_get_enabled_views();
+
+  foreach ($views as $vid => $view) {
+
+    $view_data = _viewsdisplaytabs_view_data($view);
+
+    $view_enabled = array(
+      '#type' => 'checkbox',
+      '#default_value' => isset($settings['view_enabled'][$vid]) ? $settings['view_enabled'][$vid] : '',
+    );
+
+    $collapsed = !(isset($settings['view_displays'][$vid]) && count($settings['view_displays'][$vid]));
+    $view_displays_fieldset = array(
+      '#type' => 'fieldset',
+      '#title' => t('Displays'),
+      '#collapsed' => $collapsed,
+      '#collapsible' => true
+    );
+
+    $view_displays_fieldset["view_displays_$vid"] = array(
+      '#type' => 'checkboxes',
+      '#default_value' => ( isset($settings['view_displays'][$vid]) ? $settings['view_displays'][$vid] : array() ),
+      '#options' => ( is_array($view_data->displays) ? $view_data->displays : array() ),
+    );
+
+    $view_displays_default = array(
+      '#type' => 'select',
+      '#default_value' => ( isset($settings['view_displays_default'][$vid]) ? $settings['view_displays_default'][$vid] : array() ),
+      '#options' => ( is_array($view_data->displays) ? array('' => '<None>') + $view_data->displays : array() ),
+    );
+
+    $view_show_empty = array(
+      '#type' => 'checkbox',
+      '#default_value' => ( isset($settings['view_show_empty'][$vid]) ? $settings['view_show_empty'][$vid] : 0 ),
+    );
+
+
+    $view_group_separator = array(
+      '#type' => 'textfield',
+      '#size' => 1,
+      '#maxlength' => 4,
+      '#default_value' => isset($settings['view_group_separator'][$vid]) ? $settings['view_group_separator'][$vid] : '',
+    );
+
+    $view_throbber = array(
+      '#type' => 'checkbox',
+      '#default_value' => ( isset($settings['view_throbber'][$vid]) ? $settings['view_throbber'][$vid] : 1 ),
+    );
+
+    $form['views']['view_list']['view_enabled'][$vid]["view_enabled_$vid"] = $view_enabled;
+    $form['views']['view_list']['view_name'][$vid]["view_name_$vid"] = array('#markup' => $view->human_name);
+    $form['views']['view_list']['view_displays'][$vid]["view_displays_fieldset_$vid"] = $view_displays_fieldset;
+    $form['views']['view_list']['view_displays_default'][$vid]["view_displays_default_$vid"] = $view_displays_default;
+    $form['views']['view_list']['view_show_empty'][$vid]["view_show_empty_$vid"] = $view_show_empty;
+    $form['views']['view_list']['view_group_separator'][$vid]["view_group_separator_$vid"] = $view_group_separator;
+    $form['views']['view_list']['edit_view'][$vid]["edit_view_$vid"] = array('#markup' => l(t('edit'), "admin/structure/views/view/$vid/edit", array('query' => array('destination' => $_GET['q']))));
+    $form['views']['view_list']['view_throbber'][$vid]["view_throbber_$vid"] = $view_throbber;
+
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save settings')
+  );
+
+  $form['#attached'] = array(
+    'css' => array(
+      'type' => 'file',
+      'data' => drupal_add_css(drupal_get_path('module', 'viewsdisplaytabs') .'/viewsdisplaytabs.css'),
+    ),
+  );
+
+  return $form;
+
+}
+
+/*******************************************************************************
+ * HELPER FUNCTIONS
+ */
+
+/**
+ * Return data for a view, such as displays
+ *
+ * @param An object with property: 'display'
+ */
+function _viewsdisplaytabs_view_data($view) {
+  $view_data = new stdClass();
+  foreach ($view->display as $display_name => $display) {
+    $view_data->displays[$display_name] = $display->display_title;
+  }
+  return $view_data;
+}
+
+/**
+ * Submit handler for settings form
+ *
+ * @param <type> $form
+ * @param <type> $form_state
+ */
+function _viewsdisplaytabs_admin_submit($form, $form_state) {
+  foreach ($form_state['values'] as $field => $value) {
+    if (preg_match('/view_enabled_(.*)/i', $field, $result)) {
+      $view_enabled[$result[1]] = $value;
+    }
+    if (preg_match('/view_displays_default_(.*)/i', $field, $result)) {
+      $view_displays_default[$result[1]] = $value;
+    }
+    elseif (preg_match('/view_show_empty_(.*)/i', $field, $result)) {
+      $view_show_empty[$result[1]] = $value;
+    }
+    elseif (preg_match('/view_displays_(.*)/i', $field, $result)) {
+      // We only save displays that have been checked, value is 1
+      foreach ($value as $display_name => $display_selected) {
+        if ($display_selected) {
+         $view_displays[$result[1]][$display_name] = $display_selected;
+        }
+      }
+    }
+    elseif (preg_match('/view_group_separator_(.*)/i', $field, $result)) {
+      $view_group_separator[$result[1]] = $value;
+    }
+    elseif (preg_match('/view_throbber_(.*)/i', $field, $result)) {
+      $view_throbber[$result[1]] = $value;
+    }
+  }
+  variable_set('viewsdisplaytabs_settings', array(
+    'view_enabled' => $view_enabled,
+    'view_displays' => $view_displays,
+    'view_displays_default' => $view_displays_default,
+    'view_show_empty' => $view_show_empty,
+    'view_group_separator' => $view_group_separator,
+    'view_throbber' => $view_throbber
+    )
+  );
+}
+
+/**
+ * Get current display and view from URL
+ *
+ * @return Object An object with keys view_name and display_name
+ */
+function _viewsdisplaytabs_get_current_views_display_from_url() {
+  $vdt = isset($_GET['vdt']) ? $_GET['vdt'] : FALSE;
+  if ($vdt) {
+    $vdt = urldecode($vdt);
+    $elements = explode('|', $vdt);
+    $return = new stdClass();
+    $return->view_name = $elements[0];
+    $return->display_name = $elements[1];
+    return $return;
+  }
+  return false;
+}

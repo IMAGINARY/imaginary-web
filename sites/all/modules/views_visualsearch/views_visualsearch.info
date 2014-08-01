@@ -1,0 +1,16 @@
+name = "Views Visual Search"
+description = "Turns the exposed filter forms into an autocomplete visual search box"
+package = Views
+core = 7.x
+
+dependencies[] = views
+dependencies[] = libraries
+
+files[] = views_visualsearch.views.inc
+files[] = views_visualsearch_exposed_form_plugin.inc
+; Information added by drupal.org packaging script on 2011-09-15
+version = "7.x-1.0"
+core = "7.x"
+project = "views_visualsearch"
+datestamp = "1316118407"
+

@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function question_answer_install() {
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function question_answer_uninstall() {
+  // Delete our variables.
+  variable_del('question_answer_nodetype');
+  variable_del('question_answer_fieldtype');
+  variable_del('question_answer_duration');
+  variable_del('question_answer_maxlength');
+  variable_del('question_answer_toplevel_comments');
+}
+

@@ -1,0 +1,2167 @@
+<?php
+
+/**
+ * @file
+ * Featured Content module for created related & featured content blocks.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function featured_content_menu() {
+  $items['admin/structure/block/add-featured-content-block'] = array(
+    'title' => 'Add Featured Content block',
+    'description' => 'Add a new Featured Content block.',
+    'access arguments' => array('administer blocks'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('featured_content_add_block_form'),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'featured_content.admin.inc',
+  );
+  $items['admin/structure/block/delete-featured-content-block'] = array(
+    'title' => 'Delete Featured Content block',
+    'access arguments' => array('administer blocks'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('featured_content_delete_block'),
+    'type' => MENU_CALLBACK,
+    'file' => 'featured_content.admin.inc',
+  );
+  $items['admin/config/featured-content/settings'] = array(
+    'title' => 'Featured Content',
+    'description' => 'Featured Content Block administration settings',
+    'access arguments' => array('administer site configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('featured_content_settings_form'),
+    'file' => 'featured_content.admin.inc',
+  );
+  $items['featured-content/feed'] = array(
+    'title' => 'Featured Content RSS Feed',
+    'description' => 'Featured Content Block RSS Feed',
+    'access arguments' => array('access content'),
+    'page callback' => 'featured_content_feed',
+    'type' => MENU_CALLBACK,
+    'file' => 'featured_content.pages.inc',
+  );
+  $items['featured-content/more'] = array(
+    'title' => 'Featured Content Read More',
+    'description' => 'Featured Content Block Read More Page',
+    'access arguments' => array('access content'),
+    'page callback' => 'featured_content_more_page',
+    'type' => MENU_CALLBACK,
+    'file' => 'featured_content.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function featured_content_help($path, $arg) {
+  switch ($path) {
+    case 'admin/structure/block/manage/%/%':
+      if (isset($arg[4]) && $arg[4] != 'featured_content') {
+        break;
+      }
+    case 'admin/help#featured_content':
+    case 'admin/structure/block':
+    case 'admin/structure/block/add-featured-content-block':
+      module_load_include('inc', 'featured_content', 'featured_content.pages');
+      return featured_content_help_text($path, $arg);
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function featured_content_theme() {
+  return array(
+    'featured_content_block' => array(
+      'template' => 'featured_content-block',
+      'variables' => array('block_settings' => NULL),
+    ),
+    'featured_content_more' => array(
+      'template' => 'featured_content-more',
+      'variables' => array('block_settings' => NULL),
+    ),
+    'featured_content_empty' => array(
+      'template' => 'featured_content-empty',
+      'variables' => array('block_settings' => NULL),
+    ),
+  );
+}
+
+/**
+ * Process variables for featured_content-block.tpl.php.
+ *
+ * @see featured_content-block.tpl.php
+ */
+function template_preprocess_featured_content_block(&$variables) {
+  $variables['block_classes_array'][] = 'featured-content-block-' . $variables['block_settings']['delta'];
+  $variables['block_classes_array'][] = 'featured-content-block-' . $variables['block_settings']['type'];
+  $variables['block_classes'] = check_plain(implode(' ', $variables['block_classes_array']));
+  $variables['template_files'][] = 'featured_content-block-' . $variables['id'];
+  $variables['template_files'][] = 'featured_content-block-' . $variables['block_settings']['type'];
+}
+
+/**
+ * Process variables for featured_content-more.tpl.php.
+ *
+ * @see featured_content-more.tpl.php
+ */
+function template_preprocess_featured_content_more(&$variables) {
+  $variables['more_classes_array'][] = 'featured-content-more-' . $variables['block_settings']['delta'];
+  $variables['more_classes_array'][] = 'featured-content-more-' . $variables['block_settings']['type'];
+  $variables['more_classes'] = check_plain(implode(' ', $variables['more_classes_array']));
+  $variables['template_files'][] = 'featured_content-more-' . $variables['id'];
+  $variables['template_files'][] = 'featured_content-more-' . $variables['block_settings']['type'];
+}
+
+/**
+ * Process variables for featured_content-empty.tpl.php.
+ *
+ * @see featured_content-empty.tpl.php
+ */
+function template_preprocess_featured_content_empty(&$variables) {
+  $variables['block_classes_array'][] = 'featured-content-block-' . $variables['block_settings']['delta'];
+  $variables['block_classes_array'][] = 'featured-content-block-' . $variables['block_settings']['type'];
+  $variables['block_classes'] = check_plain(implode(' ', $variables['block_classes_array']));
+  $variables['template_files'][] = 'featured_content-empty-' . $variables['id'];
+  $variables['template_files'][] = 'featured_content-empty-' . $variables['block_settings']['type'];
+}
+
+/**
+ * Alters the block admin form to add delete links next to featured_content blocks.
+ */
+function featured_content_form_block_admin_display_form_alter(&$form, $form_state) {
+  foreach (variable_get('featured_content_block_ids', array()) as $delta) {
+    $form['blocks']['featured_content_' . $delta]['delete'] = array(
+      '#type' => 'link',
+      '#title' => t('delete'),
+      '#href' => 'admin/structure/block/delete-featured-content-block/' . $delta,
+    );
+  }
+}
+
+/**
+ * Implements hook_block().
+function featured_content_block_OLD($op = 'list', $delta = NULL, $edit = NULL) {
+  // TODO Remaining code in this function needs to be moved to the appropriate new hook function.
+  $function = 'featured_content_' . $op;
+  if (function_exists($function)) {
+    return $function($delta, $edit);
+  }
+  else {
+    // less used operation functions are stored in include
+    module_load_include('inc', 'featured_content', 'featured_content.admin');
+    if (function_exists($function)) {
+      return $function($delta, $edit);
+    }
+  }
+}
+ */
+
+/**
+ * Implements hook_block_view().
+ *
+ * @param $delta string The name of the block to render.
+ * @param $type string If set, should be 'rss' or 'more'.
+ */
+function featured_content_block_view($delta, $type = NULL) {
+
+  $featured_content = featured_content_get_block_data($delta);
+  $vocabularies = taxonomy_get_vocabularies();
+
+  // check visibility settings to see if block should be shown
+  $show = TRUE;
+
+  // if there are some visibility settings, default to FALSE
+  if (! empty($featured_content['visibility']['content_types']['selected']) ||
+    ! empty($featured_content['visibility']['users']['selected'])) {
+    $show = FALSE;
+  }
+  else {
+    foreach ($vocabularies as $vocabulary) {
+      $vid = $vocabulary->vid;
+      if (! empty($featured_content['visibility']['vocab'][$vid]['selected'])) {
+        $show = FALSE;
+        break;
+      }
+    }
+  }
+
+  $this_node = NULL;
+  if ($type == NULL && arg(0) == 'node' && is_numeric(arg(1)) && ! arg(2)) {
+    $show = TRUE;
+    // only check on node pages for now
+    $this_node = node_load(arg(1));
+    if (isset($this_node->nid)) {
+      if (! empty($featured_content['visibility']['content_types']['selected']) &&
+        ! in_array($this_node->type, $featured_content['visibility']['content_types']['selected'])) {
+        $show = FALSE;
+      }
+      if (! empty($featured_content['visibility']['users']['selected']) &&
+        ! in_array($this_node->uid, $featured_content['visibility']['users']['selected'])) {
+        $show = FALSE;
+      }
+      foreach ($vocabularies as $vocabulary) {
+        $vid = $vocabulary->vid;
+        if (! empty($featured_content['visibility']['vocab'][$vid]['selected'])) {
+          $tid_intersect = array_intersect($featured_content['visibility']['vocab'][$vid]['selected'], array_keys($this_node->taxonomy));
+          if (empty($this_node->taxonomy) || empty($tid_intersect)) {
+            $show = FALSE;
+          }
+        }
+      }
+    }
+  }
+  if (! $show ||
+    (! $type && arg(0) == 'featured-content' && arg(1) == 'more' && arg(2) == $delta)) {
+    // don't show featured block on more page for that block
+    return;
+  }
+
+  // get nodes to show
+  switch ($featured_content['type']) {
+    case 'manual':
+      $nids = $featured_content['manual']['nids'];
+      break;
+    case 'cck':
+      $nids = featured_content_get_cck_nids($featured_content['cck']);
+      break;
+    case 'filter':
+      $nids = featured_content_get_filtered_nids($featured_content['filter'], $featured_content['num_show']);
+      break;
+    case 'search':
+      $nids = featured_content_get_search_nids($featured_content['search'], $featured_content['num_show']);
+      break;
+  }
+  $nodes = featured_content_get_nodes($nids, $featured_content['sort']);
+
+  // create settings for theming
+
+  // all block settings
+  $settings = $featured_content[$featured_content['type']];
+
+  // keep some general settings
+  $settings['delta'] = $delta;
+  $settings['type'] = $featured_content['type'];
+  $settings['header'] = check_markup($featured_content['header']);
+  $settings['footer'] = check_markup($featured_content['footer']);
+  $settings['empty'] = check_markup($featured_content['empty']);
+  $settings['style'] = $featured_content['style'];
+
+  // add rss link
+  if (! empty($featured_content['rss']['display'])) {
+    $settings['rss-link'] = theme('feed_icon', array('url' => url('featured-content/feed/' . $delta, array('absolute' => TRUE)), 'title' => 'RSS Feed'));
+  }
+
+  // sort nodes
+  if (empty($nodes)) {
+    if (trim($featured_content['empty'])) {
+      $data = array();
+      $data['content'] = theme('featured_content_empty', array('block_settings' => $settings));
+      return $data;
+    }
+  }
+  else {
+    switch ($featured_content['sort']) {
+      case 'random':
+        if (is_array($nodes)) {
+          shuffle($nodes);
+        }
+        break;
+      case 'popular_asc':
+        $nodes = featured_content_sort_nodes($nodes, 'totalcount', TRUE, 'asc');
+        break;
+      case 'popular_desc':
+        $nodes = featured_content_sort_nodes($nodes, 'totalcount');
+        break;
+      case 'date_asc':
+        $nodes = featured_content_sort_nodes($nodes, 'created', TRUE, 'asc');
+        break;
+      case 'date_desc':
+        $nodes = featured_content_sort_nodes($nodes, 'created');
+        break;
+      case 'alpha_asc':
+        $nodes = featured_content_sort_nodes($nodes, 'title', FALSE, 'asc');
+        break;
+      case 'alpha_desc':
+        $nodes = featured_content_sort_nodes($nodes, 'title', FALSE);
+        break;
+      case 'terms_asc':
+        $nodes = featured_content_sort_nodes_by_terms($nodes, 'asc');
+        break;
+      case 'terms_desc':
+        $nodes = featured_content_sort_nodes_by_terms($nodes);
+        break;
+      case 'vocab_asc':
+        $nodes = featured_content_sort_nodes_by_vocab($nodes, 'asc');
+        break;
+      case 'vocab_desc':
+        $nodes = featured_content_sort_nodes_by_vocab($nodes);
+        break;
+      case 'none':
+        if (! empty($nids)) {
+          foreach ($nids as $nid) {
+            $tmp[] = $nodes[$nid];
+          }
+          $nodes = $tmp;
+        }
+        break;
+    }
+  }
+
+  if (! empty($nodes)) {
+    // limit to num_show and create links
+    $show_num = $featured_content['num_show'];
+    if ($type == 'more' && ! in_array($featured_content['more']['display'], array('none', 'custom'))) {
+      $show_num = $featured_content['more']['num'];
+    }
+    $nodes = array_splice($nodes, 0, $show_num);
+
+    $links = array();
+    $teasers = array();
+    $full_nodes = array();
+    $rss_nids = array();
+    foreach ($nodes as $node) {
+      if (! empty($node->title) && is_numeric($node->nid)) {
+        $links[] = l($node->title, 'node/' . $node->nid);
+        if ($type == 'rss') {
+          $rss_nids[] = $node->nid;
+        }
+        elseif ($featured_content['display'] == 'teasers' || ($type == 'more' && $featured_content['more']['display'] == 'teasers')) {
+          $node_view = node_view(node_load($node->nid), 'teaser');
+          $teasers[] = drupal_render($node_view);
+        }
+        elseif ($featured_content['display'] == 'full_nodes' || ($type == 'more' && $featured_content['more']['display'] == 'full_nodes')) {
+          $node_view = node_view(node_load($node->nid), 'full');
+          $full_nodes[] = drupal_render($node_view);
+        }
+      }
+    }
+
+    if ($type == 'rss') {
+      featured_content_set_page_title($delta, $featured_content['rss']['title']);
+      return $rss_nids;
+    }
+
+    // add content and more settings
+
+    // content to show
+    $settings['links'] = $links;
+    $settings['teasers'] = $teasers;
+    $settings['full_nodes'] = $full_nodes;
+
+    // keep track of nid in URL in for context purposes
+    $query_string = array();
+    if (! empty($this_node) && $this_node->nid) {
+      $query_string = array('query' => array('nid' => $this_node->nid));
+    }
+    else {
+      $query_string = array('query' => array('path' => $_GET['q']));
+    }
+
+    if ($type == 'more') {
+      // return more page
+      $settings['style'] = $featured_content['more']['style'];
+      $settings['title'] = $featured_content['more']['title'];
+      $settings['header'] = $featured_content['more']['header'];
+      $settings['footer'] = $featured_content['more']['footer'];
+      featured_content_set_page_title($delta, $featured_content['more']['title']);
+      return theme('featured_content_more', array('block_settings' => $settings));
+    }
+    elseif ($featured_content['more']['display'] != 'none' && trim($featured_content['more']['text'])) {
+      // add more link
+      if ($featured_content['more']['display'] == 'custom' && trim($featured_content['more']['url'])) {
+        $settings['more-link'] = l($featured_content['more']['text'], $featured_content['more']['url']);
+      }
+      else {
+        $settings['more-link'] = l($featured_content['more']['text'], 'featured-content/more/' . $delta, $query_string);
+      }
+    }
+
+    // return block content
+    $data = array();
+    $data['content'] = theme('featured_content_block', array('block_settings' => $settings));
+    return $data;
+  }
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function featured_content_block_configure($delta) {
+
+  drupal_add_js(drupal_get_path('module', 'featured_content') . '/featured_content.js');
+  drupal_add_css(drupal_get_path('module', 'featured_content') . '/featured_content.css');
+
+  $featured_content = featured_content_get_block_data($delta);
+  $vocabularies = taxonomy_get_vocabularies();
+
+  $form['wrapper-start'] = array('#value' => '<div id="featured-content-block-settings">');
+
+  $form['featured-block'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Featured Content Block Settings'),
+    '#attributes' => array('class' => array('featured-content-block')),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['featured-block']['featured_content_block_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#maxlength' => 30,
+    '#size' => 30,
+    '#description' => t('Provide a descriptive name for internal use. This will
+    show up on the !admin_block_page page.', array('!admin_block_page' =>
+    l(t('admin/structure/block'), 'admin/structure/block'))),
+      '#default_value' => $featured_content['name'],
+      '#prefix' => '<div>' . t('Featured Content Blocks are blocks that show lists of content
+      on your site. You can either manually choose what will be shown, or
+      you can specify content fields or filters to use to determine what will be
+      shown along side pages when they are being viewed.') . '</div>',
+    );
+  $form['featured-block']['featured_content_block_header'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Header Text'),
+    '#description' => t('Will show up between block title and content.'),
+    '#rows' => 1,
+    '#default_value' => $featured_content['header'],
+  );
+  $form['featured-block']['featured_content_block_footer'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Footer Text'),
+    '#description' => t('Will show up after content.'),
+    '#rows' => 1,
+    '#default_value' => $featured_content['footer'],
+  );
+  $form['featured-block']['featured_content_block_empty'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Empty Text'),
+    '#description' => t('This will show up all by itself if there is no content that
+    can be found.'),
+    '#rows' => 1,
+    '#default_value' => $featured_content['empty'],
+  );
+  $form['featured-block']['featured_content_block_num_show'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number to Show'),
+    '#description' => t('The number of content items to show. The maximum allowed
+    is @max_num_show. If you enter an invalid number, @max_num_show will be
+    used. To configure the maximum, go to the !admin_settings_page.',
+    array('@max_num_show' => variable_get('featured_content_max_node_show', 20),
+    '!admin_settings_page' => l(t('Featured Content settings page'), 'admin/config/featured-content/settings'))),
+    '#maxlength' => 3,
+    '#size' => 2,
+    '#default_value' => featured_content_get_value($featured_content['num_show'], variable_get('featured_content_max_node_show', 20)),
+  );
+  $sort_options = array(
+    'alpha_asc' => t('Alphabetical - A to Z'),
+    'alpha_desc' => t('Alphabetical - Z to A'),
+    'date_desc' => t('Date Created - Newest First'),
+    'date_asc' => t('Date Created - Oldest First'),
+    'popular_desc' => t('Popularity (Number of Views) - Highest First'),
+    'popular_asc' => t('Popularity (Number of Views) - Lowest First'),
+    'random' => t('Randomly Chosen from All Available'),
+    'terms_desc' => t('Closest Match to Current Page by Terms'),
+    'terms_asc' => t('Furthest Match to Current Page by Terms'),
+    'vocab_asc' => t('Vocabulary - Order on Taxonomy Page'),
+    'vocab_desc' => t('Vocabulary - Reverse Order on Taxonomy Page'),
+    'none' => t('None - Use Order Provided if Available'),
+  );
+  $form['featured-block']['featured_content_block_sort'] = array(
+    '#type' => 'select',
+    '#title' => t('Sort By'),
+    '#options' => $sort_options,
+    '#default_value' => featured_content_get_value($featured_content['sort'], 'alpha_asc'),
+  );
+  $display_options = array(
+    'links' => t('Linked Titles'),
+    'teasers' => t('Teasers/Summaries'),
+    'full_nodes' => t('Full Node Content'),
+  );
+  $form['featured-block']['featured_content_block_display'] = array(
+    '#title' => t('What to Display in the Block'),
+    '#type' => 'select',
+    '#options' => $display_options,
+    '#default_value' => featured_content_get_value($featured_content['display'], 'links'),
+    '#description' => t('You can choose to show only a list of the titles
+    each linked to their own page, to show the teaser for each content item
+    which will usually include the title (linked) and the teaser summary,
+      or the full node content for each content item.'),
+  );
+  $style_options = array(
+    'div' => t('None'),
+    'ol' => t('Ordered List'),
+    'ul' => t('Unordered List'),
+  );
+  $form['featured-block']['featured_content_block_style'] = array(
+    '#title' => t('Display Style'),
+    '#type' => 'select',
+    '#options' => $style_options,
+    '#default_value' => featured_content_get_value($featured_content['style'], 'ul'),
+    '#description' => t('If you are showing a list of titles, you can choose
+    to display them in an ordered or unordered list if desired.'),
+  );
+  $more_display_options = array(
+    'none' => t('No Read More Page'),
+    'links' => t('Linked Titles'),
+    'teasers' => t('Teasers/Summaries'),
+    'full_nodes' => t('Full Node Content'),
+    'custom' => t('Link to the Custom Page Specified Below'),
+  );
+  $form['featured-block']['featured_content_block_more_display'] = array(
+    '#title' => t('What to Display on Read More Page'),
+    '#type' => 'select',
+    '#options' => $more_display_options,
+    '#default_value' => featured_content_get_value($featured_content['more']['display'], 'none'),
+    '#description' => t('A "read more" link can be added that goes to a "read
+    more page" that will show linked titles, teasers/summaries, or full nodes based
+    on the chosen option.'),
+  );
+  $form['featured-block']['more'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Read More Page Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['featured-block']['more']['featured_content_block_more_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Read More Text'),
+    '#description' => t('The text to show for the read more link if set.'),
+    '#size' => 20,
+    '#default_value' => featured_content_get_value($featured_content['more']['text'], t('Read more')),
+  );
+  $form['featured-block']['more']['featured_content_block_more_num'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number to Show on Read More Page'),
+    '#maxlength' => 2,
+    '#size' => 2,
+    '#default_value' => featured_content_get_value($featured_content['more']['num'], 20),
+  );
+  $form['featured-block']['more']['featured_content_block_more_style'] = array(
+    '#title' => t('Read More Display Style'),
+    '#type' => 'select',
+    '#options' => $style_options,
+    '#default_value' => featured_content_get_value($featured_content['more']['style'], 'ul'),
+    '#description' => t('If you are showing a list of titles, you can choose
+    to display them in an ordered or unordered list if desired.'),
+  );
+  $form['featured-block']['more']['featured_content_block_more_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Read More Title'),
+    '#description' => t('Title shown on the read more page.'),
+    '#default_value' => featured_content_get_value($featured_content['more']['title'], ''),
+  );
+  $form['featured-block']['more']['featured_content_block_more_header'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Read More Header Text'),
+    '#description' => t('Will show up between more title and more content.'),
+    '#rows' => 1,
+    '#default_value' => featured_content_get_value($featured_content['more']['header'], ''),
+  );
+  $form['featured-block']['more']['featured_content_block_more_footer'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Read More Footer Text'),
+    '#description' => t('Will show up after the more content.'),
+    '#rows' => 1,
+    '#default_value' => featured_content_get_value($featured_content['more']['footer'], ''),
+  );
+  $form['featured-block']['more']['featured_content_block_more_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom Read More Page'),
+    '#description' => t('To link to a custom page, fill in the URL here and
+    choose the custom option in the list above.'),
+    '#default_value' => featured_content_get_value($featured_content['more']['url'], ''),
+  );
+  $form['featured-block']['featured_content_block_rss_display'] = array(
+    '#type' => 'checkbox',
+    '#title' => '<strong>' . t('Include RSS Feed') . '</strong>',
+    '#description' => t('If checked, then there will be a small RSS icon
+    shown at the bottom of the block that links to the RSS feed for the
+    block content.'),
+    '#default_value' => featured_content_get_value($featured_content['rss']['display'], FALSE),
+  );
+  $form['featured-block']['rss'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('RSS Page Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['featured-block']['rss']['featured_content_block_rss_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('RSS Title'),
+    '#description' => t('Title shown on the RSS page.'),
+    '#default_value' => featured_content_get_value($featured_content['rss']['title'], ''),
+  );
+
+  $type_options = array();
+  $type_options['manual'] = t('Manually-Selected Content');
+  if (module_exists('field')) {
+    $type_options['cck'] = t('Content Field Selected Content');
+  }
+  $type_options['filter'] = t('Filtered Content');
+  if (module_exists('search')) {
+    $type_options['search'] = t('Search Results Content');
+  }
+
+  $form['featured-block']['featured_content_block_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Type'),
+    '#options' => $type_options,
+    '#default_value' => featured_content_get_value($featured_content['type'], 'manual'),
+    '#prefix' => '<hr><div><br/>' . t('You can choose from 4 types of content blocks:
+    Manually-Selected Content, Content Field Selected Content, Filtered Content, and Search Results Content.
+    When you choose a type, the type-specific settings form will change to
+    show what you can provide for the type chosen.') . '</div>',
+  );
+
+  // featured content manual settings
+  $form['featured-block']['manual'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Manually-Selected Content Settings'),
+    '#attributes' => array('class' => array('featured-content-block-manual')),
+    '#prefix' => '<div class="featured-content-block-settings">', // put on first setting fieldset
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $default_value = '';
+  if (isset($featured_content['manual']['paths'])) {
+    $default_value = $featured_content['manual']['paths'];
+  }
+  $form['featured-block']['manual']['manual_paths'] = array(
+    '#type' => 'textarea',
+    '#title' => t('URLs to Include'),
+    '#description' => t('List the URLs for each page you want to include in
+    the block, one per line. Do not include the domain. You can use
+    the node/[nid] URL (e.g. node/123) or the path alias (e.g. some/page) 
+    or a path alias pattern (e.g. */something/*).
+    Assumes all URLs are internal and correspond with node pages. If you
+    include more than the configured number to show, then the URLs will be
+    filtered out to only show the correct number. This can be useful for
+    example if you want to use the random sort and end up showing a
+    different combination of content items each page load.'),
+    '#default_value' => $default_value,
+  );
+
+  if (module_exists('field')) {
+    // featured content cck settings
+    $form['featured-block']['cck'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Content Field Selected Content Settings'),
+      '#attributes' => array('class' => array('featured-content-block-cck')),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#description' => t('Choose the content fields below. If the field is a
+      text field, then the field data will be parsed and assumed to have
+      a list of comma-delimited node ids. If the field is a node reference,
+      the referenced node(s) will be used. If the field is a user reference,
+      the referenced user(s) will be used to find content authored by
+      those users.'),
+    );
+    $cck_fields = field_info_fields();
+    if (! empty($cck_fields)) {
+      foreach ($cck_fields as $field_name => $field_data) {
+        if (in_array($field_data['type'], array('text', 'node_reference', 'user_reference'))) {
+          $label = '';
+          if (isset($field_data['widget']['label'])) {
+            $label = $field_data['widget']['label'];
+          }
+          $default_value = '';
+          if (isset($featured_content['cck']['fields'][$field_name])) {
+            $default_value = $featured_content['cck']['fields'][$field_name];
+          }
+          $form['featured-block']['cck']['cck_fields_' . $field_name] = array(
+            '#type' => 'checkbox',
+            '#title' => sprintf('%s - %s (%s)', check_plain($label), check_plain($field_name), $field_data['type']),
+            '#default_value' => $default_value,
+          );
+        }
+      }
+    }
+    else {
+      $form['featured-block']['cck']['cck_fields'] = array(
+        '#type' => 'markup',
+        '#value' => '<div>' . t('There are no content fields defined. Once you add
+        content fields, you can choose them here.') . '</div>',
+      );
+    }
+  }
+
+  // featured content filter settings
+  $form['featured-block']['filter'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Filtered Content Settings'),
+    '#description' => '<div>'.t('Add one or more of the filters below if you want content 
+    in the block to be selected based on these options. For example, if you want 
+    only certain user content shown then you would use the user/author filter.
+    If you want only content with certain content types to be shown then you 
+    would use the content type filter. The most common filters are for 
+    content types, users/authors, and taxonomy terms so those filters are 
+    displayed first. Less common filters are displayed further down the form 
+    and are closed to minimize clutter unless the option is being used.').'</div><br/>',
+    '#attributes' => array('class' => array('featured-content-block-filter')),
+    '#suffix' => '</div>', // put on last setting fieldset
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $default_value = '';
+  if (isset($featured_content['filter']['include_node'])) {
+    $default_value = $featured_content['filter']['include_node'];
+  }
+  $form['featured-block']['filter']['filter_include_node'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include Node Being Viewed'),
+    '#description' => t('If checked, then the node being viewed can be
+    included in the block. It may not always show up depending on the
+    settings. For example, if random display is chosen, then the current
+    node may not always show up in the block.'),
+    '#default_value' => $featured_content['filter']['include_node'],
+  );
+
+  // if locale is turned on, add option to filter by languages
+  if (module_exists('locale')) {
+    $form['featured-block']['filter']['languages'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Language Options'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $languages = featured_content_get_languages();
+    foreach ($languages as $language_code => $language_label) {
+      $default_value = '';
+      if (isset($featured_content['filter']['languages'][$language_code])) {
+        $default_value = $featured_content['filter']['languages'][$language_code];
+      }
+      $form['featured-block']['filter']['languages']['filter_languages_' . $language_code] = array(
+        '#type' => 'checkbox',
+        '#title' => sprintf('%s', $language_label),
+        '#default_value' => $default_value,
+      );
+    }
+  }
+
+  $form['featured-block']['filter']['content_types'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Content Type Filter Options'),
+    '#description' => t('Select the content types to use below. If no content types are selected, all will be used. If the first checkbox is checked, then content with the same content type as the page being viewed will be used.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['featured-block']['filter']['content_types']['prefix'] = array(
+    '#type' => 'markup',
+    '#value' => '<div class="fc-scrollable-checkboxes">',
+  );
+  $content_types = featured_content_get_content_types();
+  foreach ($content_types as $content_type_name => $content_type_label) {
+    $default_value = '';
+    if (isset($featured_content['filter']['content_types']['type'][$content_type_name])) {
+      $default_value = $featured_content['filter']['content_types']['type'][$content_type_name];
+    }
+    $form['featured-block']['filter']['content_types']['filter_content_types_type_' . $content_type_name] = array(
+      '#type' => 'checkbox',
+      '#title' => sprintf('%s', $content_type_label),
+      '#default_value' => $default_value,
+    );
+  }
+  $form['featured-block']['filter']['content_types']['suffix'] = array(
+    '#type' => 'markup',
+    '#value' => '</div>',
+  );
+
+  $form['featured-block']['filter']['users'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User (Author) Filter Options'),
+    '#description' => t('Select the users to use below. If no users are selected, all will be used. If the first checkbox is checked, then the user (author) of the page being viewed will be used.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['featured-block']['filter']['users']['prefix'] = array(
+    '#type' => 'markup',
+    '#value' => '<div class="fc-scrollable-checkboxes">',
+  );
+  $users = featured_content_get_users();
+  foreach ($users as $user_uid => $user_label) {
+    $default_value = '';
+    if (isset($featured_content['filter']['users']['user'][$user_uid])) {
+      $default_value = $featured_content['filter']['users']['user'][$user_uid];
+    }
+    $form['featured-block']['filter']['users']['filter_users_user_' . $user_uid] = array(
+      '#type' => 'checkbox',
+      '#title' => sprintf('%s', $user_label),
+      '#default_value' => $default_value,
+    );
+  }
+  $form['featured-block']['filter']['users']['suffix'] = array(
+    '#type' => 'markup',
+    '#value' => '</div>',
+  );
+
+  $form['featured-block']['filter']['vocab'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Vocabularies'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  foreach ($vocabularies as $vocabulary) {
+    $vid = $vocabulary->vid;
+    $terms = array();
+    foreach (taxonomy_get_tree($vid) as $term) {
+      $terms[$term->tid] = check_plain($term->name);
+    }
+    if (! empty($terms)) {
+      $form['featured-block']['filter']['vocab'][$vid] = array(
+        '#type' => 'fieldset',
+        '#title' => t('@vocab_name Terms Filter Options', array('@vocab_name' => $vocabulary->name)),
+        '#description' => t('Select the terms to use below. If no terms are selected, all will be used. If the first checkbox is checked, then content with the same terms as the page being viewed will be used.'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+      );
+      $terms = featured_content_get_vocabulary_terms($vocabulary);
+      $form['featured-block']['filter']['vocab'][$vid]['prefix'] = array(
+        '#type' => 'markup',
+        '#value' => '<div class="fc-scrollable-checkboxes">',
+      );
+      foreach ($terms as $term_tid => $term_name) {
+        $default_value = '';
+        if (isset($featured_content['filter']['vocab'][$vid]['term'][$term_tid])) {
+          $default_value = $featured_content['filter']['vocab'][$vid]['term'][$term_tid];
+        }
+        $form['featured-block']['filter']['vocab'][$vid]['filter_vocab_term_' . $term_tid] = array(
+          '#type' => 'checkbox',
+          '#title' => sprintf('%s', $term_name),
+          '#default_value' => $default_value,
+        );
+      }
+      $form['featured-block']['filter']['vocab'][$vid]['suffix'] = array(
+        '#type' => 'markup',
+        '#value' => '</div>',
+      );
+    }
+  }
+
+  $collapsed = TRUE;
+  if ($featured_content['filter']['paths']['match'][0] ||
+    $featured_content['filter']['paths']['match'][1] ||
+    $featured_content['filter']['paths']['match'][2] ||
+    $featured_content['filter']['paths']['match'][3]) {
+      $collapsed = FALSE;
+    }
+  $form['featured-block']['filter']['paths'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Path Filter Options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => $collapsed,
+    '#description' => t('Select any of the checkboxes below if you want to
+    get content based on the path of the current page being viewed. For example,
+    if the current page is www.mysite.com/first/second/third/fourth and you
+      choose to match on the second and third parts of the path, then pages
+      with paths like www.mysite.com/foo/second/third and like
+      www.mysite.com/hello/second/third/world and like
+      www.mysite.com/a/second/third/b/c/d would match.'),
+  );
+  $default_value = '';
+  if (isset($featured_content['filter']['paths']['match'][0])) {
+    $default_value = $featured_content['filter']['paths']['match'][0];
+  }
+  $form['featured-block']['filter']['paths']['filter_paths_match_0'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Match first part of path (e.g. first/any).'),
+    '#default_value' => $default_value,
+  );
+  $default_value = '';
+  if (isset($featured_content['filter']['paths']['match'][1])) {
+    $default_value = $featured_content['filter']['paths']['match'][1];
+  }
+  $form['featured-block']['filter']['paths']['filter_paths_match_1'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Match second part of path (e.g. any/second/any).'),
+    '#default_value' => $default_value,
+  );
+  $default_value = '';
+  if (isset($featured_content['filter']['paths']['match'][2])) {
+    $default_value = $featured_content['filter']['paths']['match'][2];
+  }
+  $form['featured-block']['filter']['paths']['filter_paths_match_2'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Match third part of path (e.g. any/any/third/any).'),
+    '#default_value' => $default_value,
+  );
+  $default_value = '';
+  if (isset($featured_content['filter']['paths']['match'][3])) {
+    $default_value = $featured_content['filter']['paths']['match'][3];
+  }
+  $form['featured-block']['filter']['paths']['filter_paths_match_3'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Match fourth part of path (e.g. any/any/any/fourth/any).'),
+    '#default_value' => $default_value,
+  );
+
+
+  if (module_exists('search')) {
+    $collapsed = $featured_content['filter']['keyword']['filter_by_keyword'] ? FALSE : TRUE;
+    $form['featured-block']['filter']['keyword'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Title Keywords'),
+      '#description' => t('Whether to limit the returned results to content similar to the title of the currently viewed page.  This filter will return content by order of relevance. You may want to set the <strong>"Sort By"</strong> setting to <strong>"None - Use Order Provided if Available."</strong>'),
+      '#collapsible' => TRUE,
+      '#collapsed' => $collapsed,
+    );
+
+    $form['featured-block']['filter']['keyword']['filter_by_keyword'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Match content with similar keywords?'),
+      '#default_value' => featured_content_get_value($featured_content['filter']['keyword']['filter_by_keyword'], 0),
+      '#description' => t('If the above option is selected, only content that include similar terms as the title of the current page will be included.'),
+    );
+
+    $form['featured-block']['filter']['keyword']['num_words_in_title_keyword'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of words in title to search against'),
+      '#default_value' => featured_content_get_value($featured_content['filter']['keyword']['num_words_in_title_keyword'], 5),
+      '#size' => 3,
+      '#element_validate' => array('featured_content_num_words_in_title_validate'),
+      '#description' => t('Number of words in the current page\'s title to search against. If filtering by "Title Keywords", this value must be zero or positive. If zero, no trimming will be done. Words with "@count" letters or less (set in the !search_panel) will be ignored for this purpose. Making this number low will return more results, while setting it higher (or zero) will return better matches.', array('@count' => variable_get('minimum_word_size', 3), '!search_panel' => l('Search Administration Panel', 'admin/settings/search'))),
+    );
+  }
+
+  if (module_exists('views') && function_exists('views_get_all_views')) {
+    $views = views_get_all_views();
+    $views_names = array_keys($views);
+    asort($views_names);
+    if (! empty($views)) {
+      $form['featured-block']['filter']['views'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Views Filter Options'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#description' => t('Select any of the views below if you want the
+        resulting nodes from the views to show up in your block.'),
+      );
+      $form['featured-block']['filter']['views']['prefix'] = array(
+        '#type' => 'markup',
+        '#value' => '<div class="fc-scrollable-checkboxes">',
+      );
+      foreach ($views_names as $view_name) {
+        $view_data = $views[$view_name];
+        if (! empty($view_data->display)) {
+          foreach ($view_data->display as $display_name => $display_data) {
+            $default_value = '';
+            if (isset($featured_content['filter']['views']['view'][$view_name][$display_name])) {
+              $default_value = $featured_content['filter']['views']['view'][$view_name][$display_name];
+            }
+            $form['featured-block']['filter']['views']['filter_views_view_' . $view_name . '_' . $display_name] = array(
+              '#type' => 'checkbox',
+              '#title' => sprintf('%s - %s', $view_name, $display_name),
+              '#default_value' => $default_value,
+            );
+            if (isset($featured_content['filter']['views']['view'][$view_name][$display_name])) {
+              $form['featured-block']['filter']['views']['#collapsed'] = FALSE;
+            }
+          }
+        }
+      }
+      $form['featured-block']['filter']['views']['suffix'] = array(
+        '#type' => 'markup',
+        '#value' => '</div>',
+      );
+    }
+  }
+
+  if (module_exists('primary_term')) {
+    $collapsed = $featured_content['filter']['primary_term']['node'] ? FALSE : TRUE;
+    $form['featured-block']['filter']['primary_term'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Primary Term Filter Options'),
+      '#collapsible' => TRUE,
+      '#collapsed' => $collapsed,
+    );
+    $default_value = '';
+    if (isset($featured_content['filter']['primary_term']['node'])) {
+      $default_value = $featured_content['filter']['primary_term']['node'];
+    }
+    $form['featured-block']['filter']['primary_term']['filter_primary_term_node'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use the primary term of the page being shown.'),
+      '#description' => t('If checked, then content with the same primary term as the page being viewed will be shown.'),
+      '#default_value' => $default_value,
+    );
+  }
+
+  // featured content search results settings
+  if (module_exists('search')) {
+    $form['featured-block']['search'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Search Results Content Settings'),
+      '#attributes' => array('class' => array('featured-content-block-search')),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['featured-block']['search']['info'] = array(
+      '#type' => 'markup',
+      '#value' => '<div><strong>'.t('Search results will be based on the title of the node page being viewed.').'</strong></div>',
+    );
+    $form['featured-block']['search']['search_include_node'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Include Node Being Viewed'),
+      '#description' => t('If checked, then the node being viewed can be
+      included in the block. It may not always show up depending on the
+      settings. For example, if random display is chosen, then the current
+      node may not always show up in the block.'),
+      '#default_value' => $featured_content['search']['include_node'],
+    );
+    $form['featured-block']['search']['num_words_in_title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of words in title to search against'),
+      '#default_value' => featured_content_get_value($featured_content['search']['num_words_in_title'], 5),
+      '#size' => 3,
+      '#element_validate' => array('featured_content_num_words_in_title_validate'),
+      '#description' => t('Number of words in the current page\'s title to search against. This value must be zero or positive. If zero, no trimming will be done. Words with "@count" letters or less (set in the !search_panel) will be ignored for this purpose. Making this number low will return more results, while setting it higher (or zero) will return better matches.', array('@count' => variable_get('minimum_word_size', 3), '!search_panel' => l('Search Administration Panel', 'admin/settings/search'))),
+    );
+  }
+
+  // featured content visibility settings
+  $form['featured-block']['visibility'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Featured Content Block Visibility Settings'),
+    '#attributes' => array('class' => array('featured-content-block-visibility')),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#prefix' => '<hr>',
+  );
+  $default_value = '';
+  if (isset($featured_content['visibility']['content_types']['selected'])) {
+    $default_value = $featured_content['visibility']['content_types']['selected'];
+  }
+  // remove CURRENT since it doesn't make sense for visibility settings
+  unset($content_types['CURRENT']);
+  $form['featured-block']['visibility']['content_types']['visibility_content_types_selected'] = array(
+    '#type' => 'select',
+    '#title' => 'Content Type Visibility Settings',
+    '#options' => $content_types,
+    '#multiple' => TRUE,
+    '#description' => t('If no content types are selected, block visibility
+    is not affected. If content types are selected, then the block will
+    only be shown if the current page being shown is one of the selected
+    content types.'),
+    '#default_value' => $default_value,
+    '#prefix' => '<div>' . t('The following block visibility settings can be
+    used in <i>conjunction</i> with the regular <i>user-specific</i>,
+    <i>role-specific</i>, and <i>page-specific</i> block visibility settings.
+    The module will check the current page being shown and, if it is a node
+    view page, will use the settings to determine whether or not the block
+    should be shown for that page. <strong>Note:</strong> If you use these
+    visibility settings, they will be "ANDed" with the other visibility
+    settings. For example, if you choose to show the block for the content
+    type "blog" and you choose the <i>page specific</i> setting to show the
+    block for pages with aliases like "*topic*" then the block will only be
+    shown if the node\'s content type is "blog" AND the node\'s alias
+    contains "topic" in it.') . '</div>',
+  );
+  $default_value = '';
+  if (isset($featured_content['visibility']['users']['selected'])) {
+    $default_value = $featured_content['visibility']['users']['selected'];
+  }
+  // remove CURRENT since it doesn't make sense for visibility settings
+  unset($users['CURRENT']);
+  $form['featured-block']['visibility']['users']['visibility_users_selected'] = array(
+    '#type' => 'select',
+    '#title' => 'User (Author) Visibility Settings',
+    '#options' => $users,
+    '#multiple' => TRUE,
+    '#default_value' => $default_value,
+    '#description' => t('If no users are selected, block visibility
+    is not affected. If users are selected, then the block will
+    only be shown if the author of the current page being shown is one of
+    the selected users.'),
+  );
+  $form['featured-block']['visibility']['vocab'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy Visibility Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  foreach ($vocabularies as $vocabulary) {
+    $vid = $vocabulary->vid;
+    $terms = array();
+    foreach (taxonomy_get_tree($vid) as $term) {
+      $terms[$term->tid] = check_plain($term->name);
+    }
+    if (! empty($terms)) {
+      $default_value = '';
+      if (isset($featured_content['visibility']['vocab'][$vid]['selected'])) {
+        $default_value = $featured_content['visibility']['vocab'][$vid]['selected'];
+      }
+      $form['featured-block']['visibility']['vocab'][$vid]['visibility_vocab_' . $vid . '_selected'] = array(
+        '#type' => 'select',
+        '#title' => t('@vocab_name Visibility Settings', array('@vocab_name' => $vocabulary->name)),
+        '#options' => $terms,
+        '#multiple' => TRUE,
+        '#default_value' => $default_value,
+        '#description' => t('If no terms are selected, block visibility
+        is not affected. If terms are selected, then the block will
+        only be shown if the current page being shown has one of
+        the selected terms.'),
+      );
+    }
+  }
+
+  $form['wrapper-close'] = array('#value' => '</div>');
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function featured_content_block_save($delta, $edit) {
+
+  $featured_blocks = variable_get('featured_content_blocks', array());
+  $vocabularies = taxonomy_get_vocabularies();
+
+  // general settings
+  if (! isset($featured_blocks[$delta])) {
+    $featured_blocks[$delta] = array();
+  }
+  if (! isset($featured_blocks[$delta]['more']) ||
+      ! is_array($featured_blocks[$delta]['more'])) {
+    $featured_blocks[$delta]['more'] = array();
+  }
+  if (! isset($featured_blocks[$delta]['rss']) ||
+      ! is_array($featured_blocks[$delta]['rss'])) {
+    $featured_blocks[$delta]['rss'] = array();
+  }
+
+  $featured_blocks[$delta]['name'] = $edit['featured_content_block_name'];
+  $featured_blocks[$delta]['header'] = $edit['featured_content_block_header'];
+  $featured_blocks[$delta]['footer'] = $edit['featured_content_block_footer'];
+  $featured_blocks[$delta]['empty'] = $edit['featured_content_block_empty'];
+  $featured_blocks[$delta]['type'] = $edit['featured_content_block_type'];
+  $featured_blocks[$delta]['sort'] = $edit['featured_content_block_sort'];
+  $featured_blocks[$delta]['display'] = $edit['featured_content_block_display'];
+  $featured_blocks[$delta]['style'] = $edit['featured_content_block_style'];
+  $featured_blocks[$delta]['more']['text'] = $edit['featured_content_block_more_text'];
+  $featured_blocks[$delta]['more']['num'] = $edit['featured_content_block_more_num'];
+  $featured_blocks[$delta]['more']['display'] = $edit['featured_content_block_more_display'];
+  $featured_blocks[$delta]['more']['style'] = $edit['featured_content_block_more_style'];
+  $featured_blocks[$delta]['more']['title'] = $edit['featured_content_block_more_title'];
+  $featured_blocks[$delta]['more']['header'] = $edit['featured_content_block_more_header'];
+  $featured_blocks[$delta]['more']['footer'] = $edit['featured_content_block_more_footer'];
+  $featured_blocks[$delta]['more']['url'] = $edit['featured_content_block_more_url'];
+  $featured_blocks[$delta]['rss']['display'] = $edit['featured_content_block_rss_display'];
+  $featured_blocks[$delta]['rss']['title'] = $edit['featured_content_block_rss_title'];
+
+  // if sort is set to popularity, print warning
+  if ($edit['featured_content_block_sort'] == 'popular_asc' ||
+    $edit['featured_content_block_sort'] == 'popular_desc') {
+    if (featured_content_node_statistics_enabled()) {
+      drupal_set_message(t('You have chosen to sort by popularity. Since the
+          Statistics module is turned on and Count Content Views is enabled,
+          this will work as expected. If you disable either of these in the
+          future, the content items will no longer be sorted by popularity.'));
+    }
+    else {
+      if (! module_exists('statistics')) {
+        drupal_set_message(t('You have chosen to sort by popularity, but the
+            Statistics module is currently turned off. Turn on the Statistics
+            module (!admin_modules_page) and enable Count Content Views
+            (!statistics_settings_page) so the content items can be sorted
+            by popularity.', array(
+              '!admin_modules_page' =>
+              l(t('admin/modules'), 'admin/modules'),
+                '!statistics_settings_page' =>
+                l(t('admin/config/system/statistics'), 'admin/config/system/statistics')
+              )
+            ));
+      }
+      elseif (! variable_get('statistics_count_content_views', 0)) {
+        drupal_set_message(t('You have chosen to sort by popularity. Although
+            the Statistics module is currently turned on, Count Content Views
+            is currently disabled. Enable Count Content Views
+            (!statistics_settings_page) so the content items can be sorted
+            by popularity.', array(
+              '!statistics_settings_page' =>
+              l(t('admin/config/system/statistics'), 'admin/config/system/statistics')
+            )
+          ));
+      }
+    }
+  }
+
+  $num_show = $edit['featured_content_block_num_show'];
+  if (! is_numeric($num_show) || $num_show <= 0 || $num_show > variable_get('featured_content_max_node_show', 20)) {
+    $num_show = variable_get('featured_content_max_node_show', 20);
+    if (! is_numeric($num_show) || $num_show <= 0) {
+      $num_show = 20;
+    }
+  }
+  $featured_blocks[$delta]['num_show'] = $num_show;
+
+  // manual settings
+  $nids = array();
+  $featured_blocks[$delta]['manual']['paths'] = $edit['manual_paths'];
+  $tmp = preg_replace('/(\r\n?|\n)/', '|||', $edit['manual_paths']);
+  $paths = explode('|||', $tmp);
+  foreach ($paths as $path) {
+    $path = trim($path);
+    if (! empty($path)) {
+      if (! valid_url($path, TRUE)) { // check for external URLs
+        // assume it's an internal URL
+        $path = drupal_get_normal_path($path);
+      }
+      $matches = array();
+      if (preg_match("/^node\/(.*)/", $path, $matches)) {
+        $nids[] = $matches[1];
+      }
+      // check if it is a pattern
+      else if (preg_match("/\*/", $path, $matches)) {
+        $path_sql = str_replace('*', '%', $path);
+        $path_sql = str_replace('/', '\/', $path_sql);
+        $results = db_query("SELECT source FROM {url_alias} WHERE alias LIKE :path", array(':path' => $path_sql));
+        foreach ($results as $row) {
+          if (preg_match("/^node\/(.*)/", $row->source, $matches)) {
+            $nids[] = $matches[1];
+          }
+        }
+      }
+    }
+  }
+  $featured_blocks[$delta]['manual']['nids'] = $nids;
+
+  // cck settings
+  $cck_fields = field_info_fields();
+  if (! empty($cck_fields)) {
+    foreach ($cck_fields as $field_name => $field_data) {
+      $featured_blocks[$delta]['cck']['fields'][$field_name] = (isset($edit['cck_fields_' . $field_name]) ? $edit['cck_fields_' . $field_name] : NULL);
+    }
+  }
+
+  // filter settings
+  $featured_blocks[$delta]['filter']['include_node'] = $edit['filter_include_node'];
+  $featured_blocks[$delta]['filter']['paths']['match'][0] = $edit['filter_paths_match_0'];
+  $featured_blocks[$delta]['filter']['paths']['match'][1] = $edit['filter_paths_match_1'];
+  $featured_blocks[$delta]['filter']['paths']['match'][2] = $edit['filter_paths_match_2'];
+  $featured_blocks[$delta]['filter']['paths']['match'][3] = $edit['filter_paths_match_3'];
+
+  $languages = featured_content_get_languages();
+  foreach ($languages as $language_code => $language_label) {
+    $featured_blocks[$delta]['filter']['languages'][$language_code] = $edit['filter_languages_' . $language_code];
+  }
+
+  $content_types = featured_content_get_content_types();
+  foreach ($content_types as $content_type_name => $content_type_label) {
+    $featured_blocks[$delta]['filter']['content_types']['type'][$content_type_name] = $edit['filter_content_types_type_' . $content_type_name];
+  }
+
+  $users = featured_content_get_users();
+  foreach ($users as $user_uid => $user_label) {
+    $featured_blocks[$delta]['filter']['users']['user'][$user_uid] = $edit['filter_users_user_' . $user_uid];
+  }
+
+  foreach ($vocabularies as $vocabulary) {
+    $vid = $vocabulary->vid;
+    $terms = featured_content_get_vocabulary_terms($vocabulary);
+    foreach ($terms as $term_tid => $term_name) {
+      $featured_blocks[$delta]['filter']['vocab'][$vid]['term'][$term_tid] = isset($edit['filter_vocab_term_' . $term_tid]) ? $edit['filter_vocab_term_' . $term_tid] : NULL;
+    }
+  }
+
+  $featured_blocks[$delta]['filter']['primary_term']['node'] = isset($edit['filter_primary_term_node']) ? $edit['filter_primary_term_node'] : NULL;
+
+  if (module_exists('views') && function_exists('views_get_all_views')) {
+    $views = views_get_all_views();
+    if (! empty($views)) {
+      foreach ($views as $view_name => $view_data) {
+        if (! empty($view_data->display)) {
+          foreach ($view_data->display as $display_name => $display_data) {
+            $featured_blocks[$delta]['filter']['views']['view'][$view_name][$display_name] = $edit['filter_views_view_' . $view_name . '_' . $display_name];
+          }
+        }
+      }
+    }
+  }
+  
+  if (module_exists('search')) {
+    $featured_blocks[$delta]['filter']['keyword'] = array();
+    $featured_blocks[$delta]['filter']['keyword']['filter_by_keyword'] = $edit['filter_by_keyword'];
+    $featured_blocks[$delta]['filter']['keyword']['num_words_in_title_keyword'] = $edit['num_words_in_title_keyword'];
+    $featured_blocks[$delta]['search']['include_node'] = $edit['search_include_node'];
+    $featured_blocks[$delta]['search']['num_words_in_title'] = $edit['num_words_in_title'];
+  }
+
+  // visibility settings
+  $featured_blocks[$delta]['visibility']['content_types']['selected'] = $edit['visibility_content_types_selected'];
+  $featured_blocks[$delta]['visibility']['users']['selected'] = $edit['visibility_users_selected'];
+  foreach ($vocabularies as $vocabulary) {
+    $vid = $vocabulary->vid;
+    $featured_blocks[$delta]['visibility']['vocab'][$vid]['selected'] = (isset($edit['visibility_vocab_' . $vid . '_selected']) ? $edit['visibility_vocab_' . $vid . '_selected'] : NULL);
+  }
+
+  variable_set('featured_content_blocks', $featured_blocks);
+}
+
+/**
+ * Get CCK node nids.
+ */
+function featured_content_get_cck_nids($data) {
+  $nids = array();
+  $node = _featured_content_load_node();
+  if (isset($node->nid)) {
+    $cck_fields = field_info_fields();
+    if (! empty($cck_fields)) {
+      foreach ($cck_fields as $field_name => $field_data) {
+        if (! empty($data['fields'][$field_name])) {
+          $cck_field = NULL;
+          if (isset($node->$field_name)) {
+            $cck_field = $node->$field_name;
+           // dpr($data);
+          }
+          if (! empty($cck_field) && $field_data['type'] == 'text') {
+            // parse the text field
+            $cck_text = '';
+            if (isset($cck_field['und'][0]['value'])) {
+              $cck_text = trim($cck_field['und'][0]['value']);
+            }
+            if (! empty($cck_text)) {
+              $tmp = explode(',', $cck_text);
+              if (! empty($tmp)) {
+                foreach ($tmp as $nid) {
+                  $nid = trim($nid);
+                  if (is_numeric($nid) && $nid > 0) {
+                    $nids[$nid] = $nid;
+                  }
+                }
+              }
+            }
+          }
+          elseif ($field_data['type'] == 'node_reference') {
+            if (is_array($cck_field) && isset($cck_field['und'])) {
+              foreach ($cck_field['und'] as $node_refs) {
+                if (! empty($node_refs['nid'])) {
+                  $nids[$node_refs['nid']] = $node_refs['nid'];
+                }
+              }
+            }
+          }
+          elseif ($field_data['type'] == 'user_reference') {
+            $uids = array();
+            if (is_array($cck_field) && isset($cck_field['und'])) {
+              foreach ($cck_field['und'] as $user_refs) {
+                if (! empty($user_refs['uid'])) {
+                  $uids[] = $user_refs['uid'];
+                }
+              }
+            }
+            if (! empty($uids)) {
+              //$results = db_query('SELECT nid FROM {node} WHERE uid in (' . db_placeholders($uids, 'int') . ') ', $uids);
+              $results = db_query('SELECT nid FROM {node} WHERE uid in (:uids) ', array(':uids' => $uids));
+              //while ($row = db_fetch_object($results)) {
+              foreach ($results as $row) {
+                if (is_numeric($row->nid) && $row->nid > 0) {
+                  $nids[$row->nid] = $row->nid;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return $nids;
+}
+
+function featured_content_get_languages() {
+  static $languages = array();
+  if (empty($languages) && module_exists('locale')) {
+    foreach (locale_language_list() as $code => $language_name) {
+      $languages[$code] = check_plain($language_name);
+    }
+    natcasesort($languages);
+    $languages = array('CURRENT' => t('Use the language of the page being shown.')) + $languages;
+  }
+  return $languages;
+}
+
+function featured_content_get_content_types() {
+  $content_types = array();
+  foreach (node_type_get_types() as $content_type) {
+    $content_types[check_plain($content_type->type)] = check_plain($content_type->name);
+  }
+  natcasesort($content_types);
+  $content_types = array('CURRENT' => t('Use the content type of the page being shown.')) + $content_types;
+  return $content_types;
+}
+
+function featured_content_get_users($limit = 20) {
+  $users = array();
+  $results = db_query('SELECT uid, name, mail FROM {users} WHERE uid <> 0 ORDER BY uid LIMIT '.$limit);
+  //while ($user = db_fetch_object($results)) {
+  foreach ($results as $user) {
+    $users[$user->uid] = check_plain($user->name) . ' - ' . check_plain($user->mail);
+  }
+  natcasesort($users);
+  $users = array('CURRENT' => t('Use the user (author) of the page being shown.')) + $users;
+  return $users;
+}
+
+function featured_content_get_vocabulary_terms($vocabulary) {
+  if (isset($vocabulary->vid)) {
+    $terms = array();
+    foreach (taxonomy_get_tree($vocabulary->vid) as $term) {
+      $terms[$term->tid] = check_plain($term->name);
+    }
+    $current_key = 'CURRENT-' . $vocabulary->vid;
+    $terms = array($current_key => t('Use the @vocab_name terms of the page being shown.', array('@vocab_name' => $vocabulary->name))) + $terms;
+    return $terms;
+  }
+}
+
+/**
+ * Get filtered node nids. Filter base on content types, users (authors) and
+ * taxonomy terms.
+ */
+function featured_content_get_filtered_nids($data, $show_num) {
+
+  $node = _featured_content_load_node();
+
+  $where_clause = '';
+  $where_data = array();
+
+  // unless configured, exclude current node page
+  if (isset($node->nid) && ! $data['include_node']) {
+    // $where_clause .= ' AND n.nid != %d ';
+    // $where_data = array_merge($where_data, array($node->nid));
+    $where_clause .= ' AND n.nid != :nnid ';
+    $where_data = array_merge($where_data, array(':nnid' => $node->nid));
+  }
+
+  // filter based on language type
+  if (module_exists('locale')) {
+    $languages = array();
+    $all_languages = featured_content_get_languages();
+    if (count($all_languages) > 1) {
+      foreach ($all_languages as $language_code => $language_label) {
+        if (! empty($data['languages'][$language_code])) {
+          if ($language_code == 'CURRENT' && isset($node->nid)) {
+            $languages[$node->language] = $node->language;
+          }
+          else {
+            $languages[$language_code] = $language_code;
+          }
+        }
+      }
+      if (! empty($languages)) {
+        $where_clause .= ' AND n.language in (:languages) ';
+        $where_data = array_merge($where_data, array(':languages' => array_values($languages)));
+      }
+    }
+  }
+
+  // filter based on content type
+  $content_types = array();
+  $all_content_types = featured_content_get_content_types();
+  foreach ($all_content_types as $content_type_name => $content_type_label) {
+    if (! empty($data['content_types']['type'][$content_type_name])) {
+      if ($content_type_name == 'CURRENT' && isset($node->nid)) {
+        $content_types[$node->type] = $node->type;
+      }
+      else {
+        $content_types[$content_type_name] = $content_type_name;
+      }
+    }
+  }
+  if (! empty($content_types)) {
+    //$where_clause .= ' AND n.type in (' . db_placeholders($content_types, 'text') . ') ';
+    //$where_data = array_merge($where_data, $content_types);
+    $where_clause .= ' AND n.type in (:content_types) ';
+    $where_data = array_merge($where_data, array(':content_types' => array_values($content_types)));
+  }
+
+  // filter based on user
+  $uids = array();
+  $all_users = featured_content_get_users();
+  foreach ($all_users as $user_uid => $user_label) {
+    if (! empty($data['users']['user'][$user_uid])) {
+      if ($user_uid == 'CURRENT' && isset($node->uid)) {
+        $uids[] = $node->uid;
+      }
+      else {
+        $uids[] = $user_uid;
+      }
+    }
+  }
+  if (! empty($uids)) {
+    //$where_clause .= ' AND n.uid in (' . db_placeholders($uids, 'int') . ') ';
+    //$where_data = array_merge($where_data, $uids);
+    $where_clause .= ' AND n.uid in (:uids) ';
+    $where_data = array_merge($where_data, array(':uids' => $uids));
+  }
+
+  // filter based on taxonomy terms
+  $tids = array();
+  $vocabularies = taxonomy_get_vocabularies();
+  foreach ($vocabularies as $vocabulary) {
+    $vid = $vocabulary->vid;
+    $all_terms = featured_content_get_vocabulary_terms($vocabulary);
+    foreach ($all_terms as $term_tid => $term_name) {
+      if (! empty($data['vocab'][$vid]['term'][$term_tid])) {
+        if ($term_tid == ('CURRENT-' . $vid)) {
+          if (isset($node->nid)) {
+            $node_terms = featured_content_get_node_terms_by_vocabulary($node, $vid);
+            if (! empty($node_terms)) {
+              foreach ($node_terms as $node_term) {
+                $tids[$node_term->tid] = $node_term->tid;
+              }
+            }
+          }
+          elseif (arg(0) == 'taxonomy' && arg(1) == 'term' && is_numeric(arg(2))) {
+            // check if taxonomy page
+            $tids[arg(2)] = arg(2);
+          }
+        }
+        else {
+          $tids[$term_tid] = $term_tid;
+        }
+      }
+    }
+  }
+  $tid_inner_join = '';
+  if (! empty($tids)) {
+    //$tid_inner_join = ' INNER JOIN {term_node} AS tn ON n.nid=tn.nid ';
+    $tid_inner_join = ' INNER JOIN {taxonomy_index} AS tn ON n.nid=tn.nid ';
+    //$where_clause .= ' AND tn.tid in (' . db_placeholders($tids, 'int') . ') ';
+    //$where_data = array_merge($where_data, $tids);
+    $where_clause .= ' AND tn.tid in (:tids) ';
+    $where_data = array_merge($where_data, array(':tids' => $tids));
+  }
+
+  // filter by views
+  if (module_exists('views')) {
+    if (function_exists('views_get_all_views') && function_exists('views_get_view_result')) {
+      $views_nids = array();
+      $views = views_get_all_views();
+      if (! empty($views)) {
+        foreach ($views as $view_name => $view_data) {
+          if (! empty($view_data->display)) {
+            foreach ($view_data->display as $display_name => $display_data) {
+              if (! empty($data['views']['view'][$view_name][$display_name])) {
+                $views_results = views_get_view_result($view_name, $display_name);
+                if (! empty($views_results)) {
+                  foreach ($views_results as $views_result) {
+                    if (isset($views_result->nid)) {
+                      $views_nids[] = $views_result->nid;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (! empty($views_nids)) {
+        //$where_clause .= ' AND n.nid in (' . db_placeholders($views_nids, 'int') . ') ';
+        //$where_data = array_merge($where_data, $views_nids);
+        $where_clause .= ' AND n.nid in (:views_nids) ';
+        $where_data = array_merge($where_data, array(':views_nids' => $views_nids));
+      }
+    }
+  }
+  
+  // filter by node title keyword search
+  if (module_exists('search')) {
+    // check to make sure this option has been enabled
+    if (isset($data['keyword']['filter_by_keyword']) && ($data['keyword']['filter_by_keyword'] === 1)) {      
+      // If we haven't already loaded the node from earlier on, grab it now. 
+      // If we're not able to, don't do any keyword searching.
+      $node = empty($node) ? _featured_content_load_node() : $node;
+      if ($node) {
+        $num_words = (int)$data['keyword']['num_words_in_title_keyword'];
+        $keyword_search_string = featured_content_get_search_string($node, $num_words);
+
+        // use drupal search for actual search
+        $results = featured_content_do_search($keyword_search_string, $show_num);
+
+        $keyword_match_nids = array();
+        if (! empty($results)) {
+          foreach ($results as $result) {
+            if (isset($result['node'])) {
+              $keyword_match_nids[] = $result['node']->nid;
+            }
+          }
+        }
+        
+        if (! empty($keyword_match_nids)) {
+          //$where_clause .= ' AND n.nid IN (' . db_placeholders($keyword_match_nids, 'int') . ') ';
+          $where_clause .= ' AND n.nid IN (:keyword_match_nids) ';
+        }
+        else {
+          // no matches
+          $where_clause .= ' AND n.nid IN (0) ';
+        }
+        $where_data = array_merge($where_data, array(':keyword_match_nids' => $keyword_match_nids));
+      }
+    }
+  }
+
+  // filter by primary term
+  $pt_inner_join = '';
+  if (isset($data['primary_term']['node']) && is_numeric($node->primaryterm) && $node->primaryterm > 0) {
+    $pt_inner_join = ' INNER JOIN {primary_term} AS pt ON n.vid=pt.vid ';
+    //$where_clause .= ' AND pt.tid in (' . db_placeholders(array($node->primaryterm), 'int') . ') ';
+    //$where_data = array_merge($where_data, array($node->primaryterm));
+    $where_clause .= ' AND pt.tid in (:primaryterm) ';
+    $where_data = array_merge($where_data, array(':primaryterm' => $node->primaryterm));
+  }
+
+  // filter based on path
+  $path_alias = '';
+  $filter_path = '';
+  $match = array();
+  if (isset($data['paths']['match'])) {
+    $match = $data['paths']['match'];
+  }
+  if (! empty($match[0]) || ! empty($match[1]) || ! empty($match[2]) || ! empty($match[3])) {
+    if (isset($_GET['nid'])) {
+      $path_alias = drupal_get_path_alias('node/' . $_GET['nid']);
+    }
+    elseif (isset($_GET['path'])) {
+      $path_alias = drupal_get_path_alias($_GET['path']);
+    }
+    else {
+      $path_alias = drupal_get_path_alias($_GET['q']);
+    }
+    if (! empty($path_alias)) {
+      $tmp = array();
+      $path = explode('/', $path_alias);
+      if (! empty($path)) {
+        $filter_path = featured_content_get_path_pattern($match, $path, 0);
+        $filter_path .= featured_content_get_path_pattern($match, $path, 1);
+        $filter_path .= featured_content_get_path_pattern($match, $path, 2);
+        $filter_path .= featured_content_get_path_pattern($match, $path, 3);
+      }
+    }
+  }
+
+  //$results = db_query('SELECT n.nid FROM {node} AS n ' . $tid_inner_join . ' ' . $pt_inner_join . ' WHERE n.status <> 0 ' . $where_clause, $where_data);
+  //dpr('SELECT n.nid FROM {node} AS n ' . $tid_inner_join . ' ' . $pt_inner_join . ' WHERE n.status <> 0 ' . $where_clause);
+  //dpr($where_clause);
+  //dpr($where_data);
+  $results = db_query('
+    SELECT n.nid FROM {node} AS n ' . $tid_inner_join . ' ' . $pt_inner_join . '
+    WHERE n.status <> 0 ' . $where_clause,
+    $where_data);
+  //while ($row = db_fetch_object($results)) {
+  $nids = array();
+  foreach ($results as $row) {
+    $add = TRUE;
+    if (! empty($filter_path)) {
+      $node_alias = drupal_get_path_alias('node/' . $row->nid) . '/';
+      if (! preg_match('/^' . $filter_path . '/', $node_alias, $matches)) {
+        $add = FALSE;
+      }
+    }
+    if ($add) {
+      $nids[] = $row->nid;
+    }
+  }
+  return $nids;
+}
+
+/**
+ * Find all terms associated with the given node, within one vocabulary.
+ */
+function featured_content_get_node_terms_by_vocabulary($node, $vid) {
+  /*
+  $result = db_query('
+    SELECT td.*
+    FROM {taxonomy_term_data} AS td
+    INNER JOIN {taxonomy_index} AS ti ON td.tid = ti.tid
+    WHERE td.vid = %d AND ti.nid = %d
+    ORDER BY weight', $vid, $node->nid);
+   */
+  $results = db_query('
+    SELECT td.*
+    FROM {taxonomy_term_data} AS td
+    INNER JOIN {taxonomy_index} AS ti ON td.tid = ti.tid
+    WHERE td.vid = :vid AND ti.nid = :nid
+    ORDER BY weight',
+    array(
+      ':vid' => $vid,
+      ':nid' => $node->nid,
+    )
+  );
+
+  $terms = array();
+  foreach ($results as $term) {
+    $terms[$term->tid] = $term;
+  }
+  return $terms;
+}
+
+/**
+ * Get search string based on give node title.
+ */
+function featured_content_get_search_string($node, $num_words) {
+
+  $keyword_search_string = '';
+  if (! empty($node) && ! empty($node->title)) {
+    // If title trimming is enabled, pull out the first x significantly 
+    // long words in the title.
+    if ($num_words > 0) {
+      $search_terms = array();      
+      $found_terms = 0;      
+      $min_length_for_search_term = variable_get('minimum_word_size', 3);
+
+      foreach (explode(' ', $node->title) as $word_position => $word) {
+        if (count($search_terms) < $num_words) {
+          $processed_word = search_simplify($word);
+
+          if (mb_strlen($processed_word) > $min_length_for_search_term) {
+            $search_terms[] = $word;
+            ++$found_terms;
+          }              
+        }
+      }
+      $keyword_search_string = implode(' ', $search_terms);
+    }
+    else {
+      $keyword_search_string = $node->title;
+    }
+  }
+  return $keyword_search_string;
+}
+
+/**
+ * Get search result node nids. Uses the title of the current node page to 
+ * get the search results.
+ */
+function featured_content_get_search_nids($data, $show_num) {
+  // only works if on a node page
+  $nids = array();
+  $node = _featured_content_load_node();
+  if (! empty($node)) {
+    // get nids associated with node title using search
+    $num_words = (int)$data['num_words_in_title'];
+    $keyword_search_string = featured_content_get_search_string($node, $num_words);
+    $results = featured_content_do_search($keyword_search_string, $show_num);
+    if (! empty($results)) {
+      foreach ($results as $result) {
+        if (isset($result['node'])) {
+          $nid = $result['node']->nid;
+          $nids[$nid] = $nid;
+        }
+      }
+    }
+    // unless configured, exclude current node page
+    if (! $data['include_node']) {
+      unset($nids[arg(1)]);
+    }
+  }
+  return $nids;
+}
+
+
+function featured_content_get_path_pattern($match, $path, $index) {
+  $max = 3;
+  for ($i = $index; $i <= $max; $i++) {
+    if (! empty($match[$i]) && ! empty($path[$i])) {
+      break; // okay to return something
+    }
+    elseif ($i == $max) {
+      return ''; // nothing more to match on
+    }
+  }
+  if (! empty($match[$index])) {
+    $pattern = $path[$index];
+  }
+  else {
+    $pattern = '.*?';
+  }
+  return '(' . $pattern . ')\/';
+}
+
+/**
+ * Sort nodes based on terms.
+ */
+function featured_content_sort_nodes_by_terms($nodes, $order = 'desc') {
+  // only works if on a node page
+  if (arg(0) == 'node' && is_numeric(arg(1))) {
+    $tmp = array();
+    $nids = array_keys($nodes);
+    /*
+    $results = db_query('
+      SELECT count(tn1.tid) AS count, tn1.nid
+      FROM {term_node} AS tn1
+      WHERE tn1.nid IN (' . db_placeholders($nids, 'int') . ') AND
+      tn1.tid IN (
+        SELECT tn2.tid
+        FROM {term_node} AS tn2
+        WHERE tn2.nid=%d
+      )
+      GROUP BY tn1.nid
+      ORDER BY count ' . $order, array_merge($nids, array(arg(1)))
+    );
+     */
+    $results = db_query('
+      SELECT count(tn1.tid) AS count, tn1.nid
+      FROM {taxonomy_index} AS tn1
+      WHERE tn1.nid IN (:nids) AND
+      tn1.tid IN (
+        SELECT tn2.tid
+        FROM {taxonomy_index} AS tn2
+        WHERE tn2.nid=:tn2nid
+      )
+      GROUP BY tn1.nid
+      ORDER BY count ' . $order,
+      array(
+        ':nids' => $nids,
+        ':tn2nid' => arg(1),
+      )
+    );
+    //while ($row = db_fetch_object($results)) {
+    foreach ($results as $row) {
+      $tmp[$row->nid] = $nodes[$row->nid];
+    }
+    foreach ($nodes as $nid => $node) {
+      if (! isset($tmp[$nid])) {
+        // tack on the rest of the nodes
+        $tmp[$nid] = $node;
+      }
+    }
+    $nodes = $tmp;
+  }
+  return $nodes;
+}
+
+/**
+ * Sort nodes based on vocabularies. The order is based on the weight 
+ * of the vocabularies as well as the term of terms the node has 
+ * within that vocabulary.
+ */
+function featured_content_sort_nodes_by_vocab($nodes, $order = 'desc') {
+  // only works if on a node page
+  $node = _featured_content_load_node();
+  if (! empty($node)) {
+    $nids = array_keys($nodes);
+    $num_terms = array();
+    $weights = array();
+    // fixme: for some reason taxonomy_index doesn't have a node vid but should
+    $results = db_query('
+      SELECT ti.nid, ti.tid, v.vid, v.weight, COUNT(*) AS count
+      FROM {taxonomy_index} AS ti 
+      INNER JOIN {node} AS n on ti.nid = n.vid
+      INNER JOIN {taxonomy_term_data} AS td on ti.tid = td.tid 
+      INNER JOIN {taxonomy_vocabulary} AS v on td.vid = v.vid 
+      WHERE ti.nid IN (:nids) AND 
+      ti.tid IN (
+        SELECT ti2.tid 
+        FROM {taxonomy_index} AS ti2 
+        INNER JOIN {node} AS n2 ON ti2.nid = n2.nid 
+        WHERE n2.nid = :nid) 
+      GROUP BY ti.nid, v.weight 
+      ORDER BY v.weight ' . $order, array(':nids' => $nids, ':nid' => $node->nid));
+    foreach ($results as $row) {
+      $num_terms[$row->vid][$row->nid] = $row->count;
+      $weights[$row->vid] = $row->weight;
+    }
+
+    asort($weights);
+    $totals = array();
+    foreach ($nids as $nid) {
+      $nums = array();
+      foreach ($weights as $vid => $weight) {
+        $nums[] = isset($num_terms[$vid][$nid]) ? $num_terms[$vid][$nid] : 0;
+      }
+      $totals[$nid] = implode('-', $nums);
+    }
+    natsort($totals);
+    $totals = array_reverse($totals, TRUE);
+
+    $tmp = array();
+    foreach ($totals as $nid => $total) {
+      $tmp[$nid] = $nodes[$nid];
+    }
+    foreach ($nodes as $nid => $node) {
+      if (! in_array($nid, array_keys($tmp))) {
+        // tack on the rest of the nodes
+        $tmp[$nid] = $node;
+      }
+    }
+    $nodes = $tmp;
+  }
+  return $nodes;
+}
+
+/**
+ * Sort nodes based on sort key.
+ */
+function featured_content_sort_nodes($nodes, $sort_key, $numeric = TRUE, $order = 'desc') {
+
+  if (! empty($nodes)) {
+    foreach ($nodes as $node) {
+      $key = $node->$sort_key . '' . $node->nid;
+      $tmp[$key] = $node;
+    }
+    $tmp_keys = array_keys($tmp);
+
+    $sort_by = $numeric ? SORT_NUMERIC : SORT_REGULAR;
+    if ($order == 'desc') {
+      rsort($tmp_keys, $sort_by);
+    }
+    else {
+      sort($tmp_keys, $sort_by);
+    }
+
+    foreach ($tmp_keys as $tmp_key) {
+      $sorted_nodes[] = $tmp[$tmp_key];
+    }
+    return $sorted_nodes;
+  }
+}
+
+/**
+ * Check if node statistics is enabled.
+ */
+function featured_content_node_statistics_enabled() {
+  return (module_exists('statistics') && variable_get('statistics_count_content_views', 0));
+}
+
+/**
+ * Gets nodes from nids.
+ */
+function featured_content_get_nodes($nids, $sort) {
+  if (! empty($nids)) {
+
+    // use node_counter if sorting by popularity and counts are available
+    $totalcount_select = $totalcount_inner_join = '';
+    if (($sort == 'popular_desc' || $sort == 'popular_asc') && featured_content_node_statistics_enabled()) {
+      $totalcount_select = ', nc.totalcount ';
+      $totalcount_inner_join = ' INNER JOIN {node_counter} AS nc ON n.nid=nc.nid ';
+    }
+
+    //$results = db_query(db_rewrite_sql('SELECT n.nid, n.title, n.created, n.type ' . $totalcount_select . ' FROM {node} AS n ' . $totalcount_inner_join . ' WHERE n.nid IN (' . db_placeholders($nids, 'int') . ') AND n.status <> 0'), $nids);
+    $results = db_query('
+      SELECT n.nid, n.title, n.created, n.type ' . $totalcount_select . '
+      FROM {node} AS n ' . $totalcount_inner_join . '
+      WHERE n.nid IN (:nids) AND n.status <> 0',
+      array(':nids' => $nids));
+    //while ($node = db_fetch_object($results)) {
+    foreach ($results as $node) {
+      if ($totalcount_select == '') {
+        $node->totalcount = 1; // treat all nodes equally for sort purposes
+      }
+      $nodes[$node->nid] = $node;
+    }
+    return $nodes;
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function featured_content_block_info() {
+  $blocks = array();
+  foreach (variable_get('featured_content_block_ids', array()) as $delta) {
+    $blocks[$delta]['info'] = featured_content_format_title($delta);
+    //$blocks[$delta]['cache'] = BLOCK_NO_CACHE;
+    $blocks[$delta]['cache'] = DRUPAL_NO_CACHE;
+  }
+  return $blocks;
+}
+
+/**
+ * Format block title based on configuration.
+ *
+ * @param $delta int The delta of the block
+ * @return string The title of the block
+ */
+function featured_content_format_title($delta) {
+  if (is_numeric($delta)) {
+    $featured_content = featured_content_get_block_data($delta);
+    if (! empty($featured_content)) {
+      $type = $featured_content['type'];
+      $name = check_plain(featured_content_get_value($featured_content['name'], 'unnamed'));
+      return sprintf('%s - %s - %s - %d', t('Featured Content Block'), $name, ucwords($type), $delta);
+    }
+  }
+}
+
+/**
+ * Get the block data for the given $delta.
+ *
+ * @param $delta
+ *   number The number of the block.
+ */
+function featured_content_get_block_data($delta) {
+  if (is_numeric($delta)) {
+    $featured_blocks = variable_get('featured_content_blocks', array());
+    if (isset($featured_blocks[$delta])) {
+      return featured_content_get_value($featured_blocks[$delta], array());
+    }
+  }
+}
+
+/**
+ * Get the value if set, otherwise get default.
+ */
+function featured_content_get_value($value, $default) {
+  return isset($value) ? $value : $default;
+}
+
+/**
+ * Set page title for more page or rss page.
+ */
+function featured_content_set_page_title($delta, $title = NULL) {
+  if (! trim($title)) {
+    $title = featured_content_get_block_title($delta);
+  }
+  drupal_set_title($title);
+}
+
+/**
+ * Get block title based on given title or internal title.
+ */
+function featured_content_get_block_title($delta, $add_site_name = FALSE) {
+  //$results = db_query("SELECT title FROM {blocks} WHERE module='featured_content' AND delta=%d", $delta);
+  $results = db_query("SELECT title FROM {block} WHERE module='featured_content' AND delta=:delta", array(':delta' => $delta));
+  if (is_numeric($delta) && ! empty($results)) {
+    //$row = db_fetch_object($results);
+    $row = $results->fetchObject();
+    $block_title = trim($row->title);
+    if ($block_title == '' || $block_title == '<none>') {
+      $info = module_invoke('featured_content', 'block', 'list');
+      if (isset($info[$delta])) {
+        $block_title = $info[$delta]['info'];
+      }
+    }
+    if ($add_site_name && trim($block_title)) {
+      $site_name = check_plain(variable_get('site_name', ''));
+      if (! empty($site_name)) {
+        $block_title = $site_name . ': ' . $block_title;
+      }
+    }
+  }
+  return check_plain($block_title);
+}
+
+/**
+ * Validate that we have a valid minimum number of words to search
+ * against in the title.
+ */
+function featured_content_num_words_in_title_validate($element, &$form_state) {
+
+  // If we're not filtering by keyword, we can safely ignore the set minimum number
+  // of words to search against
+  if ($form_state['values']['filter_by_keyword'] === '1') {
+
+    // Make sure that we're checking against at least one word in the title
+    if ( ! is_numeric($element['#value']) || $element['#value'] < 0) {
+    
+      form_error($element, t('The number of words to search against must be numeric and at least 1.'));
+    }
+  }
+}
+
+/**
+ * Based on the hook_search_execute function.
+ */
+function featured_content_do_search($keys = NULL, $show_num = 20) {
+  $limit = $show_num * 2; // make sure there are enough results to use
+
+  // make sure it's not too big
+  if ($limit > 100) {
+    $limit = 100;
+  }
+
+  // Build matching conditions
+  $query = db_select('search_index', 'i', array('target' => 'slave'))->extend('SearchQuery')->extend('PagerDefault');
+  $query->join('node', 'n', 'n.nid = i.sid');
+  $query
+    ->condition('n.status', 1)
+    ->addTag('node_access')
+    ->searchExpression($keys, 'node');
+
+  // Insert special keywords.
+  $query->setOption('type', 'n.type');
+  $query->setOption('language', 'n.language');
+  if ($query->setOption('term', 'ti.tid')) {
+    $query->join('taxonomy_index', 'ti', 'n.nid = ti.nid');
+  }
+  // Only continue if the first pass query matches.
+  if (!$query->executeFirstPass()) {
+    return array();
+  }
+
+  // Add the ranking expressions.
+  _node_rankings($query);
+
+  // Load results.
+  $find = $query
+    ->limit($limit)
+    ->execute();
+  $results = array();
+  foreach ($find as $item) {
+    // Build the node body.
+    $node = node_load($item->sid);
+    node_build_content($node, 'search_result');
+    $node->body = drupal_render($node->content);
+
+    // Fetch comments for snippet.
+    $node->rendered .= ' ' . module_invoke('comment', 'node_update_index', $node);
+    // Fetch terms for snippet.
+    $node->rendered .= ' ' . module_invoke('taxonomy', 'node_update_index', $node);
+
+    $extra = module_invoke_all('node_search_result', $node);
+
+    $results[] = array(
+      'link' => url('node/' . $item->sid, array('absolute' => TRUE)),
+      'type' => check_plain(node_type_get_name($node)),
+      'title' => $node->title,
+      'user' => theme('username', array('account' => $node)),
+      'date' => $node->changed,
+      'node' => $node,
+      'extra' => $extra,
+      'score' => $item->calculated_score,
+      'snippet' => search_excerpt($keys, $node->body),
+    );
+  }
+  return $results;
+}
+
+/**
+ * Try and build the node from either the system url or the query string.
+ * Return FALSE if unable to build the node.
+ */
+function _featured_content_load_node() {
+  if (arg(0) == 'node' && is_numeric(arg(1))) {
+    $node = node_load(arg(1));
+  }
+  else if (isset($_GET['nid']) && is_numeric($_GET['nid'])) {
+    // for RSS feed
+    $node = node_load($_GET['nid']);
+  }
+  return empty($node) ? FALSE : $node;
+}
+
+/**
+ * Since taxonomy_node_get_terms is no longer available and the terms are 
+ * buried in the node object based on the field name, then do a query for 
+ * the terms.
+ *
+ * Based on code from: http://drupal.org/node/959984#comment-4876678
+ */
+function featured_content_taxonomy_node_get_terms($node, $key = 'tid') {
+  static $terms;
+  if (! isset($terms[$node->vid][$key])) {
+    $query = db_select('taxonomy_index', 'ti');
+    $query->fields('ti');
+    $query->join('taxonomy_term_data', 'td', 'ti.tid = td.tid');
+    $query->join('taxonomy_vocabulary', 'v', 'td.vid = v.vid');
+    $query->condition("ti.nid", $node->nid);
+    $results = $query->execute();
+    $terms[$node->vid][$key] = array();
+    foreach ($results as $term) {
+      $terms[$node->vid][$key][$term->$key] = $term;
+    }
+  }
+  return $terms[$node->vid][$key];
+}

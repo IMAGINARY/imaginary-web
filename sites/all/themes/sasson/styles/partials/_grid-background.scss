@@ -1,0 +1,14 @@
+// Grid Background
+@import "compass/css3";
+@mixin grid-background {
+  @include linear-gradient(color-stops(#e6ffa8 $space, #ccea7e $space, #bbd673 $column, #e6ffa8 $column, #e6ffa8 $column + $space), left);
+  background-repeat: repeat-x;
+  transition: background-size 0.5s;
+
+  .grid-hidden & {
+    background-size: (100% / $ninesixty-columns) 0;
+  }
+  .grid-visible & {
+    background-size: (100% / $ninesixty-columns) 100%;
+  }
+}

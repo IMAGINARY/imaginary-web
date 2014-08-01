@@ -1,0 +1,148 @@
+<?php
+/**
+ * @file
+ * This module creates a Views Slideshow widget for overlaying
+ * HTML elements on a slideshow.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function views_slideshow_xtra_init () {
+  drupal_add_css(drupal_get_path('module', 'views_slideshow_xtra').'/views_slideshow_xtra.css');
+  drupal_add_js(drupal_get_path('module', 'views_slideshow_xtra').'/views_slideshow_xtra.js');
+}
+
+/**
+ * Implements hook_theme().
+ */
+function views_slideshow_xtra_theme($existing, $type, $theme, $path) {
+  return array(
+    'views_slideshow_xtra_widget_render' => array(
+      'variables' => array('vss_id' => NULL, 'view' => NULL, 'settings' => array(), 'location' => NULL, 'rows' => array()),
+      'file' => 'theme/views_slideshow_xtra.theme.inc',
+    ),
+    'views_slideshow_xtra_text' => array(
+      'variables' => array('vss_id' => NULL, 'view' => NULL, 'field' => '', 'slide_count' => 0, 'field_item_count' => 0),
+      'template' => 'theme/views-slideshow-xtra-text',
+      'file' => 'theme/views_slideshow_xtra.theme.inc',
+    ),
+    'views_slideshow_xtra_link' => array(
+      'variables' => array('vss_id' => NULL, 'view' => NULL, 'field' => '', 'slide_count' => 0, 'field_item_count' => 0),
+      'template' => 'theme/views-slideshow-xtra-link',
+      'file' => 'theme/views_slideshow_xtra.theme.inc',
+    ),
+    'views_slideshow_xtra_image' => array(
+      'variables' => array('vss_id' => NULL, 'view' => NULL, 'field' => '', 'slide_count' => 0, 'field_item_count' => 0),
+      'template' => 'theme/views-slideshow-xtra-image',
+      'file' => 'theme/views_slideshow_xtra.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_slideshow_widget_info().
+ */
+function views_slideshow_xtra_views_slideshow_widget_info() {
+  return array(
+    'views_slideshow_xtra' => array(
+      'name' => t('Views Slideshow Xtra'),
+      'accepts' => array(
+        'transitionBegin' => array('required' => TRUE),
+      ),
+      'calls' => array(),
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_slideshow_option_definition().
+ */
+function views_slideshow_xtra_views_slideshow_option_definition() {
+  $locations = array('top', 'bottom');
+
+  // Defaults for the pager widget.
+  foreach ($locations as $location) {
+    $options['widgets']['contains'][$location]['contains']['views_slideshow_xtra']['contains']['fields'] = array();
+    $options['widgets']['contains'][$location]['contains']['views_slideshow_xtra']['contains']['display_delay'] = array('default' => 850);
+    $options['widgets']['contains'][$location]['contains']['views_slideshow_xtra']['contains']['display_delay_fade'] = array('default' => 0);
+    $options['widgets']['contains'][$location]['contains']['views_slideshow_xtra']['contains']['pause_after_mouse_move'] = array('default' => 2000);
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_views_slideshow_widget_form_options().
+ */
+function views_slideshow_xtra_views_slideshow_widget_form_options(&$form, &$form_state, &$view, $defaults, $dependency) {
+  $options = array();
+  // Get each field and it's name.
+  foreach ($view->display->handler->get_handlers('field') as $field => $handler) {
+    $options[$field] = $handler->ui_name();
+  }
+
+  // Need to wrap this so it indents correctly.
+  $form['views_slideshow_xtra_wrapper'] = array(
+    '#markup' => '<div class="vs-dependent-lvl2">',
+  );
+
+  // Add ability to choose which fields to show in the pager.
+  $form['fields'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Fields'),
+    '#options' => $options,
+    '#default_value' => $defaults['fields'],
+    '#description' => t("Choose the field(s) to use as your views slideshow xtra fields."),
+    '#process' => array(
+      'form_process_checkboxes',
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="' . $dependency . '[enable]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  // Text display delay.
+  $form['display_delay'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Text Display Delay'),
+    '#default_value' => $defaults['display_delay'],
+    '#description' => t("How long, in milliseconds, to delay before displaying the text."),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="' . $dependency . '[enable]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  // Text display fade transition.
+  $form['display_delay_fade'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Fade in the text'),
+    '#default_value' => $defaults['display_delay_fade'],
+    '#states' => array(
+      'visible' => array(
+        ':input[name="' . $dependency . '[enable]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  // Pause after mouse movement.
+  $form['pause_after_mouse_move'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Pause After Mouse Movement'),
+    '#default_value' => $defaults['pause_after_mouse_move'],
+    '#description' => t("Temporarily pause slide transition to allow the user time to click a slide overlay link if the mouse is in motion."),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="' . $dependency . '[enable]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+    
+  $form['views_slideshow_xtra_wrapper_close'] = array(
+    '#markup' => '</div>',
+  );
+}

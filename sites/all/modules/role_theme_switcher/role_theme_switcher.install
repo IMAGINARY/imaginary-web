@@ -1,0 +1,6 @@
+<?php
+
+function role_theme_switcher_update_7011()
+{
+  menu_rebuild();
+}

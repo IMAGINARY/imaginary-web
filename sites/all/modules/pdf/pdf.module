@@ -1,0 +1,69 @@
+<?php
+module_load_include('inc', 'pdf', '/includes/pdf.field');
+
+function pdf_theme() {
+  $theme = array(
+    'pdf_formatter_default' => array(
+      'variables' => array(
+        'file' => NULL,
+        'keep_pdfjs' => NULL,
+        'width' => NULL,
+        'height' => Null,
+      ),
+      'file' => 'includes/pdf.field.inc',
+    ),
+    'pdf_formatter_thumbnail' => array(
+      'variables' => array('file' => NULL),
+      'file' => 'includes/pdf.field.inc',
+    ),
+    'pdf_formatter_pages' => array(
+      'variables' => array(
+        'file' => NULL,
+        'scale' => 1,
+      ),
+      'file' => 'includes/pdf.field.inc',
+    ),
+  );
+  return $theme;
+}
+
+function pdf_libraries_info() {
+  $libraries['pdf.js'] = array(
+    'name' => 'pdf.js',
+    'vendor url' => 'http://mozilla.github.io/pdf.js/',
+    'download url' => 'http://mozilla.github.io/pdf.js/getting_started/#download',
+    'version arguments' => array(
+      'file' => 'build/pdf.js',
+      'pattern' => '@PDFJS\.version\s=\s\'(.*)\'@',
+      'lines' => 30,
+    ),
+    'files' => array(
+      'js' => array(
+        'build/pdf.js',
+      ),
+    ),
+    'variants' => array(
+      'viewer' => array(
+        'files' => array(
+          'js' => array(
+            'build/pdf.js',
+            'web/viewer.js',
+          ),
+        ),
+      ),
+      //DEV
+      'textlayer' => array(
+        'files' => array(
+          'js' => array(
+            'build/pdf.js',
+            'web/pdf_find_bar.js',
+            'web/pdf_find_controller.js',
+            'web/ui_utils.js',
+            'web/text_layer_builder.js',
+          ),
+        ),
+      )
+    ),
+  );
+  return $libraries;
+}

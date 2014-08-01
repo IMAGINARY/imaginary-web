@@ -1,0 +1,1060 @@
+<?php
+ 
+/**
+ * @file
+ * User Stats provides commonly requested user statistics for themers.
+ * These are:
+ *  - days registered;
+ *  - join date;
+ *  - days since last login;
+ *  - days since last post;
+ *  - post count;
+ *  - login count;
+ *  - user online/offline;
+ *  - IP address;
+ *
+ * Note for hackers: function parameters should go in the order
+ * $op/$type, $uid, $data (where applicable).
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function user_stats_permission() {
+  return array(
+    'administer user stats' => array(
+      'title' => t('administer user stats'),
+      'description' => t('TODO Add a description for \'administer user stats\''),
+    ),
+    'View statistics' => array(
+      'title' => t('View statistics'),
+      'description' => t('TODO Add a description for \'View statistics\''),
+    ),
+    'View IP addresses' => array(
+      'title' => t('View IP addresses'),
+      'description' => t('TODO Add a description for \'View IP addresses\''),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function user_stats_menu() {
+  $items = array();
+
+  // Admin settings
+  $items['admin/config/people/user_stats'] = array(
+    'title' => 'User Stats settings',
+    'description' => 'Configuration of user stats module options.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_stats_admin_settings'),
+    'access arguments' => array('administer user stats'),
+    'file' => 'user_stats.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/people/user_stats/reset_post_count'] = array(
+    'title' => 'reset user post stats',
+    'page callback' => 'user_stats_reset_post_count',
+    'access arguments' => array('administer user stats'),
+    'file' => 'user_stats.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/people/reset_login_count'] = array(
+    'title' => 'reset user login stats',
+    'page callback' => 'user_stats_reset_login_count',
+    'access arguments' => array('administer user stats'),
+    'file' => 'user_stats.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Returns user stats.
+ *
+ * @param $type
+ *   The statistic to return. Possible values are:
+ *   - "ip_address"
+ *   - "join_date"
+ *   - "login_count"
+ *   - "login_days"
+ *   - "post_count"
+ *   - "post_days"
+ *   - "reg_days"
+ *   - "online"
+ *   - "profile"
+ * @param $uid
+ *   The user id who's stats should be retrieved.
+ *
+ * @return
+ *   The statistic requested. Every statistic except join_date, online and IP address is a numeric.
+ *   Join date is a string, whilst online is a boolean and IP Address a string.
+ *   Note: if $type = "post_days" and the user hasn't posted any content (of the
+ *   counted types) then 'n/a' is returned.
+ */
+function user_stats_get_stats($type, $uid) {
+  //dsm('user_stats_get_stats');
+  // Sometimes $uid can be NULL (comment previews for example).
+  if (!is_numeric($uid)) {
+    return;
+  }
+
+  // IP address is really a bit of feature creep.
+  // At some point in the future, this could be split off into its own module.
+  if ($type == 'ip_address') {
+    if (!user_access('View IP addresses')) {
+      return FALSE;
+    }
+    // Check cache.
+    if (user_stats_cache_get($type, $uid) === FALSE) {
+      $query = db_query("SELECT ip_address
+        FROM {user_stats_ips} WHERE uid = :uid
+        ORDER BY first_seen_timestamp LIMIT 1", array(':uid' => $uid));
+      user_stats_cache_set($type, $uid, $query->fetchField());
+    }
+    return user_stats_cache_get($type, $uid);
+  }
+
+  // Everything else is under the 'View statistics' permission.
+  if (!user_access('View statistics')) {
+    return FALSE;
+  }
+
+  // Check cache first.
+  if (user_stats_cache_get($type, $uid) !== FALSE) {
+    return user_stats_cache_get($type, $uid);
+  }
+
+  switch ($type) {
+    case 'join_date':
+      $data = db_query("SELECT created FROM {users} WHERE uid = :uid", array(':uid' => $uid))->fetchField();
+      break;
+    case 'login_count':
+      if (!variable_get('user_stats_count_logins', TRUE)) {
+        $data = 'n/a';
+      }
+      else if (user_stats_isset($type, $uid)) {
+        $data = db_query("SELECT value FROM {user_stats_values} WHERE name = :name AND uid = :uid", array(':name' => 'login_count', ':uid' => $uid))->fetchField();
+      }
+      else {
+        return 0;
+      }
+      break;
+    case 'login_days':
+      $user_access = db_query("SELECT access FROM {users} WHERE uid = :uid", array(':uid' => $uid))->fetchField();
+      $data = floor((REQUEST_TIME - $user_access) / 86400);
+      break;   
+    case 'login_date':
+      $data = db_query("SELECT access FROM {users} WHERE uid = :uid", array(':uid' => $uid))->fetchField();
+      break;
+    case 'post_count':
+      //dsm('post_count');
+      if (!variable_get('user_stats_count_posts', TRUE) && !variable_get('user_stats_count_comments', TRUE)) {
+        $data = 'n/a';
+      }
+      else if (!user_stats_isset('post_count', $uid)) {
+        //dsm('updating user stat post count...');
+        user_stats_post_count_update('reset', $uid);
+      }
+      $query = db_query("SELECT value FROM {user_stats_values}
+        WHERE name = :name AND uid = :uid", array(':name' => 'post_count', ':uid' => $uid));
+      $posts = $query->fetchField();
+      
+      //@TODO Figure out why adding comments here wasn't in the D6 version 
+      if(variable_get('user_stats_count_comments', TRUE)){
+        
+      }
+      $data = $posts;
+      
+      break;
+    case 'post_days':
+      $last_post = _user_stats_last_post($uid);
+      if ($last_post !== FALSE) {
+        $data = floor((REQUEST_TIME - $last_post) / 86400);
+      }
+      else {
+        $data = 'n/a';
+      }
+      break;
+    case 'reg_days':
+      $user_created = db_query("SELECT created FROM {users} WHERE uid = :uid", array(':uid' => $uid))->fetchField();
+      $data = floor((REQUEST_TIME - $user_created) / 86400);
+      break;
+    case 'online':
+      $user_access = db_query("SELECT timestamp FROM {sessions} WHERE uid = :uid", array(':uid' => $uid))->fetchField();
+      $data = ((REQUEST_TIME - $user_access) < variable_get('user_block_seconds_online', 900) ? TRUE : FALSE);
+      break;
+    default:
+      // Check for custom statistics
+      $custom_stats = array();
+      $module_list = module_implements('default_user_stats');
+      foreach ($module_list as $module) {
+        $custom_stats = array_merge($custom_stats, module_invoke($module, 'default_user_stats'));
+      }
+
+      if (array_key_exists($type, $custom_stats)) {
+        module_load_include('module', 'qna');
+        $data = call_user_func($custom_stats[$type], $uid);
+        break;
+      }
+      else {
+        // Raise an error if the statistic doesn't exist.
+        $err_message = 'Statistic "' . check_plain($type) . '" does not exist.';
+        trigger_error($err_message, E_USER_WARNING);
+        return;
+      }
+  }
+  user_stats_cache_set($type, $uid, $data);
+  return user_stats_cache_get($type, $uid);
+}
+
+/**
+ * Return data from the non-persistent User Stats cache. Single values
+ * are returned according to type of statistic and unique user id.
+ *
+ * @param $type
+ *   The type of statistic to retrieve, this corresponds to the statistic
+ *   types used by user_stats_get_stats().
+ * @param $uid
+ *   Unique ID of the user who's statistic is being retrieved.
+ *
+ * @return
+ *   A single value, representing the statistic $type where the unique user id
+ *   is $uid. Or FALSE if there is no value in the cache for this combination
+ *   of $type and $uid.
+ *
+ * @see user_stats_get_stats().
+ * @see user_stats_cache_set().
+ */
+function user_stats_cache_get($type, $uid) {
+  //dsm('user_stats_cache_get');
+  $user_stats_cache = user_stats_cache_set();
+  if (isset($user_stats_cache[$uid][$type])) {
+    return $user_stats_cache[$uid][$type];
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Store a value in the non-persistent User Stats cache.
+ *
+ * If the function is called with no arguments, the entire cache is returned
+ * without being cleared.
+ *
+ * The User Stats cache is a static array, which is why we call it
+ * non-persistent. The array structure is:
+ * $user_stats_cache[$uid][$type] = $value.
+ *
+ * @param $type
+ *   The type of statistic being stored, this corresponds to the statistic
+ *   types used by user_stats_get_stats(), and one extra used to reset the
+ *   cache: 'reset'.
+ * @param $uid
+ *   Unique ID of the user who's statistic is being stored. If the type
+ *   is set to 'reset', this user id will have the cache values associated with
+ *   it reset. Alternatively, if $type is set to 'reset' and this is -1, the
+ *   entire cache will be reset.
+ *
+ * @return
+ *   Array of the entire cache, or NULL if the cache has been reset.
+ *
+ * @see user_stats_get_stats().
+ * @see user_stats_cache_get().
+ */
+function user_stats_cache_set($type = NULL, $uid = 0, $data = NULL) {
+  static $user_stats_cache = array();
+  // Flush entire cache.
+  if ($uid == -1 && $type == 'reset') {
+    unset($user_stats_cache);
+    return;
+  }
+  else if ($uid > -1 && $type == 'reset') {
+    unset($user_stats_cache[$uid]);
+    return;
+  }
+  // Set cache data. Check against NULL since a zero (in $data at least)
+  // is valid.
+  if ($type !== NULL && $data !== NULL) {
+    $user_stats_cache[$uid][$type] = $data;
+  }
+
+  return $user_stats_cache;
+}
+
+/**
+ * Drupal hook implementations.
+ */
+
+/**
+ * Implements hook_node_insert().
+ */
+function user_stats_node_insert_ORG($node) {
+  global $user;
+  // User IP addresses are only interesting if they are posting the content.
+  if ($node->uid == $user->uid) {
+    user_stats_ip_address_update($user->uid, ip_address());
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function user_stats_node_update_ORG($node) {
+  global $user;
+  // User IP addresses are only interesting if they are posting the content.
+  if ($node->uid == $user->uid) {
+    user_stats_ip_address_update($user->uid, ip_address());
+  }
+}
+
+//@TODO: Update these.  Just a quick hack to get the functionality working.
+function user_stats_node_insert($node){
+  user_stats_nodeapi_OLD($node, 'insert');
+}
+
+function user_stats_node_update($node){
+  user_stats_nodeapi_OLD($node, 'update');
+}
+
+function user_stats_node_delete($node){
+  user_stats_nodeapi_OLD($node, 'delete');
+}
+
+
+/**
+ * Implements hook_nodeapi().
+ *
+ * Increments post count on insert or publish.
+ * Decrements post count on delete or unpublish.
+ * Checks and updates users without post counts on view.
+ *
+ * @param &$node
+ *   The node the action is being performed on.
+ * @param $op
+ *   The operation being performed. We are interested in insert, delete, update and view.
+ */
+function user_stats_nodeapi_OLD(&$node, $op) {
+  // TODO Remaining code in this function needs to be moved to the appropriate new hook function.
+  // We stop before any work is done if the $op isn't one of the ones we need
+  if (!in_array($op, array('insert', 'delete', 'update'))) {
+    return;
+  }
+  $post_count_content_types = variable_get('user_stats_included_content_types', array());
+  if ((empty($post_count_content_types) ||
+    in_array($node->type, $post_count_content_types)) &&
+    variable_get('user_stats_count_posts', TRUE)) {
+
+    switch ($op) {
+      case 'insert':
+        if ($node->status) {
+          user_stats_post_count_update('increment', $node->uid);
+        }
+        break;
+      case 'delete':
+        // Node must be published as unpublished nodes would have already been
+        // removed from user's post count.
+        if ($node->status) {
+          user_stats_post_count_update('decrement', $node->uid);
+        }
+        break;
+      case 'update':
+        // Can't think of any other way of doing this than resetting the user.
+        user_stats_post_count_update('reset', $node->uid);
+        break;
+    }
+  }
+  // Do IP Address update.
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function user_stats_comment_insert_ORG($comment) {
+  if (TRUE && $comment->uid == $user->uid) {
+    // User IP addresses are only interesting if they are posting the content.
+    user_stats_ip_address_update($user->uid, ip_address());
+  }
+}
+
+
+//@TODO: Update these.  Just a quick hack to get the functionality working.
+function user_stats_comment_insert($comment){
+  //dsm('user_stats_comment_insert');
+  user_stats_comment_OLD($comment, 'insert');
+}
+
+function user_stats_comment_update($comment){
+  user_stats_comment_OLD($comment, 'update');
+}
+
+function user_stats_comment_delete($comment){
+  user_stats_comment_OLD($comment, 'delete');
+}
+
+
+
+/**
+ * Implements hook_comment().
+ *
+ * Increments post count on insert or publish.
+ * Decrements post count on delete or unpublish.
+ * Updates users with no post count on view.
+ *
+ * @param $a1
+ *   Either the form values being submitted, the module form to be displayed,
+ *   or the comment object.
+ * @param $op
+ *   What kind of action is being performed.
+ */
+function user_stats_comment_OLD(&$a1, $op) {
+  // TODO Remaining code in this function needs to be moved to the appropriate new hook function.
+  // We stop before any work is done if the $op isn't one of the ones we need.
+  if (!in_array($op, array('insert', 'delete', 'update'))) {
+    return;
+  }
+  // check to see if comments should be counted at all.
+  if (variable_get('user_stats_count_comments', TRUE)) {
+    $comment = (object) $a1;
+    // Bug [#479394] - Anonymous User Comment causes 'UID is not a number'
+    // errors. User Stats always expects UIDs to be numeric.
+    if ($comment->uid == NULL) {
+      $comment->uid = 0;
+    }
+    $post_count_content_types = variable_get('user_stats_included_content_types', array());
+    $node = node_load($comment->nid);
+
+    if (empty($post_count_content_types) ||
+      in_array($node->type, $post_count_content_types)) {
+
+      switch ($op) {
+        case 'insert':
+          if ($comment->status == COMMENT_PUBLISHED) {
+            user_stats_post_count_update('increment', $comment->uid);
+          }
+          break;
+        case 'delete':
+          if ($comment->status == COMMENT_PUBLISHED) {
+            user_stats_post_count_update('decrement', $comment->uid);
+          }
+          break;
+        case 'update':
+          user_stats_post_count_update('reset', $comment->uid);
+          break;
+      }
+    }
+  }
+  // Do IP address update.
+  global $user;
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * We slowly work through all users without a post count
+ * updating them.
+ */
+function user_stats_cron() {
+  if (variable_get('user_stats_rebuild_stats', TRUE) &&
+    (variable_get('user_stats_count_posts', TRUE) ||
+    variable_get('user_stats_count_comments', TRUE))) {
+	
+    $sql  = "SELECT uid FROM {users} WHERE uid NOT IN
+      (SELECT uid FROM {user_stats_values} WHERE name = 'post_count')";
+    // Update 25 users per cron run.
+    $result = db_query_range($sql, 0, variable_get('user_stats_user_per_cron', '25'));
+    $users_updated = FALSE;
+	foreach ($result as $update_user) {
+      user_stats_post_count_update('reset', $update_user->uid);
+      $users_updated = TRUE;
+    }
+    // If all users have been updated we'll avoid running this expensive
+    // query again by setting the following flag!
+    if (!$users_updated) {
+      variable_set('user_stats_rebuild_stats', FALSE);
+    }
+  }
+  // Fire rules day_older event.
+  // This may seem grossly inefficient, but testing showed that, even firing
+  // the event for ~100 users, takes less than a second to run when there are
+  // no rules using this event. With a rule (that adds a role if the user has
+  // been a member for over 1,000 days) cron took an extra ~40 seconds to run.
+  // Basically, this has no potential to harm a site's performance, unless a
+  // rule is configured.
+  // Having said this: if there's a better way, please raise a bug report!
+  if (module_exists('rules')) {
+    $sql  = "SELECT uid FROM {users} u ";
+    // ((last cron - created) - (time() - created)) > one day
+    $sql .= "WHERE (FLOOR((:request_time-created)/(60*60*24))-FLOOR((:cron_last-created)/(60*60*24)))>0 AND uid>0";
+    $result = db_query($sql, array(':request_time' => REQUEST_TIME, ':cron_last' => variable_get('cron_last', REQUEST_TIME)));
+    $reset_user_count = 0;
+	foreach ($result as $update_user) {
+      rules_invoke_event('user_stats_day_older', $update_user->uid);
+    }
+  }
+  if (variable_get('user_stats_track_ips', TRUE)) {
+    // Delete items from the IP log that are past expiry.
+    // TODO Please review the conversion of this statement to the D7 database API syntax.
+    /* db_query("DELETE FROM {user_stats_ips} WHERE first_seen_timestamp < %d", REQUEST_TIME - variable_get('user_stats_flush_ips_timer', 31536000)) */
+    db_delete('user_stats_ips')
+  ->condition('first_seen_timestamp', REQUEST_TIME - variable_get('user_stats_flush_ips_timer', 31536000), '<')
+  ->execute();
+  }
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function user_stats_user_login(&$edit, $account) {
+  if (TRUE && variable_get('user_stats_count_logins', TRUE)) {
+    user_stats_login_count_update('increment', $account->uid);
+    //user_stats_ip_address_update($account->uid, ip_address());
+  }
+}
+
+/**
+ * Implements hook_user_login().
+ */
+//function user_stats_user_login(&$edit, $account) {
+//  if (TRUE || TRUE) {
+//    user_stats_ip_address_update($account->uid, ip_address());
+//  }
+//}
+
+/**
+ * Implements hook_user_logout().
+ */
+function user_stats_user_logout($account) {
+  if (TRUE || TRUE) {
+    user_stats_ip_address_update($account->uid, ip_address());
+  }
+}
+
+/**
+ * Implements hook_user().
+ */
+function user_stats_user_OLD($op, &$edit, &$account) {
+  // TODO Remaining code in this function needs to be moved to the appropriate new hook function.
+  // Update login count.
+  // Update IP Address.
+}
+
+/**
+ * Helper function to get the last post created by the user.
+ *
+ * @param $account
+ *   User object.
+ *
+ * @return
+ *   Unix timestamp: date of the last post (node or comment).
+ */
+function _user_stats_last_post($uid) {
+  $sql  = "SELECT MAX(created) FROM {node} WHERE status=%d AND uid=%d";
+  $all_content_types = node_type_get_types();
+  $post_count_content_types = variable_get('user_stats_included_content_types', array());
+  $where = "";
+  // If some, but not all, content types have been selected in the admin
+  // interface add a WHERE clause to select only them.
+  if (!empty($post_count_content_types) && array_keys($all_content_types) != array_keys($post_count_content_types)) {
+    $content_types = "'" . implode("','", $post_count_content_types) . "'";
+    $where = ' AND type IN (' . $content_types . ')';
+  }
+  $sql .= $where;
+  // TODO Please convert this statement to the D7 database API syntax.
+  $max_node = db_query($sql, 1, $uid)->fetchField();
+
+  $sql  = "SELECT MAX(timestamp) FROM {comment} c ";
+  $where = " WHERE c.status=:status AND c.uid=:uid ";
+  $join = "";
+  if (!empty($post_count_content_types) && array_keys($all_content_types) != array_keys($post_count_content_types)) {
+    $join = " INNER JOIN {node} n ON c.nid=n.nid ";
+    $where .= 'AND n.type IN (' . $content_types . ')';
+  }
+  $sql .= $join . $where;
+  // TODO Please convert this statement to the D7 database API syntax.
+  $max_comments = db_query($sql, array(':status' => COMMENT_PUBLISHED, 'uid' => $uid))->fetchField();
+
+  if (is_null($max_node) && is_null($max_comments)) {
+    return FALSE;
+  }
+  else if ($max_node > $max_comments) {
+    return $max_node;
+  }
+  else if ($max_node <= $max_comments) {
+    return $max_comments;
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ *
+ * Other Views hooks in user_stats.views.inc.
+ */
+function user_stats_views_api() {
+  return array(
+    'api' => '2.0',
+    'path' => drupal_get_path('module', 'user_stats') . '/views',
+  );
+}
+
+/**
+ * Actions/Rules hooks and implementing functions.
+ *
+ * (we don't do Triggers as the API doesn't seem complete -- having to use
+ * _trigger_get_hook_aids() for example). Patches welcome for this, as long
+ * as they do not use private member functions!
+ *
+ * Most Rules hooks are in user_stats.rules.inc.
+ */
+
+/**
+ * Implements hook_action_info().
+ */
+function user_stats_action_info() {
+  return array(
+    'user_stats_post_count_reset_action' => array(
+      'label' => t('Reset user post count'),
+      'type' => 'user',
+      'configurable' => FALSE,
+      'triggers' => array(
+        'nodeapi_delete',
+        'nodeapi_insert',
+        'nodeapi_update',
+        'nodeapi_view',
+        'comment_view',
+        'comment_insert',
+        'comment_update',
+        'comment_delete',
+        'user_login',
+        'user_logout',
+      ),
+    ),
+    'user_stats_login_count_reset_action' => array(
+      'label' => t('Reset user login count'),
+      'type' => 'user',
+      'configurable' => FALSE,
+      'triggers' => array(
+        'nodeapi_delete',
+        'nodeapi_insert',
+        'nodeapi_update',
+        'nodeapi_view',
+        'comment_view',
+        'comment_insert',
+        'comment_update',
+        'comment_delete',
+        'user_login',
+        'user_logout',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of a Drupal action.
+ * Resets a user's post count.
+ */
+function user_stats_post_count_reset_action(&$object, $context = array()) {
+  if (isset($object->uid)) {
+    $uid = $object->uid;
+  }
+  elseif (isset($context['uid'])) {
+    $uid = $context['uid'];
+  }
+  else {
+    global $user;
+    $uid = $user->uid;
+  }
+  user_stats_post_count_update('reset', $uid);
+}
+
+/**
+ * Implementation of a Drupal action.
+ * Resets a user's login count.
+ */
+function user_stats_login_count_reset_action(&$object, $context = array()) {
+  if (isset($object->uid)) {
+    $uid = $object->uid;
+  }
+  elseif (isset($context['uid'])) {
+    $uid = $context['uid'];
+  }
+  else {
+    global $user;
+    $uid = $user->uid;
+  }
+  user_stats_login_count_update('reset', $uid);
+}
+
+/**
+ * Implements hook_user_stats().
+ *
+ * Invoke the Rules module.
+ */
+function user_stats_user_stats($type, $op, $uid, $value) {
+ /*
+  if (module_exists('rules')) {
+    rules_invoke_event('user_stats_' . $type . '_' . $op, $uid, $value);
+  }
+  
+*/
+}
+
+/**
+ * Token hook implementations
+ */
+
+/**
+ * Implements hook_token_values().
+ */
+function user_stats_token_values($type, $object = NULL) {
+  switch ($type) {
+    case 'user':
+    case 'all':
+      if (isset($object)) {
+        // Think this is sometimes an array (please raise this as an issue if wrong).
+        $object = (object) $object;
+        $uid = $object->uid;
+      }
+      else {
+        global $user;
+        $uid = $user->uid;
+      }
+
+      // Check_plain added as per Greggles suggestion: http://drupal.org/node/166305#comment-665874
+      $values['reg-days']               = check_plain(user_stats_get_stats('reg_days', $uid));
+      $values['login-days']             = check_plain(user_stats_get_stats('login_days', $uid));
+      $values['post-days']              = check_plain(user_stats_get_stats('post_days', $uid));
+      $values['post-count']             = check_plain(user_stats_get_stats('post_count', $uid));
+      $values['ip-address']             = check_plain(user_stats_get_stats('ip_address', $uid));
+      $values['login-count']            = check_plain(user_stats_get_stats('login_count', $uid));
+      return $values;
+  }
+}
+
+/**
+ * Implements hook_token_list().
+ */
+function user_stats_token_list($type = 'all') {
+  if ($type == 'user' || $type == 'all') {
+    $tokens['user']['reg-days']               = t('Number of days since the user registered');
+    $tokens['user']['login-days']             = t('Number of days since the user logged in');
+    $tokens['user']['post-days']              = t('Number of days since the user posted');
+    $tokens['user']['post-count']             = t("User's post count");
+    $tokens['user']['ip-address']             = t("User's IP address");
+    $tokens['user']['login-count']            = t("User's login count");
+    return $tokens;
+  }
+}
+
+/**
+ * Checks whether a statistic is set for a given user.
+ *
+ * @param $uid
+ *   User ID of the user who's statistics should be checked.
+ * @param $statistic
+ *   What statistic to check.
+ */
+function user_stats_isset($statistic, $uid) {
+  
+  //dsm('user_stats_isset');
+  //dsm($statistic);
+  //dsm($uid);
+  $result = db_query("SELECT COUNT(*) FROM {user_stats_values}
+    WHERE uid = :uid AND name = :name", array(':uid' => $uid, ':name' => $statistic))->fetchField();
+  //dsm($result);
+  if ($result > 0) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Manage the login count of a given user.
+ *
+ * @param $uid
+ *   Unique id of the user who's record should be updated.
+ * @param $op
+ *   Whether the user login count should be incremented, decremented, or reset.
+ *   Possible values are:
+ *    - 'increment'
+ *    - 'decrement'
+ *    - 'reset'
+ */
+function user_stats_login_count_update($op, $uid) {
+  //dsm('user_stats_login_count_update');
+  if (!is_numeric($uid)) {
+    return;
+  }
+
+  switch ($op) {
+    case 'increment':
+      //dsm('increment');
+      if (user_stats_isset('login_count', $uid)) {
+        // Update existing value.
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("UPDATE {user_stats_values} SET value = value + 1
+         WHERE name = 'login_count' AND uid = %d", $uid) */
+        
+        //@TODO: Pervious query tried to update and add in one query... that wasn't working
+        // Not sure this is possible with D7 db abstraction... 'value' => value + 1,
+        $count = (user_stats_cache_get('login_count', $uid) + 1);
+        //dsm('count:' . $count);
+        db_update('user_stats_values')
+  ->fields(array(
+          'value' => $count,
+        ))
+  ->condition('name', 'login_count')
+  ->condition('uid', $uid)
+  ->execute();
+      }
+      else {
+        // If there isn't a value insert it.
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("INSERT INTO {user_stats_values} (name, uid, value)
+         VALUES ('login_count', %d, 1)", $uid) */
+        $id = db_insert('user_stats_values')
+  ->fields(array(
+          'name' => 'login_count',
+          'uid' => $uid,
+          'value' => 1,
+        ))
+  ->execute();
+      }
+      break;
+    case 'decrement':
+      //dsm('decrement');
+      if (user_stats_isset('login_count', $uid)) {
+        // Update existing value.
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("UPDATE {user_stats_values} SET value = value - 1
+         WHERE name = 'login_count' AND uid = %d", $uid) */
+        db_update('user_stats_values')
+  ->fields(array(
+          'value' => value - 1,
+        ))
+  ->condition('name', 'login_count')
+  ->condition('uid', $uid)
+  ->execute();
+      }
+      else {
+        // If there isn't a value insert it.
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("INSERT INTO {user_stats_values} (name, uid, value)
+         VALUES ('login_count', %d, 0)", $uid) */
+        $id = db_insert('user_stats_values')
+  ->fields(array(
+          'name' => 'login_count',
+          'uid' => $uid,
+          'value' => 0,
+        ))
+  ->execute();
+      }
+      break;
+    case 'reset':
+      // TODO Please review the conversion of this statement to the D7 database API syntax.
+      /* db_query("DELETE FROM {user_stats_values}
+       WHERE name = 'login_count' AND uid = %d", $uid) */
+      db_delete('user_stats_values')
+  ->condition('name', 'login_count')
+  ->condition('uid', $uid)
+  ->execute();
+      break;
+  }
+  // Flush token cache.
+  //if (module_exists('token')) {
+    //token_get_values('user', NULL, TRUE);
+  //}
+  // Flush internal cache.
+  user_stats_cache_set('reset', $uid);
+  // Allow modules to react to a statistic change.
+  module_invoke_all('user_stats', 'login_count', $op, $uid, user_stats_get_stats('login_count', $uid));
+}
+
+/**
+ * Manage the post count of a given user.
+ *
+ * @param $uid
+ *   Unique id of the user who's record should be updated.
+ * @param $op
+ *   Whether the user post count should be incremented, decremented, or reset.
+ *   The default is to increment. Possible values are:
+ *   'increment'
+ *   'decrement'
+ *   'reset'
+ */
+function user_stats_post_count_update($op, $uid) {
+  //dsm('user_stats_post_count_update');
+  //dsm('userid: ' . $uid);
+  if (!is_numeric($uid)) {
+    return;
+  }
+
+  switch ($op) {
+    case 'increment':
+      //dsm('increment');
+      if (user_stats_isset('post_count', $uid)) {
+        //@TODO: Pervious query tried to update and add in one query... that wasn't working
+        // Not sure this is possible with D7 db abstraction... 'value' => value + 1,
+        //$count = (user_stats_cache_get('post_count', $uid) + 1);
+        $count = (user_stats_get_stats('post_count', $uid) + 1);
+        
+        //dsm('set user stats is to:' . $count);
+        db_update('user_stats_values')
+  ->fields(array(
+          'value' => $count,
+        ))
+  ->condition('name', 'post_count')
+  ->condition('uid', $uid)
+  ->execute();
+        
+        //dsm('updated!');
+
+        
+        // Flush internal cache.
+        user_stats_cache_set('reset', $uid);
+      }
+      else {
+        user_stats_post_count_update('reset', $uid);
+      }
+      break;
+    case 'decrement':
+      //dsm('decrement');
+      if (user_stats_isset('post_count', $uid)) {
+        //@TODO: Same issue as 'increment'.  Pervious query tried to update and add in one query... that wasn't working
+        // Not sure this is possible with D7 db abstraction... 'value' => value + 1,
+        //$count = (user_stats_cache_get('post_count', $uid) + 1);
+        $count = (user_stats_get_stats('post_count', $uid) - 1);
+        
+        db_update('user_stats_values')
+  ->fields(array(
+          'value' => $count,
+        ))
+  ->condition('name', 'post_count')
+  ->condition('uid', $uid)
+  ->execute();
+        // Flush internal cache.
+        user_stats_cache_set('reset', $uid);
+      }
+      else {
+        user_stats_post_count_update('reset', $uid);
+      }
+      break;
+    case 'reset':
+      //dsm('reset');
+      $total_count = 0;
+      if (variable_get('user_stats_count_posts', TRUE)) {
+        $sql  = "SELECT COUNT(*) FROM {node} WHERE uid = :uid AND status = 1";
+        $post_count_content_types = variable_get('user_stats_included_content_types', array());
+        if (!empty($post_count_content_types)) {
+          $content_types = "'" . implode("','", $post_count_content_types) . "'";
+          $where = ' AND type IN (' . $content_types . ')';
+          $sql .= $where;
+        }
+        $node_count = db_query($sql, array(':uid' => $uid))->fetchField();
+        $total_count += $node_count;
+      }
+      if (variable_get('user_stats_count_comments', TRUE)) {
+          
+        $sql = "SELECT COUNT(*) FROM {comment} c 
+          INNER JOIN {node} n ON c.nid = n.nid
+          WHERE c.uid = :uid AND c.status = 0 AND n.status = 1";
+        if (!empty($post_count_content_types)) {
+          $where = ' AND n.type IN (' . $content_types . ')';
+          $sql .= $where;
+        }
+
+        $comments_count = db_query($sql,  array(':uid' => $uid))->fetchField();
+        $total_count += $comments_count;
+      }
+      // TODO Please review the conversion of this statement to the D7 database API syntax.
+      /* db_query("DELETE FROM {user_stats_values}
+       WHERE name = 'post_count' AND uid = %d", $uid) */
+      db_delete('user_stats_values')
+  ->condition('name', 'post_count')
+  ->condition('uid', $uid)
+  ->execute();
+      // TODO Please review the conversion of this statement to the D7 database API syntax.
+      /* db_query("INSERT INTO {user_stats_values} (name, uid, value)
+       VALUES ('post_count', %d, %d)", $uid, $total_count) */
+      $id = db_insert('user_stats_values')
+  ->fields(array(
+        'name' => 'post_count',
+        'uid' => $uid,
+        'value' => $total_count,
+      ))
+  ->execute();
+      // Prime the cache, this will be used by module_invoke_all() below.
+      user_stats_cache_set('post_count', $uid, $total_count);
+      break;
+  }
+  // Flush token cache
+  //if (module_exists('token')) {
+    //token_get_values('user', NULL, TRUE);
+  //}
+
+  // Allow modules to react to a statistic change.
+  module_invoke_all('user_stats', 'post_count', $op, $uid, user_stats_get_stats('post_count', $uid));
+}
+
+/**
+ * Update the IP address of a given user.
+ *
+ * The IP address is not updated if it is the same as the last recorded IP,
+ * however, if the user has IP address A, then switches to IP address B
+ * and back to A again, A will be recorded twice. This is to keep an accurate
+ * log of IP addresses used by users.
+ *
+ * @param $uid
+ *   User ID of user who's IP is being updated.
+ * @param $ip_address
+ *   IP address to assign to user.
+ */
+function user_stats_ip_address_update($uid, $ip_address) {
+  if (!is_numeric($uid)) {
+    return;
+  }
+
+  // Don't bother recording IPs of anonymous users, and don't record any
+  // addresses if the config form tells us not to.
+  if ($uid == 0 || !variable_get('user_stats_track_ips', TRUE)) {
+    return;
+  }
+  $query = db_query_range("SELECT ip_address FROM {user_stats_ips} WHERE uid = :uid ORDER BY first_seen_timestamp DESC", 0, 1, array(':uid' => $uid));
+
+  if ($ip_address != $query->fetchField()) {
+    // Reset internal cache.
+    user_stats_cache_set('reset', $uid);
+    // TODO Please review the conversion of this statement to the D7 database API syntax.
+    /* db_query("INSERT INTO {user_stats_ips} (uid, ip_address, first_seen_timestamp)
+     VALUES (%d, '%s', %d)", $uid, $ip_address, REQUEST_TIME) */
+    $id = db_insert('user_stats_ips')
+  ->fields(array(
+      'uid' => $uid,
+      'ip_address' => $ip_address,
+      'first_seen_timestamp' => REQUEST_TIME,
+    ))
+  ->execute();
+    // Allow modules to react to an IP address change.
+    module_invoke_all('user_stats', 'ip_address', 'insert', $uid, $ip_address);
+  }
+}
+
+/**
+ * Resets statistics. Full stop.
+ *
+ * @param $statistic
+ *   The name of the statistic to be reset.
+ *   Corresponds with {user_stats_values}.name.
+ */
+function user_stats_reset_counts($statistic) {
+  // TODO Please review the conversion of this statement to the D7 database API syntax. 
+  /* db_query("DELETE FROM {user_stats_values} WHERE name = '%s'", $statistic) */
+  //dsm('user_stats_reset_counts');
+  db_delete('user_stats_values')
+  ->condition('name', $statistic)
+  ->execute();
+}

@@ -1,0 +1,10 @@
+.fc-scrollable-checkboxes{
+  height: 100px;
+  width: 400px;
+  padding: 5px;
+  overflow: auto;
+  border: 1px solid #ccc;
+}
+.fc-scrollable-checkboxes input{
+  float:left;
+}

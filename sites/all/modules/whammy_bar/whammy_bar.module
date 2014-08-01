@@ -1,0 +1,202 @@
+<?php
+
+/**
+ * The whammy bar module
+ *
+ * @todo
+ * - better styling/formatting
+ * - hook install imageset preset
+ * - light and dark style
+ * - automatically add non-std tabs from user profile to drop-down
+ * - 2-3 custom links
+ */
+
+/**
+ * Implement hook_menu()
+ *
+ * Track roles for Whammy Bar
+ */
+function whammy_bar_menu() {
+  $items = array();
+
+  $items['admin/config/administration/whammy-bar'] = array(
+    'title' => 'Whammy Bar',
+    'description' => t('Settings for the Whammy Bar'),
+    'access arguments' => array('administer whammy bar'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('whammy_bar_settings_form'),
+    'type' => MENU_NORMAL_ITEM,
+    );
+
+  return $items;
+}
+
+/**
+ * Implement hook_permissions()
+ */
+function whammy_bar_permission() {
+  return array(
+    'administer whammy bar' => array(
+      'title' => t('Administer Whammy Bar'), 
+      'description' => t('Change the settings of hte Whammy Bar.'),
+    ),
+  );
+}
+
+/**
+ * Build the basic settings form for the module
+ * 
+ */
+function whammy_bar_settings_form() {
+  $form = array();
+
+  $roles = array();
+  foreach(user_roles() as $role) {
+    $roles[$role] = $role;
+  }
+
+  $form['whammy_bar_roles_to_show'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Show the Whammy Bar to users with the following roles:'),
+    '#options' => drupal_map_assoc(user_roles()),
+    '#default_value' => variable_get('whammy_bar_roles_to_show', ''),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implement hok_page_alter()
+ *
+ * Add the whammy bar to the bottom of the page, to be moved by JS
+ *
+ * @todo
+ *  Need call to show()
+ */
+function whammy_bar_page_alter(&$page) {
+  if(whammy_bar_should_appear()) {
+    $module_path = drupal_get_path('module', 'whammy_bar');
+
+    // add in the JS we need
+    drupal_add_js($module_path . '/whammy_bar.js', array(
+      'type' => 'file',
+      'scope' => 'footer',
+      ));
+
+    // add in the CSS we need
+    drupal_add_css($module_path . '/whammy_bar.css', array(
+      'type' => 'file',
+      ));
+
+    // get the page output
+    $page['page_bottom']['whammy_bar'] = whammy_bar_output();
+  }
+}
+
+/**
+ * Determine if we should show the Whammy Bar
+ *
+ */
+function whammy_bar_should_appear() {
+  global $user;
+  $display = FALSE;
+
+  if($user->uid) {
+    $show_roles = array_values(variable_get('whammy_bar_roles_to_show', array()));
+    foreach($user->roles as $role) {
+      if(in_array($role, $show_roles, TRUE)) {
+        $display = TRUE;
+      }
+    }
+  }
+
+  return $display;
+}
+
+/**
+ * Build the whammy bar with love
+ *
+ */
+function whammy_bar_output() {
+
+  global $user;
+  $output = array(); // render unto Caeser
+
+  // if they aren't logged in, no whammy funtimes
+  if(!$user) {
+    return FALSE;
+  }
+
+  $links = array();
+
+  // add in a home link if not home
+  $links[] = l(variable_get('site_name', t('Home')), '<front>', array(
+    'attributes' => array('title' => 'Home')
+  ));
+
+  // create content links for all the content types they are allowed to create
+  // permissions for node creation are 'create forum content'
+  $create_links = array();
+  foreach($types = node_type_get_types() as $type) {
+    $perm = 'create ' . $type->type . ' content';
+    if(user_access($perm, $user)) {
+      $create_links[] = l($type->name, 'node/add/' . $type->type);
+    }
+  }
+
+  $links[] = array(
+    'data' => l(t('Create'), 'node/add'),
+    'children' => $create_links
+    );
+
+  // edit the currrent page
+  $node = menu_get_object();
+  if($node && node_access('update', $node, $user)) {
+    $links[] = l(t('Edit Page'), 'node/' . $node->nid . '/edit');
+  }
+
+  // try to get the user image
+  $user_picture = file_load($user->picture);
+  if(!empty($user_picture->uri)) {
+    $user_picture_html = theme_image_style(array(
+      'style_name' => 'whammy-bar-profile-picture',
+      'path' => $user_picture->uri, 
+      'alt' => t('A picture of handsome you!'), 
+      'title' => t('A picture of handsome you!'),
+      'width' => NULL,
+      'height' => NULL,
+    ));
+
+    // user profile links
+    $links[] = array(
+      'data' => $user_picture_html,
+      'class' => array('user-profile-picture'),
+    ); 
+  }
+
+  // other user profile links
+  $links[] = array(
+    'data' => l(t('Hey !user', array('!user' => $user->name)), 'user'),
+    'class' => array('user-profile'),
+    'children' => array(
+      l(t('Edit profile'), 'user/' . $user->uid . '/edit'),
+      l(t('Logout'), 'user/logout'),
+    ),
+  );
+
+  // prep everything for returning
+  $output = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => 'whammy-bar-container',
+      'style' => 'display: none;',
+      ),
+    );
+
+  $output['whammy-bar-links'] = array(
+    '#theme' => 'item_list', 
+    '#items' => $links
+    );
+
+  return $output;
+}

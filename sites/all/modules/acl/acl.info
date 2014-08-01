@@ -1,0 +1,13 @@
+name = ACL
+description = Access control list API. Has no features on its own.
+core = 7.x
+package = Access control
+
+files[] = tests/acl.test
+
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-1.0+4-dev"
+core = "7.x"
+project = "acl"
+datestamp = "1380552329"
+

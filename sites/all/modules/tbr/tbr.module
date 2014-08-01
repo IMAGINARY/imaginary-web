@@ -1,0 +1,179 @@
+<?php
+
+/**
+ * Allows different themes by role.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function tbr_menu() {
+  $items['admin/appearance/by-role'] = array(
+    'title' => 'By role',
+    'description' => 'Select default themes by user role',
+    'access arguments' => array('administer themes'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tbr_theme_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 0,
+  );
+  
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function tbr_menu_alter(&$items) {
+  $items['admin/appearance/list']['title'] = 'Defaults';
+}
+
+/**
+ * Form for tbr page.
+ */
+function tbr_theme_settings_form($form, &$form_state) {
+  // Get roles.
+  $roles = user_roles();
+  
+  // Get themes and scrub them a la system_themes_page() to get a listing of available themes.
+  $themes = system_rebuild_theme_data();
+  foreach ($themes as &$theme) {
+    if (!empty($theme->info['hidden'])) {
+      continue;
+    }
+    $theme_options[$theme->name] = $theme->info['name'];
+  }
+
+  // Create an admin theme fieldset for each available role
+  foreach ($roles as $role) {
+    $role = str_replace(' ', '_', $role);
+    $form[$role.'_admin_theme'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#title' => t('!role theme settings', array('!role' => ucfirst(str_replace('_', ' ', $role)))),
+    );
+    $form[$role.'_admin_theme'][$role.'_admin_theme'] = array(
+      '#type' => 'select',
+      '#options' => array(0 => t('Default site theme'), 1 => t('Default admin theme')) + $theme_options,
+      '#title' => t('Administration theme'),
+      '#description' => t('Choose "Default theme" to use the default administration theme.'),
+      '#default_value' => variable_get($role.'_admin_theme', 0),
+    );
+    $form[$role.'_admin_theme'][$role.'_node_admin_theme'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use the administration theme when editing or creating content'),
+      '#default_value' => variable_get($role.'_node_admin_theme', '0'),
+    );
+  }
+  
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  
+  return $form;
+}
+
+/**
+ * Submit handler for tbr page
+ */
+function tbr_theme_settings_form_submit($form, &$form_state) {
+  // Get roles.
+  $roles = user_roles();
+  
+  // Loop over each role and set its respective theme variables
+  foreach ($roles as $role) {
+    // Replace space with underscore.
+    $role = str_replace(' ', '_', $role);
+    
+    // Set admin theme settings
+    variable_set($role.'_admin_theme', $form_state['values'][$role.'_admin_theme']);
+    variable_set($role.'_node_admin_theme', $form_state['values'][$role.'_node_admin_theme']);
+    
+    // Enable admin theme for hook_custom_theme to work.
+    // theme_enable(array($form_state['values'][$role.'_admin_theme']));
+  }
+
+  // Set finished message.
+  drupal_set_message(t('The configuration options have been saved.'));
+}
+
+/**
+ * Implements hook_custom_theme()
+ */
+function tbr_custom_theme() {
+  global $conf;
+  global $user;
+  
+  // Loop over user forhighest role.
+  foreach ($user->roles as $role) {
+    $theme_role = $role;
+  }
+  // Scrub the spaces out of the role.
+  $theme_role = str_replace(' ', '_', $theme_role);
+  
+  // Set the admin_theme in $conf to custom admin theme.
+  $default_site_theme = variable_get('theme_default');
+  $default_admin_theme = variable_get('admin_theme');
+  $custom_admin_theme = variable_get($theme_role.'_admin_theme');
+  
+  // Set admin theme based on selection.
+  if ($custom_admin_theme && $custom_admin_theme != 1) {
+    $conf['admin_theme'] = $custom_admin_theme;
+  }
+  else if ($custom_admin_theme == 1) {
+    $conf['admin_theme'] =  $default_admin_theme;
+  }
+  else {
+    $conf['admin_theme'] =  $default_site_theme;
+  }
+  
+  // Get custom node_admin_theme setting for role.
+  $use_node_admin_theme = variable_get($theme_role.'_node_admin_theme');
+  
+  // Return the admin theme if the user has permission to and they are on an admin path.
+  if (user_access('view the administration theme') && tbr_path_is_admin(current_path(), $use_node_admin_theme)) {
+    return $conf['admin_theme'];
+  }
+}
+
+/**
+ * Custom function to determine if the current path is an admin path.
+ *
+ * @param $path.
+ * The current path.
+ *
+ * @param $use_node_admin_theme.
+ * The current role's node_admin_themesetting.
+ */
+function tbr_path_is_admin($path, $use_node_admin_theme) {
+  // Set the $conf to our node_admin_theme setting.
+  global $conf;
+  $conf['node_admin_theme'] = $use_node_admin_theme;
+  
+  // Run the hook for admin_paths to get admin_paths with our new settings.
+  $paths = module_invoke_all('admin_paths');
+  
+  // Loop over paths to create a drupal_match_path pattern for enabled paths.
+  $admin_pattern = array();
+  foreach ($paths as $for_path => $enabled) {
+    if ($enabled) {
+      $admin_pattern[] = $for_path;
+    }
+  }
+  
+  // Implode to create pattern.
+  $admin_pattern = implode("\n", $admin_pattern);
+  
+  // Check current path against drupal_match_path() and $admin_pattern.
+  $use_admin_path = drupal_match_path($path, $admin_pattern);
+  
+  // Return True if in pattern, False otherwise.
+  if ($use_admin_path) {
+      return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}

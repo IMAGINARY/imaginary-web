@@ -1,0 +1,147 @@
+<?php
+// $Id: 
+
+/**
+ * @file
+ *
+ * module install/uninstall script
+ *
+ * @ingroup pubdlcnt
+ *
+ */
+
+/**
+ * Implements hook_install().
+ */
+function pubdlcnt_install() {
+
+  $valid_extensions = '7z bz bz2 gz gzip hqx iso lha lzh pkg pdf rpm sea sit tar tbz tgz zip';
+
+  // Set valid extentions to database
+  variable_set('pubdlcnt_valid_extensions', $valid_extensions);
+
+  // Change module's weight 
+  db_query("UPDATE {system} SET weight = 100 WHERE name = 'pubdlcnt'");
+}
+
+/**
+ * Implements hook_schema().
+ */
+function pubdlcnt_schema() {
+  $schema['pubdlcnt'] = array(
+    'fields' => array(
+      'fid' => array(
+        'description' => 'file ID (unique number)',
+        'type' => 'serial', // start from 1
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'nid' => array(
+        'description' => 'node ID of which the file exists',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE
+      ),
+      'name' => array(
+        'description' => 'file name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'url' => array(
+        'description' => 'URL of the file',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'utime' => array(
+        'description' => 'dowload date in unix timestamp',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'count' => array(
+        'description' => 'total download count',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+    ),
+    'primary key' => array('fid'),
+  );
+  $schema['pubdlcnt_history'] = array(
+    'fields' => array(
+      'id' => array(
+        'description' => 'record ID (unique number)',
+        'type' => 'serial', // start from 1
+        'unsigned' => FALSE,
+        'not null' => TRUE
+      ),
+      'fid' => array(
+        'description' => 'file ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'utime' => array(
+        'description' => 'dowload date in unix timestamp',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'count' => array(
+        'description' => 'total download count',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['pubdlcnt_ip'] = array(
+    'fields' => array(
+      'id' => array(
+        'description' => 'record ID (unique number)',
+        'type' => 'serial', // start from 1
+        'unsigned' => FALSE,
+        'not null' => TRUE
+      ),
+      'fid' => array(
+        'description' => 'file ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'ip' => array(
+        'description' => 'remote host IP address',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+        'default' => ''
+      ),
+      'utime' => array(
+        'description' => 'download date in Unix timestamp',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+    ),
+	'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function pubdlcnt_uninstall() {
+  // Remove tables.
+  db_query("DELETE FROM {variable} WHERE name LIKE 'pubdlcnt%'");
+  cache_clear_all('variables', 'cache');
+}
+

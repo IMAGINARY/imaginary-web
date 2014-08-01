@@ -1,0 +1,13 @@
+#modal-content ul.mlpanels_lnd_list li {
+  display: inline;
+}
+
+.mlpanels_lnd_list a.current {
+  background: #EEEEEE;
+  padding: 1px 5px;
+  font-weight: bold;
+}
+
+.mlpanels_lnd_list a.empty {
+  text-decoration: line-through ;
+}

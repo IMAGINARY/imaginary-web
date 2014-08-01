@@ -1,0 +1,10 @@
+name = Theme By Role
+description = Allows each role to have its own theme. This module is useful, for instance, if you want Administrators to have a different administration theme than regular authenticated users
+core = 7.x
+
+; Information added by drupal.org packaging script on 2011-10-22
+version = "7.x-1.5"
+core = "7.x"
+project = "tbr"
+datestamp = "1319327735"
+

@@ -1,0 +1,23 @@
+Release notes for version 1.x-alpha3 for Drupal 7
+
+Author: Gisle Hannemyr <gisle@hannemyr.no>
+Date:   Wed Dec 19 12:24:03 2012 +0100
+
+- Issue #1129786 by gisle: Fixed this and some other bugs.
+- Updated README.txt
+
+
+Release notes for version 1.x-alpha2 for Drupal 7
+
+Author: Khaled Alhourani <good_man@265439.no-reply.drupal.org>
+Date:   Thu Nov 4 13:14:07 2010 +0000
+
+- Issue #946636 by good_man: Fixed Call to undefined function _acl_edit_form_after_build()
+
+
+Release notes for version 1.x-alpha1 for Drupal 7
+
+Author: Khaled Alhourani <good_man@265439.no-reply.drupal.org>
+Date:   Sat Oct 30 14:15:13 2010 +0000
+
+- Initial commit

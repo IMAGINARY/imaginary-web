@@ -1,0 +1,14 @@
+name = Flexi Access
+description = Interface to ACL to manage per user access control.
+package = Access control
+core = 7.x
+
+dependencies[] = acl
+configure = admin/config/people/flexiaccess
+
+; Information added by drupal.org packaging script on 2013-05-20
+version = "7.x-1.0"
+core = "7.x"
+project = "flexiaccess"
+datestamp = "1369049413"
+

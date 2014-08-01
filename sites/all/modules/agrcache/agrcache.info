@@ -1,0 +1,11 @@
+name = Aggregate cache
+description = imagecache style generation of css and javascript aggregates.
+
+core = 7.x
+
+; Information added by drupal.org packaging script on 2013-08-06
+version = "7.x-1.2"
+core = "7.x"
+project = "agrcache"
+datestamp = "1375776068"
+

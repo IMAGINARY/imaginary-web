@@ -1,0 +1,167 @@
+Sasson 7.x-2.x-dev (development release)
+---------------------------
+
+Sasson 7.x-2.9, 2013-01-04
+---------------------------
+- Allow setting of compiled CSS destination via theme settings.
+- Allow turning off of auto CSS3 prefixer.
+- Add example preprocess hook to template.php
+
+Sasson 7.x-2.8, 2012-12-01
+---------------------------
+- Improved grid-background & image overlay (backported from v3.x).
+- alt+c to recompile Sass doesn't depend on admin_menu anymore.
+- Better handling of previously compiled CSS files when the compiler is off.
+- Unite CSS_SYSTEM & CSS_DEFAULT aggregation groups to cut on http requests
+- Backported fileWatcher from v3.x
+- Improved drush sns script
+- Use <link> tags for theme stylesheets instead of @import when developing
+
+Sasson 7.x-2.7, 2012-10-18
+---------------------------
+- Added Salsa layout system (backported from v3.x).
+- Added our favicon
+- Make sure no Sass file is added if the compiler is off, and look for a copiled css file
+- Issue #1777712 by amccune, jsloan: Notice: Undefined offset: 1 in SassImportNode->parse()
+
+Sasson 7.x-2.6, 2012-09-01
+---------------------------
+- Issue #1676760 by markedup, mint5auce - SassParser randomly hosing 'watchdog' table with parse errors
+- issue #1748332 by jedihe - Wrong path to sprite image on multi-lingual setup (path-prefix mode)
+- Added Gridy - Sasson v3.x Grid system (backported)
+- Improved file watcher (backported)
+- Multiple backgrounds support (from compass) (backported)
+- Multiple box-shadow support (from compass) (backported)
+
+Sasson 7.x-2.5, 2012-07-19
+---------------------------
+- Added keyboard shortcut to recompile stylesheets and image sprites
+- Better support for Compass URL helpers
+- Add sprites generator
+- Clearing the cache now trigger re-compilation of Sass files
+- Removed "rebuid registry" from the UI;
+- Added Sass and sprites debugging options through the UI (force recompilation);
+
+Sasson 7.x-2.3/4, 2012-06-22
+---------------------------
+- Issue #1367502 by ssherriff : Set compass image path;
+- Issue #1645280 by poeticninja : Internet Explorer 9 CSS Selectors;
+- Sub-theme script is now named to prevent conflicts with sub-sub-theming;
+- Better development message;
+- Fixed bug with default theme settings;
+
+Sasson 7.x-2.2, 2012-06-03
+---------------------------
+- Better file watcher - see changes instantaneously without a page refresh.
+- Issue #1474182 by erutan : Add more information in subtheme.
+- Updated normalize.css from H5BP (e.g. farewell hot pink selection)
+
+Sasson 7.x-2.1, 2012-04-25
+---------------------------
+- Switch between h5bp normalize.css and Eric Meyer's reset.css (or none)
+- Added Formalize (http://formalize.me/)
+- New feature - File watcher
+- Protocol agnostic google web-fonts loading (http/https)
+- Added no-flip functionality to the directionality flipper
+- Issue #1512202 by mint5auce, markedup, erutan : Remove clearfix from templates.
+
+
+Sasson 7.x-2.0, 2012-02-20
+---------------------------
+- Updated HTML5Boilerplate (boilerplate.css) to v3
+- Updated HTML5Shiv to v3
+- New Feature : auto directionality flipping with @flip {file: "filename.scss"};
+- Added hook_sasson_post_parse_alter()
+- Remove style.css from subtheme, too confusing
+- Reformatted sass comments
+- Reformatted 960gs plugin for better fluid layout and rtl support
+- Renamed _base.scss to _clear.scss to prevent conflicts
+- Fixed issue #1431432 by robertom: Fixing handling external css files
+- Fixed issue #1388344 by tsi, richthegeek : @extend doesn't respect parent selectors in nested rules
+
+Sasson 7.x-2.0-beta4, 2012-02-01
+---------------------------
+- Resolved issue with path to stylesheets in sub-themes, fix by avr.
+- Resolved issue #1388356 by tsi - Drupal flush caches doesn't recopmile sass files
+
+Sasson 7.x-2.0-beta3, 2012-01-04
+---------------------------
+- Prompt oldIEs users to install Chrome Frame
+- Improved theme settings form with vertical tabs.
+- New feature: Design overlay.
+- New feature:  Set a custom font to be used across the site from Google web-font.
+- Sass partial are being looked for in the /styles dir only and only in the active theme's dinasty and not in all enabled themes.
+- Updated Sass parser to the latest version from github plus some fixes.
+
+
+Sasson 7.x-2.0-beta1, 2011-12-16
+---------------------------
+- specify settings like media queries, browsers, weight etc. when calling style-sheets
+- Improved drush script
+- Language specific stylesheets (css/sass/scss) - not only RTL but LTR also
+- Removed header elements styling, not generic enough, left only floating logo.
+
+
+Sasson 7.x-2.0-beta1, 2011-12-10
+---------------------------
+- issue #1352420 Added RTL and bi-directionality support
+- Moved all grid settings from sass file to theme settings
+- Added sasson_sasson_alter to insert php variables into our sass
+- issue #1340122 by BarisW - Background image doesn't match grid layout
+- Added grid toggle switch
+- Better IE classes (lte-ie8 etc.)
+- Added configurable responsive menus for mobile - https://github.com/joggink/jquerymobiledropdown
+
+965 7.x-2.0-beta5, 2011-11-25
+-----------------------
+- Issue #1352354 by tsi: remove Google analytics integration
+- Issue #1352364 : Lose the mobile-first approach
+- Responsive layout is now optional
+- Splitted media-queries into separate files
+- Responsive layout breakpoints are configurable via theme settings
+- IE html5shiv is now optional
+- Removed respond.js
+
+965 7.x-2.0-beta4, 2011-11-15
+-----------------------
+- issue #1340210 by BarisW - Two columns layout (content + sidebar second only)
+
+965 7.x-2.0-beta3, 2011-11-15
+-----------------------
+- This tag should have never been created
+
+965 7.x-2.0-beta2, 2011-11-10
+-----------------------
+- Removed pixel based width - percents can do it all.
+- Increased base font-size to 14px
+- Auto-rebuild the theme registry - disabled by default
+- Issue #1336604 - Subtheme do not inherit theme settings.
+
+965 7.x-2.0-beta1, 2011-11-07
+-----------------------
+- Add SASS support
+- Optionally recompile all SASS / SCSS files on every page request
+- Uptate to HTML5Boilerplate v2
+- Semantic grid - Remove grid classes
+- Moved settings into _settings.scss
+- Add starter sub-theme
+- Add respond.js as part of shift to ‘mobile first’ approach.
+- Configurable grid system
+- Added directionality class (dir-ltr & dir-rtl)
+- Fluid child method - logo min width.
+- Display a visible background grid, for easier elements positioning
+
+965 7.x-1.0-rc1, 2011-10-28
+-----------------------
+- Code clean-up
+
+965 7.x-1.0-beta2 & beta3, 2011-10-28
+-----------------------
+- Change the displayed theme name to numeric.
+- Give headers some style
+- maintenance page bug fix
+- Issue #1324184 byBarisW: Double ID's in code.
+
+965 7.x-1.0-beta1, 2011-10-06
+-----------------------
+- 965 initial pre-release.

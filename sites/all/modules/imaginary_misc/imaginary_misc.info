@@ -1,0 +1,4 @@
+name = Imaginary Miscellaneous
+description = Miscellaneous functionality and tweaks
+core = 7.x
+package = Imaginary

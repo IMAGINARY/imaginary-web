@@ -1,0 +1,147 @@
+<?php
+
+
+class JavaScriptLibrariesCustomTestCase extends DrupalWebTestCase {
+
+  function setUp($modules = array()) {
+    $modules[] = 'javascript_libraries';
+    parent::setUp($modules);
+  }
+
+  public static function getInfo() {
+    return array(
+      'name' => 'test for custom JS',
+      'description' => 'Test management of custom libraries.',
+      'group' => 'JavaScript Libraries Manager',
+    );
+  }
+
+  /**
+   * Test adding and removing custom URLs and files.
+   */
+  public function testAddRemoveCustom() {
+    // Verify that anonymous users cannot access admin pages.
+    $this->drupalGet('admin/config/system/javascript-libraries/custom');
+    $this->assertResponse(403, 'admin/config/system/javascript-libraries/custom');
+    $this->drupalGet('admin/config/system/javascript-libraries/custom/add');
+    $this->assertResponse(403, 'admin/config/system/javascript-libraries/custom/add');
+    $web_user = $this->drupalCreateUser(array('administer site configuration', 'view the administration theme'));
+    $this->drupalLogin($web_user);
+    $uniq_id = uniqid(mt_rand(), TRUE);
+    file_put_contents('public://testme.js', "\n/* ". $uniq_id ."/*\n");
+    $url = file_create_url('public://testme.js');
+    $edit = array();
+    $edit["name"] = $this->randomName();
+    $edit["library_type"] = 'external';
+    $edit["external_url"] = $url;
+    $edit["scope"] = 'header';
+    $this->drupalPost('admin/config/system/javascript-libraries/custom/add', $edit, t('Save'));
+    $this->drupalGet('admin/config/system/javascript-libraries/custom');
+    $this->assertText($edit["name"], 'Found added link');
+    // Get the current variable value from the DB.
+    $value = db_query("SELECT value FROM {variable} WHERE name = :name", array(':name' => 'javascript_libraries_custom_libraries'))->fetchField();
+    $custom = unserialize($value);
+    list($id, $library) = each($custom);
+    $this->assertEqual($library['scope'], 'header', 'Library is in the header');
+    // Check that we have the edit and delete links.
+    $this->assertLinkByHref("admin/config/system/javascript-libraries/custom/$id/edit");
+    $this->assertLinkByHref("admin/config/system/javascript-libraries/custom/$id/delete");
+    // Check that this JS file is in the page.
+    $this->drupalGet('node');
+    $this->assertPattern('@<script type="text/javascript" src="'. $url .'"></script>@');
+    $edit = array();
+    $edit["libraries[$id][scope]"] = 'disabled';
+    $edit["libraries[$id][weight]"] = '2';
+    $this->drupalPost('admin/config/system/javascript-libraries/custom', $edit, t('Save'));
+    $value = db_query("SELECT value FROM {variable} WHERE name = :name", array(':name' => 'javascript_libraries_custom_libraries'))->fetchField();
+    $custom = unserialize($value);
+    list($id, $library) = each($custom);
+    $this->assertEqual($library['scope'], 'disabled', 'Library is disabled');
+    // Check that this JS file is not in the page.
+    $this->drupalGet('node');
+    $this->assertNoPattern('@<script type="text/javascript" src="'. $url .'"></script>@');
+    // Re-enable the file in the footer.
+    $edit = array();
+    $edit["cache_external"] = '1';
+    $edit["scope"] = 'footer';
+    $edit["name"] = $uniq_id;
+    $this->drupalPost("admin/config/system/javascript-libraries/custom/$id/edit", $edit, t('Save'));
+    $this->drupalGet('admin/config/system/javascript-libraries/custom');
+    $this->assertText($edit["name"], 'Found added link');
+    // Check that this JS file is in the page body.
+    $this->drupalGet('node');
+    $this->assertPattern('@<body.+<script type="text/javascript" src="'. $url .'"></script>@s');
+    $edit = array();
+    $edit["preprocess_js"] = '1';
+    $this->drupalPost("admin/config/development/performance", $edit, t("Save configuration"));
+    $this->drupalGet('node');
+    $content = $this->drupalGetContent();
+    preg_match('@<body.+<script type="text/javascript" src="(http.+/js/.+\.js)"></script>@s', $content, $m);
+    $this->assertTrue(!empty($m[1]), 'Found aggregated URL');
+    $result = drupal_http_request($m[1]);
+    $this->assertEqual($result->code, 200, t('Fetched JS.'));
+    $this->drupalSetContent($result->data);
+    $this->assertRaw($uniq_id);
+    // Make sure the file is re-aggregated after a cahce clear.
+    $this->drupalPost('admin/config/development/performance', array(), 'Clear all caches');
+    $this->drupalGet('node');
+    $content = $this->drupalGetContent();
+    preg_match('@<body.+<script type="text/javascript" src="(http.+/js/.+\.js)"></script>@s', $content, $m);
+    $this->assertTrue(!empty($m[1]), 'Found aggregated URL');
+    $result = drupal_http_request($m[1]);
+    $this->assertEqual($result->code, 200, t('Fetched JS.'));
+    $this->drupalSetContent($result->data);
+    $this->assertRaw($uniq_id);
+   // Code copied from hook_cron.
+    $custom = variable_get('javascript_libraries_custom_libraries', array());
+    foreach ($custom as $library) {
+      // Get/build local cached versions of external scripts.
+      if ($library['type'] == 'external' && !empty($library['cache'])) {
+        $path = javascript_libraries_cache($library['uri'], TRUE);
+        $this->assertTrue(!empty($path), $library['uri'] . ' was cached and returned a file path');
+      }
+    }
+  }
+}
+
+class JavaScriptLibrariesDrupalTestCase extends DrupalWebTestCase {
+
+  function setUp($modules = array()) {
+    $modules[] = 'javascript_libraries';
+    parent::setUp($modules);
+  }
+
+  public static function getInfo() {
+    return array(
+      'name' => 'test for Drupal JS',
+      'description' => 'Test management of built-in libraries.',
+      'group' => 'JavaScript Libraries Manager',
+    );
+  }
+
+  /**
+   * Test adding and removing built-in libraries.
+   */
+  function testEnableDisableLibrary() {
+    variable_set('preprocess_js', FALSE);
+    // Verify that anonymous users cannot access admin pages.
+    $this->drupalGet('admin/config/system/javascript-libraries');
+    $this->assertResponse(403, 'admin/config/system/javascript-libraries');
+    $this->drupalGet('admin/config/system/javascript-libraries/default');
+    $this->assertResponse(403, 'admin/config/system/javascript-libraries/default');
+    $web_user = $this->drupalCreateUser(array('administer site configuration', 'view the administration theme'));
+    $this->drupalLogin($web_user);
+    $edit = array();
+    $edit['enable[system-ui-datepicker]'] = TRUE;
+    $this->drupalPost('admin/config/system/javascript-libraries', $edit, t('Save'));
+    $this->drupalGet('admin/config/system/javascript-libraries');
+    $this->assertText('jQuery UI: Autocomplete', 'Found jQuery UI: Autocomplete library');
+    $this->assertFieldChecked("edit-enable-system-ui-datepicker", 'jQuery UI datepicker is marked as enabled');
+    // Make sure the script does not appear in the head of this admin page.
+    $this->assertNoPattern('@<script type="text/javascript" src="http[^"]+/misc/ui/jquery.ui.datepicker.min.js\?[^"]+"></script>@');
+    // Make sure the script appears in the head of a non-admin page.
+    $this->drupalGet('node');
+    $this->assertPattern('@<script type="text/javascript" src="http[^"]+/misc/ui/jquery.ui.datepicker.min.js\?[^"]+"></script>@');
+  }
+}
+

@@ -1,0 +1,392 @@
+<?php
+/** @file
+ * This module add the question/answer ability to a node type.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function question_answer_permission() {
+  return array(
+    'select best answer for any question' => array(
+      'title' => t('Select best answer for any question'),
+      'description' => '',
+    ),
+    'deselect best answer for own question' => array(
+      'title' => t('Deselect best answer for own question'),
+    ),
+    'deselect best answer for any question' => array(
+      'title' => t('Deselect best answer for any question'),
+    ),
+    'change best answer for own question' => array(
+      'title' => t('Change best answer for own question'),
+    ),
+    'change best answer for any question' => array(
+      'title' => t('Change best answer for any question'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function question_answer_init() {
+  drupal_add_css(drupal_get_path('module', 'question_answer') . '/question_answer.css');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function question_answer_menu() {
+  $items['question_answer'] = array(
+    'title' => 'Select or deselect answer',
+    'page callback' => 'question_answer_action',
+    'page arguments' => array(1, 2, 3, 4),
+    // The access control here is complex and well coupled with the needed
+    // action. Thus we'll check the access in the callback function itself.
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'question_answer.pages.inc',
+  );
+  $items['admin/config/question_answer'] = array(
+    'title' => 'Question/Answer',
+    'description' => 'Allows the admin to configure the Q/A settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('question_answer_settings'),
+    'file' => 'question_answer.pages.inc',
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function question_answer_form_node_form_alter(&$form, $form_state, $form_id) {
+  $qtype = _question_answer_nodetypes();
+  $node_type = $form['type']['#value'];
+
+  if (!isset($qtype[$node_type])) {
+    return;
+  }
+
+  if ($maxlength = variable_get('question_answer_maxlength', 0)) {
+    $form['title']['#maxlength'] = $maxlength;
+  }
+
+  // Hide the answer field, even for admins. The selected answer could be
+  // modified through the links in the comments.
+  $form[$qtype[$node_type]['answer']]['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function question_answer_theme() {
+  return array(
+    'question_answer_formatter_answer' => array(
+      'render element' => array('element' => NULL),
+    ),
+    'question_answer_formatter_duration' => array(
+      'render element' => array('element' => NULL),
+    ),
+    'question_answer_answer' => array(
+      'variables' => array('node' => NULL, 'comment' => NULL, 'account' => NULL),
+      'template' => 'question_answer-answer',
+    ),
+  );
+}
+
+/**
+ * Implements hook_comment_delete().
+ */
+function question_answer_comment_delete($comment) {
+  // check if comment is selected
+}
+
+/**
+ * Implements hook_comment_update().
+ */
+function question_answer_comment_update($comment) {
+  // check if comment is selected
+}
+
+/**
+ * Implements hook_comment_view().
+ *
+ * Add a "select answer" link to comment
+ */
+function question_answer_comment_view($comment, $view_mode, $langcode) {
+  global $user;
+
+  $qtype = _question_answer_nodetypes();
+  $node_type = substr($comment->node_type, strlen('comment_node_'));
+
+  if (!in_array($node_type, array_keys($qtype))) {
+    // Not in the correct node type
+    return;
+  }
+
+  $field_name = $qtype[$node_type]['answer'];
+  $node = node_load($comment->nid);
+  if (!is_array($answer = $node->$field_name)) {
+    // This node doesnot have the correct field
+    // Normally this should not happen
+    return;
+  }
+
+  if (question_answer_action_access('deselect', $comment, $node)) {
+    $comment->content['links']['comment']['#links']['question_answer-action'] = question_answer_build_link('deselect', $comment);
+  }
+  elseif (question_answer_action_access('select', $comment, $node)) {
+    $comment->content['links']['comment']['#links']['question_answer-action'] = question_answer_build_link('select', $comment);
+  }
+  elseif (question_answer_action_access('change', $comment, $node)) {
+    $comment->content['links']['comment']['#links']['question_answer-action'] = question_answer_build_link('change', $comment);
+  }
+}
+
+/**
+ * Helper function for building the array to be returned for the links.
+ */
+function question_answer_build_link($action, $object) {
+  $url = 'question_answer/' . $action . '/' . $object->cid;
+  $link = array(
+    'title' => t($action),
+    'href' => $url . '/nojs/' . drupal_get_token($url),
+    'attributes' => array(
+      'title' => ($action == 'change') ? t('Change the previously selected comment for this one.') : t('@action this comment.', array('@action' => t($action))),
+      'class' => 'use-ajax',
+    ),
+  );
+  drupal_add_js('misc/ajax.js');
+  drupal_add_js(drupal_get_path('module', 'question_answer') . '/question_answer.js');
+  return $link;
+}
+
+/**
+ * Implements hook_comment_view_alter().
+ */
+function question_answer_comment_view_alter(&$build) {
+//var_dump($build['#comment']);return;
+//  krumo($build);return;  
+}
+
+/**
+ * Override or insert variables into the comment templates.
+ *
+ * @param $variables
+ *   An array of variables to pass to the theme template.
+ */
+function question_answer_preprocess(&$variables, $hook) {
+  if ($hook !== 'comment') return;
+
+  $qtype = _question_answer_nodetypes();
+  $node = node_load($variables['comment']->nid);
+
+  if (in_array($node->type, array_keys($qtype)) && isset($node->{$qtype[$node->type]['answer']}[$node->language][0]['value']) && $variables['comment']->cid === $node->{$qtype[$node->type]['answer']}[$node->language][0]['value']) {
+    $variables['classes_array'][] = 'question_answer-selected';
+  }
+}
+
+/**
+ * Declare information about a formatter.
+ *
+ * @return
+ *   An array keyed by formatter name. Each element of the array is an associative
+ *   array with these keys and values:
+ *   - "label": The human-readable label for the formatter.
+ *   - "field types": An array of field type names that can be displayed using
+ *     this formatter.
+ */
+function question_answer_field_formatter_info() {
+  return array(
+    'answer' => array(
+      'label' => t('Selected answer'),
+      'field types' => array('number_integer'),
+    ),
+    'duration' => array(
+      'label' => t('Remaining time'),
+      'field types' => array('number_integer', 'list_integer'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function question_answer_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'answer':
+      foreach ($items as $delta => $item) {
+        if (empty($item['value'])) {
+          continue;
+        }
+        if (!$comment = comment_load($item['value'])) {
+          continue;
+        }
+
+        $node = node_load($comment->nid);
+        $element[$delta] = array(
+          '#theme' => 'question_answer_answer',
+          '#node' => $node,
+          '#comment' => $comment,
+          '#account' => user_load($comment->uid),
+        );
+      }
+      break;
+    case 'duration':
+      foreach ($items as $delta => $item) {
+        if (empty($item['value'])) {
+          continue;
+        }
+
+        $node = $entity;
+        $qtype = _question_answer_nodetypes();
+        $answer = $node->{$qtype[$node->type]['answer']}[$node->language][0]['value'];
+
+        // Only display this field if no answer is selected
+        if (empty($answer)) {
+          $remain = $item['value'] + $node->created - time();
+
+          // If expired, select an answer
+          if ($remain < 0 && module_exists('votingapi')) {
+            if (empty($node->{$qtype[$node->type]['answer']}[$node->language][0]['value'])) {
+              $selected = array('cid' => 0, 'value' => 0);
+              $query = db_select('comment', 'c')
+                ->fields('c', array('cid'))
+                ->orderBy('created')
+                ->condition('nid', $node->nid);
+              if (variable_get('question_answer_toplevel_comments', 0)) {
+                $query->condition('pid', 0);
+              }
+              $result = $query->execute();
+
+              foreach ($result as $row) {
+                $votes = votingapi_select_results(array('entity_id' => $row->cid, 'entity_type' => 'comment', 'function' => 'sum'));
+                if (count($votes) > 0 && $votes[0]['value'] > $selected['value']) {
+                  $selected['cid'] = $row->cid;
+                  $selected['value'] = $votes[0]['value'];
+                }
+              }
+
+              if ($selected['cid'] > 0) {
+                $node = node_load($node->nid);
+                $node->{$qtype[$node->type]['answer']}[$node->language][0]['value'] = $selected['cid'];
+
+                // The Talk module changes $node->comment value to disable
+                // comment in the node page. We revert it before saving node.
+                if (isset($node->comment_original_value)) {
+                  $node->comment = $node->comment_original_value;
+                }
+
+                node_save($node);
+                drupal_set_message(t('Comment #!cid has automatically been selected as the best answer', array('!cid' => $selected['cid'])));
+              }
+            }
+          }
+          $element[$delta]['#markup'] = $remain > 0 ? format_interval($remain) : 'expired';
+        }
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Retrieve all node types that support Q/A
+ * The API is generic so that it supports multiple nodetypes/fields
+ */
+function _question_answer_nodetypes() {
+  static $nodetypes;
+
+  if (! $nodetypes) {
+    $nodetypes = array(variable_get('question_answer_nodetype', 'question') => array(
+      'answer' => variable_get('question_answer_fieldtype', 'field_answer'),
+      'duration' => variable_get('question_answer_duration', 'field_duration'),
+    ));
+  }
+
+  return $nodetypes;
+}
+
+
+/**
+ * Check if user can perform an action on a comment.
+ */
+function question_answer_action_access($action, $comment, $node) {
+  $qtype = _question_answer_nodetypes();
+  if (!in_array($node->type, array_keys($qtype))) {
+    return FALSE;
+  }
+
+  global $user;
+
+  $field_name = $qtype[$node->type]['answer'];
+  if (!is_array($answer = $node->$field_name) || empty($answer[$node->language][0]['value'])) {
+    $current_answer = 0;
+  }
+  else {
+    $current_answer = $answer[$node->language][0]['value'];
+  }
+
+  $no_answer = empty($current_answer);
+  $own_question = $node->uid == $user->uid;
+  $toplevel_comments = variable_get('question_answer_toplevel_comments', 0);
+
+  switch ($action) {
+    case 'select':
+      // We can not select already selected answer
+      if ($current_answer == $comment->cid) {
+        return FALSE;
+      }
+
+      // If we can only select top level comments we must leave here
+      if ($toplevel_comments && $comment->pid > 0) {
+        return FALSE;
+      }
+
+      // The author or any user with "select best answer for any question" can
+      // select the best answer if there is none selected for this question. If
+      // there is already a selected answer, the author with "change|deselect
+      // best answer for own question" or any user with "change|(select and
+      // deselect) best answer for any question" can change the best answer.
+      return ($no_answer && ($own_question || user_access('select best answer for any question'))) ||
+        (!$no_answer && question_answer_action_access('change', $comment, $node));
+
+    case 'deselect':
+      // We can not deselect unselected answer
+      if ($current_answer != $comment->cid) {
+        return FALSE;
+      }
+
+      return user_access('deselect best answer for any question') || ($own_question && user_access('deselect best answer for own question'));
+
+    case 'change':
+      // We can not select already selected answer
+      if ($current_answer == $comment->cid) {
+        return FALSE;
+      }
+
+      // If we can only select top level comments we must leave here
+      if ($toplevel_comments && $comment->pid > 0) {
+        return FALSE;
+      }
+
+      return ($own_question && (user_access('change best answer for own question') || user_access('deselect best answer for own question'))) ||
+        ((user_access('deselect best answer for any question') && user_access('select best answer for any question')) || user_access('change best answer for any question'));
+  }
+}
+
+/**
+ * Dummy function to let Drupal know that there are strings to translate.
+ */
+function _question_answer_dummy() {
+  t('change');
+  t('select');
+  t('deselect');
+}
+

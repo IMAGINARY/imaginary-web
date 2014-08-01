@@ -1,0 +1,138 @@
+<?php
+
+/**
+ * @file
+ * Main module file of the terms of use module.
+ *
+ * This module adds Terms of Use to the registration page.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function terms_of_use_menu() {
+  $items = array();
+
+  $items['admin/config/people/terms_of_use'] = array(
+    'description' => 'Add Terms of Use to the registration page.',
+    'title' => 'Terms of Use',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('terms_of_use_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'terms_of_use.admin.inc',
+  );
+
+  $items['terms_of_use/autocomplete'] = array(
+    'title' => 'Autocomplete node title',
+    'page callback' => 'terms_of_use_autocomplete',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'terms_of_use.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form_form_id_alter().
+ */
+function terms_of_use_form_user_register_form_alter(&$form, $form_state) {
+  // Administrative users can skip this. So admin/user/user/create won't show
+  // the terms of use.
+  if (user_access('administer users')) {
+    return;
+  }
+
+  $fieldset_name = filter_xss(variable_get('terms_of_use_fieldset_name', t('Terms of Use')));
+  $checkbox_label = filter_xss_admin(variable_get('terms_of_use_checkbox_label', t('I agree with these terms')));
+
+  // Adding the fieldset.
+  $form['terms_of_use'] = array(
+    '#type' => 'fieldset',
+    '#title' => $fieldset_name,
+    '#weight' => 10,
+  );
+
+  // Getting the nid of the the Terms of Use node.
+  $terms_of_use_node_id = variable_get('terms_of_use_node_id', 0);
+
+  // If the translation module is active the node might be available in other
+  // languages.
+  if (module_exists('translation')) {
+    $translations = translation_node_get_translations($terms_of_use_node_id);
+    if (!empty($translations[$GLOBALS['language']->language])) {
+      $terms_of_use_node_id = $translations[$GLOBALS['language']->language]->nid;
+    }
+  }
+
+  // A nid for the desired language was found.
+  if ($terms_of_use_node_id) {
+    $node = node_load($terms_of_use_node_id);
+    // If we were able to load the node.
+    if ($node->nid) {
+      // If we find @link in the text for the terms checkbox we just show a
+      // link. Otherwise we show the full terms.
+      if (strpos($checkbox_label, '@link') !== FALSE) {
+        $checkbox_label = str_replace('@link', l($node->title, 'node/' . $node->nid), $checkbox_label);
+      }
+      // If there wasn't a link to the node we add the body field of the node
+      // to the login form.
+      elseif ($items = field_get_items('node', $node, 'body')) {
+        // Limit the height of the body text with css.
+        $form['#attached']['css'] = array(
+          drupal_get_path('module', 'terms_of_use') . '/terms_of_use.css'
+        );
+        $form['terms_of_use']['terms_of_use_text'] = field_view_value('node', $node, 'body', $items[0]);
+        ;
+      }
+      else {
+        watchdog('terms_of_use', 'The body field of the "terms of use" node was empty. Please check the the nodes content.', array(), WATCHDOG_ALERT, l(t('Administer terms of use'), 'admin/config/people/terms_of_use'));
+      }
+    }
+    else {
+      watchdog('terms_of_use', 'The "terms of use" node could not be loaded. Please check the settings and if the node exists.', array(), WATCHDOG_ALERT, l(t('Administer terms of use'), 'admin/config/people/terms_of_use'));
+    }
+  }
+  else {
+    watchdog('terms_of_use', 'No node is set as "terms of use" in the current language [@lang].', array('@lang' => $GLOBALS['language']->language), WATCHDOG_NOTICE, l(t('Administer terms of use'), 'admin/config/people/terms_of_use'));
+  }
+
+// Adding the checkbox to the fieldset.
+  $form['terms_of_use']['terms_of_use'] = array(
+    '#type' => 'checkbox',
+    '#title' => $checkbox_label,
+    '#required' => TRUE,
+  );
+
+  return $form;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function terms_of_use_theme() {
+  return array(
+    'terms_of_use' => array(
+      'variables' => array('terms' => NULL, 'node' => NULL),
+    ),
+  );
+}
+
+/**
+ * Output the terms of service.
+ *
+ * @param $terms
+ *  The terms of service, already formatted.
+ * @param $node
+ *  The $node object, in case we need it.
+ * @return
+ *  HTML output.
+ * @ingroup themeable
+ */
+function theme_terms_of_use($variables) {
+  $output = '<div id="terms-of-use" class="content clear-block">';
+  $output .= $variables['terms'];
+  $output .= '</div>';
+
+  return $output;
+}

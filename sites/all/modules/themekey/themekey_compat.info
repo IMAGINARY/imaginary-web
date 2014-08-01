@@ -1,0 +1,13 @@
+name = "ThemeKey Compatibility"
+description = "Optionally disable the theme switching capability of core and additional modules. Their theme switching capabilities will become part of ThemeKey's theme switching rule chain instead and therefor configurable."
+core = 7.x
+dependencies[] = themekey
+package = ThemeKey
+configure = admin/config/user-interface/themekey/settings/compat
+
+; Information added by Drupal.org packaging script on 2014-05-14
+version = "7.x-3.2"
+core = "7.x"
+project = "themekey"
+datestamp = "1400056438"
+

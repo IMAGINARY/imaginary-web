@@ -1,0 +1,28 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install script to install the OM Tools
+ *
+ * @author: Daniel Honrade http://drupal.org/user/351112
+ *
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function om_tools_install() {
+  // Make sure this module called last
+  // to override any form provided by other modules
+  db_query("UPDATE {system} SET weight = 1000 WHERE name = 'om_tools'");
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function om_tools_uninstall() {
+  variable_del('om_tools');
+  variable_del('om_tools_backup');  
+}
+

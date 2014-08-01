@@ -1,0 +1,105 @@
+<?php
+/**
+ * Implements hook_views_api().
+ */
+function views_slideshow_xtra_overlay_views_api() {
+  return array(
+    'api' => '3',
+  );
+}
+
+/**
+ * Implements hook_views_slideshow_widget_info().
+ */
+function views_slideshow_xtra_overlay_views_slideshow_widget_info() {
+  return array(
+    'views_slideshow_xtra_overlay' => array(
+      'name' => t('Views Slideshow Xtra Overlay'),
+      'accepts' => array(
+        'transitionBegin' => array('required' => TRUE),
+      ),
+      'calls' => array(),
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_slideshow_option_definition().
+ */
+function views_slideshow_xtra_overlay_views_slideshow_option_definition() {
+  $locations = array('top', 'bottom');
+
+  // Widget defaults
+  foreach ($locations as $location) {
+    $options['widgets']['contains'][$location]['contains']['views_slideshow_xtra_overlay']['contains']['fields'] = array();
+    $options['widgets']['contains'][$location]['contains']['views_slideshow_xtra_overlay']['contains']['pause_after_mouse_move'] = array('default' => 2000);
+  }
+
+  return $options;
+}
+
+/**
+ * Implements hook_views_slideshow_widget_form_options().
+ */
+function views_slideshow_xtra_overlay_views_slideshow_widget_form_options(&$form, &$form_state, &$view, $defaults, $dependency) {
+  $options = array();
+
+  // Need to wrap this so it indents correctly.
+  $form['views_slideshow_xtra_overlay_wrapper'] = array(
+      '#markup' => '<div class="vs-dependent">',
+  );
+
+  // Pause after mouse movement.
+  $form['pause_after_mouse_move'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Pause After Mouse Movement'),
+      '#default_value' => $defaults['pause_after_mouse_move'],
+      '#size' => 10,
+      '#description' => t('Number of milliseconds to pause slide transition after mouse movement.  This allows the user time to click a slide overlay element if the mouse is in motion.  This setting has no effect if "Pause on hover" is checked above.'),
+      '#states' => array(
+          'visible' => array(
+              ':input[name="' . $dependency . '[enable]"]' => array('checked' => TRUE),
+          ),
+      ),
+  );
+
+  $form['views_slideshow_xtra_overlay_wrapper_close'] = array(
+      '#markup' => '</div>',
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function views_slideshow_xtra_overlay_theme($existing, $type, $theme, $path) {
+  return array(
+      'views_slideshow_xtra_overlay_widget_render' => array(
+          'variables' => array('vss_id' => NULL, 'view' => NULL, 'settings' => array(), 'location' => NULL, 'rows' => array()),
+          'file' => 'theme/views_slideshow_xtra_overlay.theme.inc',
+      ),
+      'views_slideshow_xtra_overlay_row' => array(
+          'variables' => array('item' => NULL, 'count' => NULL, 'view' => NULL),
+          'template' => 'theme/views-slideshow-xtra-overlay-row',
+      ),
+  );
+}
+
+/**
+ * Need to have preprocess functions here because drupal doesn't cache them
+ * correctly in the theme.inc file.
+ *
+ * If you would like to override the preprocess functions make sure to look at
+ * the associated function in theme.inc.
+ */
+
+// Trying to make sure the theme.inc get's loaded.
+include_once('theme/views_slideshow_xtra_overlay.theme.inc');
+
+function template_preprocess_views_slideshow_xtra_overlay(&$vars) {
+  _views_slideshow_xtra_overlay_preprocess_views_slideshow_xtra_overlay($vars);
+}
+
+function template_preprocess_views_slideshow_xtra_overlay_row(&$vars) {
+  _views_slideshow_xtra_overlay_preprocess_views_slideshow_xtra_overlay_row($vars);
+}
+

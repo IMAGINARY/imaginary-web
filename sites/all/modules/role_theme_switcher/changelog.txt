@@ -1,0 +1,95 @@
+// @author Serj Tiutiun (tiutiun AT gmail.com)
+// @date 1 Nov 2007
+
+
+
+Role Theme Switcher 7.x-1.1, 2012 Mar 27
+------------------------
+Drupal 7.x release
+- Now only enabled themes are shown in Role Theme Switcher interface.
+- Fixed menu item displacement. Thanks to jorgegc and jeffschuler for the proposed patch.
+- Complies a bit more with Drupal Coding Standards. Thanks to Sutharsan.
+
+
+Role Theme Switcher 7.x-1.0, 2010 Nov 28
+------------------------
+Drupal 7.x release
+- Thanks to idflood (David Mignot, http://www.idflood.com) for the proposed patch
+
+
+Role Theme Switcher 6.x-1.6, 2010 Jun 30
+------------------------
+- #623966 - Now Role Theme Switcher does override "Use administration theme for content editing" setting
+- Removed translation for "Default" choice - it could provoke misbehavior if admin interface and user interface are in different languages
+- Removed weight changes in hook_install to make RTS compliant with "Use administration theme for content editing" setting
+
+
+Role Theme Switcher 6.x-1.5, 2009 Oct 22
+------------------------
+- #608914 - Added readme.txt (Thanks to Onopoc)
+
+
+Role Theme Switcher 6.x-1.4, 2009 Jul 3
+------------------------
+- #479714, #492906 - Removed localization dependency. Changed system variables naming politics:
+  Was: <role_name>_theme
+  Now: role_theme_switcher_<role_id>_theme
+  Thanks to schoenae and Eric_A for debugging
+
+
+Role Theme Switcher 6.x-1.3, 2009 Apr 23
+------------------------
+- #408448 - Removed obsolete drupal_clear_css_cache()
+- #427246, #420818 - Now default weight for Role Theme Switcher is "-2", so it is loaded BEFORE any other
+  regular module, that could also switch themes. For ex. fixed problem with http://drupal.org/project/nodewords
+
+
+Role Theme Switcher 6.x-1.2, 2009 Feb 20
+------------------------
+- Removed t() in hook_menu. We don't need it since all menu items are being shown via t() by default
+- Added uninstall() feature. Now, after full uninstall, all Role Theme Switcher variables will be cleared from "variable" table
+
+
+Role Theme Switcher 6.x-1.1, 2009 Feb 20
+------------------------
+No changes. Needed to make this tag because of problems in package generation during transition of Drupal.org to Drupal6
+
+
+Role Theme Switcher 6.x-1.0, 2009 Feb 18
+------------------------
+Drupal 6.x release
+- Thanks to nextpulse (Robert Yau) for the proposed patch
+
+
+Role Theme Switcher  5.x-2.0, 2008 Jun 18
+------------------------
+Module was rewritten by owahab (http://owahab.com)
+- Removed a lot of unneeded code. Significantly improved logic of module
+- No more need of module tables. Removed tables. Settings are being stored now via system_settings_form submit()
+  in table "variable"
+
+
+Role Theme Switcher  5.x-1.2, 2007 Dec 10
+------------------------
+- Moved internal interface to Drupal forms
+- Changed order of processing roles. Now "authenticated user" has the lowes priority in processing roles. If user has some more roles,
+  then theme of "authenticated user" will be overwritten by theme of other role.
+- Removed some obsolete code
+
+
+Role Theme Switcher  1.2, 2007 Dec 04
+------------------------
+- Fixed bug if in Drupal system used another phptemplate compatible theme.
+
+
+Role Theme Switcher  1.1, 2007 Nov 01
+------------------------
+- Added support for Drupal cache system
+  As caching system is a pretty tricky thing, after every change in Role Theme Switcher
+  to see your changes ASAP I would advice you to empty the whole cache.
+  Otherwise your users will see the changes only after your cache expire.
+
+
+Role Theme Switcher  1.0, 2007 Jul 01
+------------------------
+- initial release

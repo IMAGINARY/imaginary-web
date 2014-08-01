@@ -1,0 +1,24 @@
+
+name = Featured Content
+description = Provides configurable Featured Content blocks.
+core = 7.x
+package = Other
+dependencies[] = taxonomy
+
+files[] = featured_content-block.tpl.php
+files[] = featured_content-empty.tpl.php
+files[] = featured_content-more.tpl.php
+files[] = featured_content.admin.inc
+files[] = featured_content.install
+files[] = featured_content.module
+files[] = featured_content.pages.inc
+
+configure = admin/config/featured-content/settings
+
+
+; Information added by drupal.org packaging script on 2011-12-24
+version = "7.x-1.5"
+core = "7.x"
+project = "featured_content"
+datestamp = "1324752941"
+

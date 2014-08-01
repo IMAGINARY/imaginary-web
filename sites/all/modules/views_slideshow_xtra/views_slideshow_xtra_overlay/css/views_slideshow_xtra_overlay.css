@@ -1,0 +1,18 @@
+/**
+ * Views Slideshow Xtra CSS.
+ */
+
+.views_slideshow_main {
+  position: relative;
+}
+
+.views-slideshow-xtra-overlay {
+  z-index: 50;
+  position: absolute;
+  top: 0;
+}
+
+.views-slideshow-xtra-overlay-row {
+  display: absolute;
+  min-height: 10px;
+}

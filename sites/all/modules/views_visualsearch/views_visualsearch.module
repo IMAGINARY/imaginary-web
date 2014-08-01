@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function views_visualsearch_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function views_visualsearch_libraries_info() {
+  return array(
+    'visualsearch' => array(
+      'version' => '1.0',
+      'name' => 'VisualSearch',
+      'files' => array(
+        'js' => array('underscore-min.js', 'backbone-min.js', 'visualsearch-min.js'),
+        'css' => array('visualsearch-min.css'),
+      ),
+      'variants' => array(
+        'debug' => array(
+          'files' => array(
+            'js' => array('underscore.js', 'backbone.js', 'visualsearch.js'),
+            'css' => array('visualsearch.css'),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Preprocess function for a Views view to add the VisualSearch class
+ */
+function views_visualsearch_preprocess_views_view(&$vars) {
+  $display = $vars['view']->display[$vars['view']->current_display];
+  if (isset($display->visual_search_dom_id)) {
+    $vars['classes_array'][] = 'view-dom-id-visual-search-' . $display->visual_search_dom_id;
+  }
+}
+
+/**
+ * Helper function to get the entity type field for a given base table
+ */
+function _views_visualsearch_get_entity_type_from_field($field, $table) {
+  $field_info = field_info_field($field);
+  foreach ($field_info['bundles'] as $entity => $info) {
+    $entity_info = entity_get_info($entity);
+    if ($entity_info['base table'] == $table) {
+      return $entity;
+    }
+  }
+  return FALSE;
+}
+
+
+/**
+ * Helper function to get the exposed filters of the given View
+ */
+function _views_visualsearch_view_exposed_filters($view) {
+  // First check the current display's filters if any...
+  if (isset($view->display[$view->current_display]->display_options['filters'])) {
+    return _views_visualsearch_filters_exposed($view->display[$view->current_display]->display_options['filters']);
+  }
+
+  // The specific display doesn't have any filters set - must be using the defaults...
+  if (isset($view->display['default']->display_options['filters'])) {
+    return _views_visualsearch_filters_exposed($view->display['default']->display_options['filters']);
+  }
+
+  // No filters?
+  return array();
+}
+
+/**
+ * Helper function to return an array of exposed filters
+ */
+function _views_visualsearch_filters_exposed($filters) {
+  $exposed = array();
+  foreach ($filters as $id => $filter) {
+    if (isset($filter['exposed']) && $filter['exposed'] === TRUE) {
+      $exposed[$id] = $filter;
+    }
+  }
+  return $exposed;
+}
+
+/**
+ * Helper function to clean a Views SelectQuery of the fields/orderby clauses
+ */
+function _views_visualsearch_clean_query($query) {
+  // Clone to the query to avoid screwing up the real one...
+  $_query = clone $query;
+
+  // Clear the fields
+  $fields = &$_query->getFields();
+  $fields = array();
+
+  // Clear the order by
+  $order = &$_query->getOrderBy();
+  $order = array();
+
+  return $_query;
+}

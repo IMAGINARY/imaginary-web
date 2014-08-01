@@ -1,0 +1,16 @@
+core = 7.x
+dependencies[] = "purl"
+dependencies[] = "views"
+description = "Provides a 'mode' Views display which can be attached to page views as alternative modes of display."
+name = "Views Modes"
+package = "Views Bonus Pack"
+
+files[] = views_modes_context_condition_views_modes.inc
+files[] = views_modes_plugin_display_mode.inc
+
+; Information added by drupal.org packaging script on 2012-09-12
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "views_modes"
+datestamp = "1347456219"
+

@@ -1,0 +1,46 @@
+<?php
+// $Id: 
+/**
+ * @file
+ * Install, update and uninstall functions for tinybrowser module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function tinybrowser_install() {
+  $tinymce_root = tinybrowser_get_tinymce_root();
+  variable_set('tinybrowser_tinymce_root', $tinymce_root);
+
+  // install default role profiles
+  include_once DRUPAL_ROOT . '/'. drupal_get_path('module', 'tinybrowser') .'/tinybrowser.profile.inc';
+  tinybrowser_install_profiles();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function tinybrowser_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'tinybrowser%'");
+  cache_clear_all('variables', 'cache');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function tinybrowser_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'runtime') {
+    $requirements['tinybrowser'] = array(
+      'title' => t('TinyBrowser'),
+      'value' => t('1.41 + Security fix'),
+    );
+    $requirements['tinybrowser']['severity'] = REQUIREMENT_OK;
+
+    if (!tinybrowser_requirements_check_cookie_domain()) {
+      $requirements['tinybrowser']['severity'] = REQUIREMENT_ERROR;
+      $requirements['tinybrowser']['description'] = t('TinyBrowser requires $cookie_domain to be set, but it is not set in your settings.php.');
+    }
+  }
+  return $requirements;
+}

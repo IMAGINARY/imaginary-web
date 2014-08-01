@@ -1,0 +1,15 @@
+name = Role Theme Switcher
+description = "Assign separate themes to different roles"
+package = Theme
+core = 7.x
+version = "7.1"
+project = "role_theme_switcher"
+datestamp = "1213747225"
+
+
+; Information added by drupal.org packaging script on 2012-03-27
+version = "7.x-1.1"
+core = "7.x"
+project = "role_theme_switcher"
+datestamp = "1332880846"
+

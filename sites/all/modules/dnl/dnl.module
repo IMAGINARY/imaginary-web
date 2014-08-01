@@ -1,0 +1,90 @@
+<?php
+
+
+define('DNL_MODULE_WEIGHT', 100);
+define('DNL_NO_SELECTED_VALUE', '__NO_SELECTED');
+
+/**
+ * Implements hook_form_alter().
+ */
+
+function dnl_form_alter(&$form, &$form_state, $form_id) {
+  if (in_array($form_id, array_keys(node_forms()))) {
+    if (isset($form['language']['#options'])) {
+      $type_name = $form['#node']->type;
+      $active_langs = variable_get("dnl_active_langs_$type_name", array());
+      $src_lang = variable_get("dnl_language_for_source_$type_name", '');
+   /* remove inactive languages or remove language selector */
+      if (count($active_langs)) {
+        foreach ($form['language']['#options'] as $key => $value) {
+          if (isset($active_langs[$key]) == false) {
+            unset($form['language']['#options'][$key]);
+          }
+        }
+      } else {
+        unset($form['language']);
+        $form['language_info'] = array(
+          '#type' => 'item',
+          '#markup' => t('Language neutral is default language for this type.'),
+        );
+      }
+   /* set source language */
+      if ($src_lang && $src_lang != DNL_NO_SELECTED_VALUE && !isset($form['#node']->nid) && !isset($form['#node']->translation_source)) {
+        $form['language']['#disabled'] = TRUE;
+        $form['language']['#default_value'] = $src_lang;
+      }
+    }
+  }
+}
+
+/**
+ * Implements form_FORM_ID_alter().
+ */
+
+function dnl_form_node_type_form_alter(&$form, &$form_state) {
+  if (isset($form['workflow']['language_content_type'])) {
+    $module_path = drupal_get_path('module', 'dnl');
+    drupal_add_js("$module_path/dnl.js");
+    $type_name = $form['#node_type']->type;
+    $all_langs = array(LANGUAGE_NONE => t('Language neutral')) + locale_language_list('name');
+    $active_langs = variable_get("dnl_active_langs_$type_name", array());
+    $src_lang = variable_get("dnl_language_for_source_$type_name", '');
+    $form['workflow']['dln'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Additional language settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['workflow']['dln']['active_langs'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('What languages are active in this type?'),
+      '#options' => $all_langs,
+      '#default_value' => $active_langs,
+      '#description' => t('If nothing selected, will be used Language neutral.'),
+    );
+    $form['workflow']['dln']['src_lang'] = array(
+      '#type' => 'select',
+      '#title' => t('Language for source'),
+      '#options' => array('' => '-') + $all_langs,
+      '#default_value' => $src_lang,
+      '#description' => t('The language selector will be blocked for first node creation.'),
+    );
+    $form['#validate'][] = 'dnl_node_type_form_validate';
+    $form['#submit'][] = 'dnl_node_type_form_submit';
+  }
+}
+
+function dnl_node_type_form_validate($form, &$form_state) {
+  $active_langs = array_filter($form_state['values']['active_langs']);
+  $src_lang = $form_state['values']['src_lang'];
+  if ($src_lang && isset($active_langs[$src_lang]) == false) {
+    form_set_error('src_lang', t('You cannot select language for source that is not active!'));
+  }
+}
+
+function dnl_node_type_form_submit($form, &$form_state) {
+  $type_name = $form_state['values']['type'];
+  variable_set("dnl_active_langs_$type_name", array_filter($form_state['values']['active_langs']));
+  variable_set("dnl_language_for_source_$type_name", $form_state['values']['src_lang']);
+}
+

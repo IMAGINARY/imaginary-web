@@ -1,0 +1,141 @@
+<?php
+
+/**
+ * @file
+ * Main hooks for per user access control.
+ */
+
+
+/**
+ * Implements hook_help().
+ */
+function flexiaccess_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#flexiaccess':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Flexi Access module provides a simple interfrace to the !acl', array('!acl' => l('ACL', 'http://drupal.org/project/acl/')));
+      $output .= ' (Access Control List) ' . t('module') . '. ';
+      $output .= t('It lets you set up and mange ACLs naming individual users that are allowed access to a particular node.') . '</p>';
+      $output .= '<h3>' . t('Usage') . '</h3><dl>';
+      $output .= '<dt>' . t('Administrative interface:') . '</dt>';
+      $output .= '<dd>' . t('The !aif has the following tabs:', array('!aif' => l(t('administrative interface'), 'admin/config/people/flexiaccess'))) . '<br/>';
+      $output .= t('- Content types: Enable/disable the content types you want Flexi Access to manage.') . '<br/>';
+      $output .= t('- User Lists: Administer (create/edit/delete) predefined user lists. [forthcoming]') . '</dd>';
+      $output .= '<dt>' . t('Node interface:') . '</dt>';
+      $output .= '<dd>' . t('Administrators viewing a node of a Flexi Access enabled content type will see a tab called ') . '<em>Flexi Access</em>. ' . t('Inside this tab, there is three subfields ');
+      $output .= '(<em>' . t('view, update, delete') . '</em>). ' . t('Each subfield can be used to manage an ACL granting individual users view, update, and delete rights for the node.') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function flexiaccess_permission() {
+  return array(
+    'administer flexiaccess' => array(
+      'title' => t('Administer Flexi Access'),
+    ),
+    'access flexiaccess' => array(
+      'title' => t('Access Flexi Access'),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function flexiaccess_menu() {
+  $items['admin/config/people/flexiaccess'] = array(
+    'title' => 'Flexi Access',
+    'description' => 'Per user access control.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flexiaccess_admin_content'),
+    'access arguments' => array('administer flexiaccess'),
+    'file' => 'flexiaccess.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 10,
+  );
+  $items['node/%node/flexiaccess'] = array(
+    'title' => 'Flexi Access',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flexiaccess_page', 1),
+    'access callback' => '_flexiaccess_menu_access',
+    'access arguments' => array(1, 'access flexiaccess'),
+    'file' => 'flexiaccess.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function flexiaccess_theme() {
+  return array(
+    'flexiaccess_admin_content' => array(
+      'render element' => 'form',
+      'file' => 'flexiaccess.admin.inc',
+    ),
+  );
+}
+
+
+/**
+ * Callback function to see if a node is acceptable for poll menu items.
+ */
+function _flexiaccess_menu_access($node, $perm) {
+  $types = variable_get('flexiaccess_types', array());
+  return user_access($perm) && isset($types[$node->type]) && $types[$node->type];
+}
+
+
+/**
+ * Implements hook_enable().
+ */
+function flexiaccess_enable() {
+  
+  drupal_set_message(t('Enabling Flexi Access module.  You need to !url.',	array('!url' => l(t('rebuild permissions'), 'admin/reports/status/rebuild'))), 'error');
+  // Check if table exists, if not install the schema.
+  /*
+  if (db_table_exists('flexiaccess') == FALSE) {
+    drupal_install_schema('flexiaccess');
+  }
+  */
+}
+
+
+/**
+ * Used by the ACL module.
+ */
+function flexiaccess_enabled() {
+  return !flexiaccess_disabling();
+}
+
+
+/**
+ * Implements hook_disable().
+ */
+function flexiaccess_disable() {
+  flexiaccess_disabling(TRUE);
+}
+
+
+/**
+ * Remembers if we have disabled access.
+ */
+function flexiaccess_disabling($set = NULL) {
+  static $disabling = FALSE;
+
+  if (isset($set)) {
+    $disabling = $set;
+  }
+  return $disabling;
+}
+

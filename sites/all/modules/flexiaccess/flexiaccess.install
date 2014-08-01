@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall hooks.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function flexiaccess_uninstall() {
+  variable_del('flexiaccess_types');
+  node_access_rebuild();
+}
+

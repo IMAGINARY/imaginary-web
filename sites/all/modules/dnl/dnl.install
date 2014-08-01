@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+
+function dnl_install() {
+  db_update('system')->expression('weight', DNL_MODULE_WEIGHT)->condition('name', 'dnl')->condition('type', 'module')->execute();
+  drupal_set_message(t('Weight of module %name was changed to %value', array('%name' => 'dnl', '%value' => DNL_MODULE_WEIGHT)));
+  watchdog('dnl', 'Weight of module %name was changed to %value', array('%name' => 'dnl', '%value' => DNL_MODULE_WEIGHT), WATCHDOG_INFO);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+
+function dnl_uninstall() {
+  db_delete('variable')->condition('name', 'dnl_%', 'like')->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}

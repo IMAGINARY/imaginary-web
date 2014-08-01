@@ -1,0 +1,42 @@
+7.x-1.5
+[#1350110] by Kristen Pol: don't pass in variable into t function
+[#1373304] by Kristen Pol: change {blocks} to {block} and use fetchObject ftn
+[#1373332] by Kristen Pol: use absolute=>TRUE for rss icon link
+[#1373674] by Kristen Pol: update menu item so config page shows up at admin/index
+[#1373686] by Kristen Pol: move add js/css from hook_init to configure ftn
+[#1380338] by Kristen Pol: limit number of users grabbed from database
+[#1375382] by Kristen Pol: add language filter
+[#1380338] by Kristen Pol: try severely limiting number of users grabbed from database
+
+7.x-1.4
+jump to 1.4 to keep versions in sync with 6.x branch
+[#1265126] by Kristen Pol: add search query features based on D6 functionality
+[#1340240] by Kristen Pol: allow sorting by vocabulary weight
+[#1346628] by Kristen Pol: simplify UI for filtered content blocks
+[#969166] by Kristen Pol: update manual block settings to allow patterns
+[#1349044] by Kristen Pol: fix for "use [filter] of page" options
+[#1340240] by Kristen Pol: update logic for vocab+term sort
+
+7.x-1.0
+[#1263998] by snyderp: Additional coder fixes from #1264008
+[#1264008] by snyderp: Restoring delete link for block admin page
+[#1263998] by snyderp: fixing coder reported formatting errors
+[#1254442] by snyderp: Fix for 'Undefined Variable' errors
+[#1310762] by Kristen Pol: add in dependency on taxonomy module
+[#1326190] by Kristen Pol: pull out function to pass variable for reference
+[#1206176] by Kristen Pol: remove current content type & author for visibility settings
+
+7.x-1.0-beta2
+Issue #1199644 by willieseabrook: get rid of php warnings
+Issue #1199642 by willieseabrook & Kristen Pol: fix taxonomy logic for current node
+Issue #1200836 by willieseabrook: Put drupal_add_js/css in hook_init
+Issue #1200836 by Kristen Pol: get rid of extraneous drupal_add_js/css
+
+7.x-1.0-beta1
+#1125576 by Kristen Pol: get rid of php warnings
+#1150396 by Kristen Pol: remove unneeded parameter to get rid of warning
+#1181214 by Kristen Pol: change to work with taxonomy module changes
+miscellaneous changes to get rid of php warnings and work with D7 array changes
+
+Featured Content Module 7.x-dev
+  * Basic Featured Content module (migrated from D6)

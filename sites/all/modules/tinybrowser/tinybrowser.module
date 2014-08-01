@@ -1,0 +1,1153 @@
+<?php
+// $Id:
+/**
+ * @file
+ * TinyBrowser module
+ * - implements TinyBrowser plugin for TinyMCE WYSIWYG content editor
+ */
+
+include_once DRUPAL_ROOT . '/'. drupal_get_path('module', 'tinybrowser') .'/tinybrowser.profile.inc';
+include_once DRUPAL_ROOT . '/'. drupal_get_path('module', 'tinybrowser') .'/tinybrowser.userpage.inc';
+
+define("TB_CONFIG_PAGE", 'admin/config/media/tinybrowser');
+
+/**
+ * Debug function
+ */
+function tb_debug_log($str)
+{
+  if(is_array($str) || is_object($str)) {
+    error_log(print_r($str, TRUE) . "\r\n", 3, "/tmp/tb.txt");
+  }
+  else {
+    error_log($str . "\r\n", 3, "/tmp/tb.txt");
+  }
+}
+
+/**
+ * Function to get the tinyMCE directory (where tiny_mce.js exists)
+ */
+function tinybrowser_get_tinymce_root() {
+  if (module_exists("tinytinymce")) {
+    $install_dir = drupal_get_path('module', 'tinytinymce');
+    if (file_exists($install_dir . '/tinymce/jscripts/tiny_mce/tiny_mce.js')) {
+      return '../../tinytinymce/tinymce/jscripts/tiny_mce';
+    }
+  }
+  else if (module_exists("wysiwyg")) {
+    $install_dir = wysiwyg_get_path('');
+    if (file_exists($install_dir . '/tinymce/jscripts/tiny_mce/tiny_mce.js')) {
+      return '../../../libraries/tinymce/jscripts/tiny_mce';
+    }
+  }
+  return '';
+}
+
+/**
+ *
+ */
+function tinybrowser_get_window_width() {
+  $popup_win_size = variable_get('tinybrowser_popup_window_size', '770x480');
+  $popup_win_size = preg_replace('/\s*/', '', $popup_win_size);
+  $popup_win_size = strtolower($popup_win_size);
+  $win_size = explode('x', $popup_win_size);
+  return intval($win_size[0]);
+}
+function tinybrowser_get_window_height() {
+  $popup_win_size = variable_get('tinybrowser_popup_window_size', '770x480');
+  $popup_win_size = preg_replace('/\s*/', '', $popup_win_size);
+  $popup_win_size = strtolower($popup_win_size);
+  $win_size = explode('x', $popup_win_size);
+  return intval($win_size[1]);
+}
+
+/**
+ *
+ */
+function tinybrowser_set_js_variables() {
+  global $base_url;
+  static $complete = FALSE;
+
+  if(!$complete) {
+    $tbdir_url = $base_url . '/'. drupal_get_path('module', 'tinybrowser') .'/tinybrowser/';
+    drupal_add_js(array(
+      'tinybrowser' => array(
+        'tbdir_url' => $tbdir_url,
+        'window_width' => tinybrowser_get_window_width() + 15,
+        'window_height' => tinybrowser_get_window_height() + 15,
+      ),
+    ), 
+    'setting'
+    );
+    $complete = TRUE; // we should do this only once!
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function tinybrowser_init() {
+  if (module_exists("tinytinymce") || module_exists("fckeditor") || module_exists("ckeditor")) {
+    if (tinybrowser_access()) {
+      tinybrowser_set_js_variables();
+      drupal_add_js(drupal_get_path('module', 'tinybrowser') .'/tinybrowser/tb_tinymce.js');
+      $_SESSION['tinybrowser_module'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Implements hook_wysiwyg_plugin().
+ */
+function tinybrowser_wysiwyg_plugin($editor, $version) {
+  static $integrated = array();
+
+  switch ($editor) {
+    case 'tinymce':
+      if (!tinybrowser_access()) {
+        return;
+      }
+      if (!isset($integrated[$editor])) {
+        $integrated[$editor] = TRUE;
+        tinybrowser_set_js_variables();
+        drupal_add_js(drupal_get_path('module', 'tinybrowser') .'/tinybrowser/tb_tinymce.js');
+        $_SESSION['tinybrowser_module'] = TRUE;
+      }
+      return array(
+        'tinybrowser' => array(
+          'extensions' => array('tinybrowser' => t('TinyBrowser')),
+          'url' => 'http://www.lunarvis.com/products/tinymcefilebrowserwithupload.php',
+          'options' => array(
+            'file_browser_callback' => 'tinyBrowser',
+            'inline_styles' => TRUE,
+            'accessibility_warnings' => FALSE,
+          ),
+          'load' => FALSE,
+        ),
+      );
+      break;
+
+    case 'fckeditor':
+      if (!tinybrowser_access()) {
+        return;
+      }
+      if (!isset($integrated[$editor])) {
+        $integrated[$editor] = TRUE;
+        tinybrowser_set_js_variables();
+        drupal_add_js(drupal_get_path('module', 'tinybrowser') .'/tinybrowser/tb_tinymce.js');
+        $_SESSION['tinybrowser_module'] = TRUE;
+      }
+      $win_width = tinybrowser_get_window_width();
+      $win_height = tinybrowser_get_window_height();
+      return array(
+        'tinybrowser' => array(
+          'extensions' => array('tinybrowser' => t('TinyBrowser')),
+          'url' => 'http://www.lunarvis.com/products/tinymcefilebrowserwithupload.php',
+          'options' => array(
+            'LinkBrowser' => TRUE,
+            'ImageBrowser' => TRUE,
+            'FlashBrowser' => TRUE,
+            'LinkBrowserURL' => base_path() . drupal_get_path('module', 'tinybrowser') . '/tinybrowser/tinybrowser.php?type=file',
+            'ImageBrowserURL' => base_path() . drupal_get_path('module', 'tinybrowser') . '/tinybrowser/tinybrowser.php?type=image',
+            'FlashBrowserURL' => base_path() . drupal_get_path('module', 'tinybrowser') . '/tinybrowser/tinybrowser.php?type=media',
+            'LinkBrowserWindowWidth' => $win_width,
+            'LinkBrowserWindowHeight' => $win_height,
+            'ImageBrowserWindowWidth' => $win_width,
+            'ImageBrowserWindowHeight' => $win_height,
+            'FlashBrowserWindowWidth' => $win_width,
+            'FlashBrowserWindowHeight' => $win_height,
+          ),
+          'load' => FALSE,
+        ),
+      );
+      break;
+
+    case 'ckeditor':
+      if (!tinybrowser_access()) {
+        return;
+      }
+      if (!isset($integrated[$editor])) {
+        $integrated[$editor] = TRUE;
+        tinybrowser_set_js_variables();
+        drupal_add_js(drupal_get_path('module', 'tinybrowser') .'/tinybrowser/tb_tinymce.js');
+        $_SESSION['tinybrowser_module'] = TRUE;
+      }
+      $win_width = tinybrowser_get_window_width();
+      $win_height = tinybrowser_get_window_height();
+
+      return array(
+        'tinybrowser' => array(
+          'extensions' => array('tinybrowser' => t('TinyBrowser')),
+          'url' => 'http://www.lunarvis.com/products/tinymcefilebrowserwithupload.php',
+          'options' => array(
+            'filebrowserBrowseUrl' => base_path() . drupal_get_path('module', 'tinybrowser') . '/tinybrowser/tinybrowser.php?type=file',
+            'filebrowserImageBrowseUrl' => base_path() . drupal_get_path('module', 'tinybrowser') . '/tinybrowser/tinybrowser.php?type=image',
+            'filebrowserFlashBrowseUrl' => base_path() . drupal_get_path('module', 'tinybrowser') . '/tinybrowser/tinybrowser.php?type=media',
+            'filebrowserWindowWidth' => $win_width + 15,
+            'filebrowserWindowHeight' => $win_height + 15,
+            'filebrowserImageWindowWidth' => $win_width + 15,
+            'filebrowserImageWindowHeight' => $win_height + 15,
+            'filebrowserFlashWindowWidth' => $win_width + 15,
+            'filebrowserFlashWindowHeight' => $win_height + 15,
+            // 'skin' => 'kama', // remove this before release
+          ),
+          'load' => FALSE,
+        ),
+      );
+      break;
+  }
+}
+/**
+ * Implements hook_help()
+ */
+function tinybrowser_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case TB_CONFIG_PAGE:
+      // $output = '<p>' . t('File upload function requires <em>Adobe Flash Player 9</em> or later version installed to your web browser.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_menu
+ */
+function tinybrowser_menu() {
+  $items = array();
+
+  $items[TB_CONFIG_PAGE] = array(
+    'title' => 'TinyBrowser',
+    'description' => 'File manager and uploader plugin for TinyMCE editor.',
+    'page callback' => 'tinybrowser_admin',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items[TB_CONFIG_PAGE . '/profile'] = array(
+    'title' => 'Add new profile',
+    'page callback' => 'tinybrowser_profile_operations',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['user/%user/tinybrowser'] = array(
+    'title' => 'TinyBrowser',
+    'page callback' => 'tinybrowser_user_page',
+    'page arguments' => array(1),
+    'access callback' => 'tinybrowser_user_page_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme
+ */
+function tinybrowser_theme() {
+  // D7
+  $theme['tinybrowser_admin'] = array('function' => 'tinybrowser_admin_theme', 'render element' => 'form');
+//  $theme['tinybrowser_admin']['function'] = 'tinybrowser_admin_theme';
+  return $theme;
+}
+
+/**
+ * Admin page
+ */
+function tinybrowser_admin() {
+
+  //------ Configuration profiles ------
+
+  $profiles = variable_get('tinybrowser_profiles', array());
+  if (empty($profiles)) {
+    // first time after the new installation
+    $profiles = tinybrowser_install_profiles();
+  }
+  $header = array(
+    t('Profile name'),
+    array('data' => t('Operations'), 'colspan' => 2)
+  );
+  $attributes = array('style' => 'width:100%');
+  $rows = array();
+  foreach ($profiles as $pid => $profile) {
+    $rows[] = array(
+      $profile['name'],
+      l(t('Edit'), 'admin/config/media/tinybrowser/profile/edit/' . $pid),
+      $pid == 1 ? '' : l(t('Delete'), 'admin/config/media/tinybrowser/profile/delete/' . $pid),
+    );
+  }
+  $rows[] = array('', array('data' => l(t('Add new profile'), 'admin/config/media/tinybrowser/profile'), 'colspan' => 2));
+  $output['title'] = array(
+    '#markup' => '<h2 class="title">' . t('Configuration profiles') . '</h2>',
+  );
+  $output['table'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#attributes' => $attributes,
+  );
+  $output['form'] = drupal_get_form('tinybrowser_settings_form');
+
+  return $output;
+}
+
+/**
+ * Role profile form
+ */
+function tinybrowser_role_form($role, $weight = TRUE, $core = TRUE) {
+  $form['name'] = array(
+    '#type' => 'item',
+    '#markup' => $role['name'],
+  );
+  if ($weight) {
+    $form['weight'] = $core ? array(
+      '#type' => 'textfield',
+      '#value' => $role['weight'],
+      '#attributes' => array('readonly' => 'readonly', 'style' => 'border:none; width: 2em; background-color: transparent;'),
+    ) : array(
+      '#type' => 'weight',
+      '#default_value' => $role['weight'],
+      '#attributes' => array('class' => array('tinybrowser-weight')),
+    );
+  }
+  $options = array(t('none'));
+  foreach (variable_get('tinybrowser_profiles', array()) as $pid => $profile) {
+    $options[$pid] = $profile['name'];
+  }
+  $form['pid'] = array(
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => $role['pid'],
+  );
+  return $form;
+}
+
+/**
+ * Form: Configutation Settings
+ */
+// function tinybrowser_settings_form(&$form_state) {
+// D7
+function tinybrowser_settings_form($form, &$form_state) {
+
+  $note = '';
+
+  //------ Roles profiles ------
+
+  $form['roles'] = array('#tree' => TRUE);
+  $roles = tinybrowser_sorted_roles();
+  $form['#weighted'] = count($roles) >= 2;
+
+  foreach ($roles as $rid => $role) {
+    $core = $rid == DRUPAL_AUTHENTICATED_RID;
+    $form['roles'][$rid] = tinybrowser_role_form($role, $form['#weighted'], $core);
+  }
+  //------ WYSIWYG Editor ------
+  $form['editor'] = array(
+    '#type' => 'fieldset', '#title' => t('WYSIWYG editor'),
+    '#collapsible' => FALSE, '#collapsed' => FALSE,
+  );
+  if (module_exists("tinytinymce")) {
+    $default_editor = 'tinymce';
+  }
+  else if (module_exists("fckeditor")) {
+    $default_editor = 'fckeditor';
+  }
+  else if (module_exists("ckeditor")) {
+    $default_editor = 'ckeditor';
+  }
+  else if (module_exists("wysiwyg")) {
+    $install_dir = wysiwyg_get_path('');
+    if (file_exists($install_dir . '/tinymce/jscripts/tiny_mce/tiny_mce.js')) {
+      $default_editor = 'tinymce';
+    }
+    else if (file_exists($install_dir . '/fckeditor/fckeditor.js')) {
+      $default_editor = 'fckeditor';
+    }
+    else if (file_exists($install_dir . '/ckeditor/ckeditor.js')) {
+      $default_editor = 'ckeditor';
+    }
+    else {
+      $default_editor = 'none';
+    }
+  }
+  else {
+    $default_editor = 'none';
+  }
+  $editor = variable_get('tinybrowser_editor', $default_editor);
+  $form['editor']['tinybrowser_editor'] = array(
+    '#type' => 'select',
+    '#title' => t('WYSIWYG editor to be used with '),
+    '#default_value' => $editor,
+    '#options' => array('none' => t('None'), 'tinymce' => t('TinyMCE'), 'fckeditor' => t('FCKeditor'), 'ckeditor' => t('CKEditor')),
+  );
+  //-------- tinymce --------
+  if ($editor == 'tinymce') {
+  $tinymce_root = tinybrowser_get_tinymce_root();
+    if (!$tinymce_root) {
+      // could not find TinyMCE
+      $note .= t('TinyMCE is not installed properly with either TinyTinyMCE or Wysiwyg module. TinyBrowser requires either one of these module and TinyMCE installed properly.');
+    }
+    else {
+      variable_set('tinybrowser_tinymce_root', $tinymce_root);
+      $module = '';
+      if (module_exists("tinytinymce")) {
+        $module = 'TinyTinyMCE';
+      }
+      else if (module_exists("wysiwyg")) {
+        $module = 'Wysiwyg';
+      }
+      else {
+        // could not find FCKeditor
+        $note .= t('TinyMCE is not installed properly with either TinyTinyMCE or Wysiwyg module. TinyBrowser requires either one of these module and TinyMCE installed properly.');
+      }
+      $editor_info = $module == '' ? '<p>' . t('Can find neither TinyTinyMCE module nor Wysiwyg module. Please make sure to enable either one of them.') . '</p>' : '<p>' . t('You are currently using TinyMCE with <b>!module</b> module.', array('!module' => $module)) . '</p>';
+      $form['editor']['tinybrowser_editor_info'] = array(
+        '#type' => 'item',
+        '#markup' => $editor_info,
+      );
+      if ($module == 'TinyTinyMCE') {
+        $init_script = variable_get('tinytinymce_advanced', '');
+        if (!preg_match('/file_browser_callback\s*:\s*"tinyBrowser"/', $init_script)) {
+          $note  .= '<p>' . t('TinyTinyMCE module setting needs to be modified!  Please add the following line to the init script of the advanced mode of the TinyTinyMCE in order to use TinyBrowser with TinyMCE advanced mode.<br/><b>file_browser_callback: "tinyBrowser"</b>') . '</p>';
+        } 
+      }
+    }
+  }
+  //-------- fckeditor --------
+  else if ($editor == 'fckeditor') {
+  $tinymce_root = '';
+    variable_set('tinybrowser_tinymce_root', $tinymce_root);
+    $module = '';
+    if (module_exists("fckeditor")) {
+      $module = 'FCKeditor';
+    }
+    else if (module_exists("wysiwyg")) {
+      $module = 'Wysiwyg';
+    }
+    else {
+      // could not find FCKeditor
+      $note .= t('FCKeditor is not installed properly with either FCKeditor module or Wysiwyg module. TinyBrowser requires either one of these module and FCKeditor installed properly.');
+    }
+    $editor_info = $module == '' ? '<p>' . t('Can find neither FCKeditor module nor Wysiwyg module. Please make sure to enable either one of them.') . '</p>' : '<p>' . t('You are currently using FCKeditor with <b>!module</b> module.', array('!module' => $module)) . '</p>';
+    $form['editor']['tinybrowser_editor_info'] = array(
+      '#type' => 'item',
+      '#markup' => $editor_info,
+    );
+  }
+  //-------- ckeditor --------
+  else if ($editor == 'ckeditor') {
+  $tinymce_root = '';
+    variable_set('tinybrowser_tinymce_root', $tinymce_root);
+    $module = '';
+    if (module_exists("ckeditor")) {
+      $module = 'CKEditor';
+    }
+    else if (module_exists("wysiwyg")) {
+      $module = 'Wysiwyg';
+    }
+    else {
+      // could not find CKEditor
+      $note .= t('CKEditor is not installed properly with either CKEditor module or Wysiwyg module. TinyBrowser requires either one of these module and KCeditor installed properly.');
+    }
+    $editor_info = $module == '' ? '<p>' . t('Can find neither CKEditor module nor Wysiwyg module. Please make sure to enable either one of them.') . '</p>' : '<p>' . t('You are currently using CKEditor with <b>!module</b> module.', array('!module' => $module)) . '</p>';
+    $form['editor']['tinybrowser_editor_info'] = array(
+      '#type' => 'item',
+      '#markup' => $editor_info,
+    );
+  }
+
+  unset($_SESSION['messages']['error']);
+
+  // check if $cookie_domain is set or not
+  if (!tinybrowser_requirements_check_cookie_domain()) {
+    $note = '<p>' . t('TinyBrowser requires $cookie_domain to be set, but it is not set in your settings.php.') . '</p>';
+  }
+
+  if ($note) {
+    drupal_set_message($note, 'error');
+  }
+
+  //------ Extensions ------
+
+  $form['extensions'] = array(
+    '#type' => 'fieldset', '#title' => t('Extensions'),
+    '#collapsible' => TRUE, '#collapsed' => FALSE,
+  );
+  $form['extensions']['tinybrowser_ext_note'] = array(
+    '#type' => 'item',
+    '#markup' => '<p>' . t('Separate extensions with a space character and do not include leading dot. Extensions are case insensitive. Please use small letters for the extensions.') . '</p>',
+  );
+  $form['extensions']['tinybrowser_ok_ext_image'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Permitted image file extensions'),
+    '#default_value' => variable_get('tinybrowser_ok_ext_image', 'jpg jpeg gif png'),
+    '#size' => 100,
+    '#maxlength' => 120,
+  );
+  $form['extensions']['tinybrowser_ok_ext_media'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Permitted media file extensions'),
+    '#default_value' => variable_get('tinybrowser_ok_ext_media', 'swf dcr mov qt mpg mp3 mp4 mpeg avi wmv wm asf asx wmx wvx rm ra ram'),
+    '#size' => 100,
+    '#maxlength' => 120,
+  );
+  $form['extensions']['tinybrowser_prohibited_ext'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Prohibited extensions'),
+    '#default_value' => variable_get('tinybrowser_prohibited_ext', 'php php3 php4 phtml asp aspx ascx jsp cfm cfc pl bat exe dll reg cgi sh py asa asax config com inc'),
+    '#size' => 100,
+    '#maxlength' => 160,
+    '#description' => t('These extensions are totally prohibited. You can not upload, edit and see it even if it\'s in the current folder. This setting has higher precedence over permitted extensions above. Most probably you do not want to change this. Any extensions other than these are permitted for the regular file operations.'),
+  );
+
+  //------ General ------
+
+  $form['general'] = array(
+    '#type' => 'fieldset', '#title' => t('General settings'),
+    '#collapsible' => TRUE, '#collapsed' => FALSE,
+  );
+  $form['general']['tinybrowser_textarea'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enable inline image/file insertion into plain textareas'),
+    '#default_value' => variable_get('tinybrowser_textarea', ''),
+    '#maxlength' => NULL,
+    '#description' => t('If you don\'t use any WYSIWYG editor, this feature will allow you to add your images or files as <strong>html code into any plain textarea</strong>. Enter <strong>comma separated textarea IDs</strong> under which you want to enable a link to TinyBrowser. Hint: ID of Body fields in most node types is edit-body.'),
+  );
+  $form['general']['tinybrowser_absolute_url'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Absolute URLs'),
+    '#default_value' => variable_get('tinybrowser_absolute_url', 0),
+    '#description' => t('If checked, absolute URLs including host name are returned instead of relative URL.'),
+  );
+  $form['general']['tinybrowser_upload_mode'] = array(
+    '#type' => 'radios',
+    '#title' => t('Default behavior for existing files during file uploads'),
+    '#options' => array(
+       '1' => t('Replace the existing file with the new one'),
+       '2' => t('Keep the existing file and rename the new one'),
+       '3' => t('Keep the existing file and reject the new one'),
+    ),
+    '#default_value' => variable_get('tinybrowser_upload_mode', 1),
+  );
+  $form['general']['tinybrowser_thumbnail_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Thumbnail size'),
+    '#size' => 10,
+    '#maxlength' => 10,
+    '#default_value' => variable_get('tinybrowser_thumbnail_size', 80),
+    '#description' => '<p>' . t('If you change the thumbnail size, you need to flush all existing thumbnail images and regenerate them with a new size. Save the configuration first, then use the button below to do this.') . '</p>',
+  );
+  $form['general']['tinybrowser_flush_thumbnail'] = array(
+    '#type' => 'submit',
+    '#value' => t('Flush all thumbnails'),
+    '#submit' => array('tinybrowser_flush_all_thumbnails'),
+  );
+
+  //------ Advanced ------
+
+  $form['advanced'] = array(
+    '#type' => 'fieldset', '#title' => t('Advanced settings'),
+    '#collapsible' => TRUE, '#collapsed' => TRUE,
+  );
+  $form['advanced']['tinybrowser_default_view'] = array(
+    '#type' => 'select',
+    '#title' => t('Default view for the image browser'),
+    '#default_value' => variable_get('tinybrowser_default_view', 'thumb'),
+    '#options' => array('thumb' => t('Thumbnail'), 'detail' => t('Detail')),
+  );
+  $form['advanced']['tinybrowser_default_sort'] = array(
+    '#type' => 'select',
+    '#title' => t('Default sort mode'),
+    '#default_value' => variable_get('tinybrowser_default_sort', 3),
+    '#options' => array(
+      0 => t('by name (acsending)'), 
+      1 => t('by name (descending)'),
+      2 => t('by date (acsending)'), 
+      3 => t('by date (descending)'),
+    ),
+  );
+  $form['advanced']['tinybrowser_pagination'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of files per page'),
+    '#size' => 10,
+    '#maxlength' => 10,
+    '#default_value' => variable_get('tinybrowser_pagination', 0),
+    '#description' => t('Specify the maximum number of files to be shown in a page of image browser and editor. Set 0 for no pagination.'),
+  );
+  $form['advanced']['tinybrowser_popup_window_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('TinyBrowser window size'),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#field_suffix' => t('WIDTHxHEIGHT'),
+    '#default_value' => variable_get('tinybrowser_popup_window_size', '770x480'),
+    '#description' => t('Size of the TinyBrowser\'s popup window (default size: 770x480).'),
+  );
+  $form['advanced']['tinybrowser_max_crop_window_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum size of the image cropping window'),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#field_suffix' => t('WIDTHxHEIGHT'),
+    '#default_value' => variable_get('tinybrowser_max_crop_window_size', '1024x600'),
+    '#description' => t('Maximum size of the TinyBrowser\'s image cropping window (default size: 1024x600). Please make this max size smaller than the screen size of your monitor.'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  $form['#theme'] = 'tinybrowser_admin';
+  $form['#submit'][] = 'tinybrowser_admin_submit';
+  return $form;
+}
+
+/**
+ * Admin form themed
+ */
+// function tinybrowser_admin_theme($form = array()) {
+function tinybrowser_admin_theme($variables) {
+  $form = $variables['form'];
+/*
+  $adminp = tinybrowser_admin_profile();
+  $header = array(t('User role'));
+  $rows = array(array(t('Site maintenance account')));
+  $keys = array('name');
+  // add 'id' attribute to make table draggable
+  $attributes = array('style' => 'width:100%', 'id' => 'tinybrowser-table');
+
+  // add each stream wrapper as a column
+  $swrappers = file_get_stream_wrappers();
+  foreach ($swrappers as $scheme => $info) {
+    $header[] = $info['name'];
+    $rows[0][] = $adminp['name'];
+    $keys[] = $scheme . '_pid';
+  }
+
+  // in case we need profile weight
+  $weight_info = '';
+  if ($form['#weighted']) {
+    $header[] = t('Weight');
+    $rows[0][] = t('n/a');
+    $keys[] = 'weight';
+    $weight_info = t('For users who have <strong>multiple roles</strong>, the higher role with assigned profile in the list will take the precedence. Amin user role is always the top of the list and authenticated user role is the bottom of the list. The role that does not have any profile assigned can not use the TinyBrowser.');
+  }
+*/
+
+  $rows = array();
+  $header = array(
+    t('User role'),
+    t('Assigned profile'),
+  );
+  // add 'id' attribute to make table draggable
+  $attributes = array('style' => 'width:100%', 'id' => 'tinybrowser-table');
+  $adminp = tinybrowser_admin_profile();
+  $keys = array('name', 'pid');
+  $rows[0] = array(t('Admin'), $adminp['name']);
+  $info = '';
+
+  if ($form['#weighted']) {
+    $header[] = t('Weight');
+    $keys[] = 'weight';
+    $rows[0][] = t('n/a');
+    $info = t('For users who have <strong>multiple roles</strong>, the higher role with assigned profile in the list will take the precedence. Amin user role is always the top of the list and authenticated user role is the bottom of the list. The role that does not have any profile assigned can not use the TinyBrowser.');
+  }
+  foreach (element_children($form['roles']) as $rid) {
+    $cells = array();
+    $draggable = 1;
+    foreach ($keys as $key) {
+      $cells[] = drupal_render($form['roles'][$rid][$key]);
+      // exclude authenticated user role
+      if ($key == 'weight' && $form['roles'][$rid][$key]['#value'] == 11) {
+        $draggable = 0;
+      }
+    }
+    $rows[] = $draggable? array('data' => $cells, 'class' => array('draggable')) : $cells;
+  }
+  $output = '<h2 class="title">'. t('Role-profile assignments') .'</h2>';
+  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => $attributes));
+  // make the table row draggable for weight
+  drupal_add_tabledrag('tinybrowser-table', 'order', 'sibling', 'tinybrowser-weight');
+  $output .= '<div class="form-item"><div class="description">' . t('Assign profiles to user roles.') . ' ' . $info . '</div></div>';
+  $output .= drupal_render($form['common']);
+  $output .= drupal_render_children($form);
+  return $output;
+}
+
+/**
+ * Submit admin form
+ */
+function tinybrowser_admin_submit($form, &$form_state) {
+  $roles = $form_state['values']['roles'];
+  if (count($roles) >= 2) {
+    uasort($roles, 'tinybrowser_rolesort');
+  }
+  variable_set('tinybrowser_roles_profiles', $roles);
+  variable_set('tinybrowser_editor', $form_state['values']['tinybrowser_editor']);
+  variable_set('tinybrowser_ok_ext_image', $form_state['values']['tinybrowser_ok_ext_image']);
+  variable_set('tinybrowser_ok_ext_media', $form_state['values']['tinybrowser_ok_ext_media']);
+  variable_set('tinybrowser_prohibited_ext', $form_state['values']['tinybrowser_prohibited_ext']);
+  variable_set('tinybrowser_textarea', $form_state['values']['tinybrowser_textarea']);
+  variable_set('tinybrowser_absolute_url', $form_state['values']['tinybrowser_absolute_url']);
+  variable_set('tinybrowser_upload_mode', $form_state['values']['tinybrowser_upload_mode']);
+  variable_set('tinybrowser_thumbnail_size', $form_state['values']['tinybrowser_thumbnail_size']);
+  variable_set('tinybrowser_default_view', $form_state['values']['tinybrowser_default_view']);
+  variable_set('tinybrowser_default_sort', $form_state['values']['tinybrowser_default_sort']);
+  variable_set('tinybrowser_pagination', $form_state['values']['tinybrowser_pagination']);
+  variable_set('tinybrowser_popup_window_size', $form_state['values']['tinybrowser_popup_window_size']);
+  variable_set('tinybrowser_max_crop_window_size', $form_state['values']['tinybrowser_max_crop_window_size']);
+
+  drupal_set_message(t('The changes has been saved.'));
+  drupal_goto(TB_CONFIG_PAGE); // go back to the admin page
+}
+
+/**
+ *
+ */
+function _tinybrowser_recursive_thumbnail_delete($path, $num_deleted, $delete = FALSE) {
+  $dcnt = 1;
+  $scnt = 1;
+
+  $d = dir($path);
+
+  while (($entry = $d->read()) != FALSE) {
+    if ($entry == '.' || $entry == '..') continue;
+    $entry_path = $path . '/' . $entry;
+    if (is_dir($entry_path)) {
+      $delete = ($entry == '_thumbs' ? TRUE : FALSE);
+      $num_deleted += _tinybrowser_recursive_thumbnail_delete($entry_path, 0, $delete);
+      $delete = FALSE;
+    }
+    else if (is_file($entry_path) || is_link($entry_path)) {
+      if ($delete) {
+        unlink($entry_path); // file under _thumbs directory
+        $num_deleted++;
+        $dcnt++;
+      }
+      else {
+        $scnt++;
+      }
+    }
+    else { // unknown
+    }
+  }
+  $d->close();
+  if ($delete) {
+    rmdir($path);
+  }
+  return $num_deleted;
+}
+/**
+ * Flush all thumbnail images from the image path directory and it's subdirectories
+ */
+function tinybrowser_flush_all_thumbnails() {
+  $path_image = variable_get('tinybrowser_path_image', $file_dir_path . '/images/');
+  $path_image = rtrim($path_image, '/');
+  $doc_root = rtrim($_SERVER['DOCUMENT_ROOT'],'/');
+  $abs_path_image = $doc_root . $path_image;
+  $num_deleted = _tinybrowser_recursive_thumbnail_delete($abs_path_image, 0, FALSE);
+  if ($num_deleted) {
+    drupal_set_message(t('Total !dcnt thumbnail images are successfully deleted', array('!dcnt' => $num_deleted)));
+  }
+  else {
+    drupal_set_message(t('There were no thumbnail images to be deleted.'));
+  }
+  drupal_goto(TB_CONFIG_PAGE); // go back to the admin page
+}
+
+/**
+ * Checks if $cookie_domain is set at settings.php
+ *
+ * It has to be set at settings.php because conf_init() sets
+ * the $cookie_odmain regardless of the presence in the settings.php.
+ * So checking the global $cookie_domain is not good enough.
+ */
+function tinybrowser_requirements_check_cookie_domain() {
+  if (file_exists('./' . conf_path() . '/settings.php')) {
+    $settings = file_get_contents('./' . conf_path() . '/settings.php');
+    if (preg_match('#^\s*\$cookie_domain#m', $settings)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Add/Edit/Delete profile
+ */
+function tinybrowser_profile_operations($op = 'add', $pid = 0) {
+  if ($op == 'delete') {
+    drupal_set_title(t('Delete profile'));
+    return drupal_get_form('tinybrowser_profile_delete_form', $pid);
+  }
+  if ($pid != 1 || $GLOBALS['user']->uid == 1) {
+    return drupal_get_form('tinybrowser_profile_form', $pid);
+  }
+  drupal_access_denied();
+}
+
+/**
+ * Profile form
+ */
+// function tinybrowser_profile_form(&$form_state, $pid = 0) {
+// D7
+function tinybrowser_profile_form($form, &$form_state, $pid = 0) {
+  if ($pid && $profile = tinybrowser_load_profile($pid)) {
+    drupal_set_title($profile['name']);
+  }
+  else {
+    $pid = 0;
+    $profile = tinybrowser_sample_profile();
+    $profile['name'] = '';
+  }
+  $form_state['profile'] = $profile; // store original profile just in case
+
+  $form = array('#tree' => TRUE);
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Proile name'),
+    '#default_value' => $profile['name'],
+    '#description' => t('Give a name to this profile.'),
+    '#required' => TRUE,
+  );
+  $form['max_file_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum size of the file your can upload'),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#default_value' => $profile['max_file_size'],
+    '#description' => t('Set to 0 to use the maximum size available. The PHP settings of the server limit the maximum file size for upload to %size.', array('%size' => format_size(file_upload_max_size()))),
+    '#field_suffix' => t('bytes'),
+  );
+  $form['max_image_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum image resolution'),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#field_suffix' => t('WIDTHxHEIGHT'),
+    '#default_value' => $profile['max_image_size'],
+    '#description' => t('Maximum image size allowed (e.g: 640x480). Set 0 for no restriction. Images bigger than this size will be scaled down to fit this size.'),
+  );
+
+  $form['directory'] = array(
+    '#type' => 'fieldset', 
+    '#title' => t('Directory options'),
+    '#collapsible' => FALSE, 
+    '#collapsed' => FALSE,
+  );
+  $form['directory']['path_note'] = array(
+    '#type' => 'item',
+    '#markup' => '<div class="description">' . t('Please specify the directories using absolute path from the server\'s DocumentRoot. They should start and end with a slash character.  If you want to assign separate directory for each user, use <strong>%u</strong> as a placeholder for user ID.  For example, actual directory specified by <em>/sites/default/files/%u/</em> for the user whose ID is 1 will be <em>/sites/default/files/1/</em>. <br/>If you want to use image styles with TinyBrowser, the directories you specify here have be the Drupal\'s stanrard file directory or the sub-directories below.'). '</div>',
+  );
+  $form['directory']['path_file'] = array(
+    '#type' => 'textfield',
+    '#title' => t('File directory'),
+    '#default_value' => $profile['directory']['path_file'],
+    '#size' => 60,
+    '#maxlength' => 80,
+  );
+  $form['directory']['path_image'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Image directory'),
+    '#default_value' => $profile['directory']['path_image'],
+    '#size' => 60,
+    '#maxlength' => 80,
+  );
+  $form['directory']['path_media'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Media directory'),
+    '#default_value' => $profile['directory']['path_media'],
+    '#size' => 60,
+    '#maxlength' => 80,
+  );
+  $form['directory']['quota'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Directory quota'),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#default_value' => $profile['directory']['quota'],
+    '#description' => t('Define the upload directory quota per file type (image/media/file). Set to 0 to unlimit.'),
+    '#field_suffix' => t('bytes'),
+  );
+  $form['permissions'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Permitted operations'),
+    '#default_value' => $profile['permissions'],
+    '#options' => array(
+      'upload'   => t('Upload files'),
+      'edit'     => t('Edit files (rename, resize, rotate)'),
+      'folders'  => t('Use subfolders (create, rename, move)'),
+      'delete'   => t('Delete files and folders'),
+      'userpage' => t('Use TinyBrowser at user account page'),
+    ),
+    '#description' => t('Even if no permissions are selected above, users still can browse files. File upload function requires <em>Adobe Flash Player 9</em> or later version installed to the web browser. <strong>Please note that allowing file upload will be a possible security risk.</strong>'),
+  );
+  $form['imagestyle'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Image style support'),
+    '#default_value' => $profile['imagestyle'],
+    '#description' => t('If checked, users can insert converted images instead of the original images simply by selecting image style from the context menu.'),
+  );
+  $form = array('profile' => $form);
+  $form['pid'] = array(
+    '#type' => 'hidden',
+    '#value' => $pid,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  $form['#submit'][] = 'tinybrowser_profile_submit';
+  return $form;
+}
+
+/**
+ * Implements hook_validate()
+ */
+function tinybrowser_profile_form_validate($form_id, $form_values) {
+  $op = $form_values['values']['op'];
+  if ($op == t('Cancel')) return;
+  if (empty($form_values['values']['profile']['name'])) {
+    form_set_error('profile][name', t('You need to enter the name of this profile.'));
+  }
+  if (!preg_match('/^\/.*\/$/', $form_values['values']['profile']['directory']['path_file'])) {
+    form_set_error('profile][directory][path_file', t('The file directory path must start with a slash and also must end with a slash'));
+  }
+  if (!preg_match('/^\/.*\/$/', $form_values['values']['profile']['directory']['path_image'])) {
+    form_set_error('profile][directory][path_image', t('The image directory path must start with a slash and also must end with a slash'));
+  }
+  if (!preg_match('/^\/.*\/$/', $form_values['values']['profile']['directory']['path_media'])) {
+    form_set_error('profile][directory][path_media', t('The media directory path must start with a slash and also must end with a slash'));
+  }
+}
+
+/**
+ * Profile form submit
+ */
+function tinybrowser_profile_submit($form, &$form_state) {
+  $profile = $form_state['values']['profile'];
+  $pid = $form_state['values']['pid'];
+  $message = $pid > 0 ? t('The changes have been saved.') : t('Profile has been added.');
+  $pid = tinybrowser_update_profiles($pid, $profile);
+
+  drupal_set_message($message);
+  $form_state['redirect'] = TB_CONFIG_PAGE;
+}
+
+/**
+ * Profile delete form
+ */
+// function tinybrowser_profile_delete_form(&$form_state, $pid) {
+// D7
+function tinybrowser_profile_delete_form($form, &$form_state, $pid) {
+  if ($pid > 1 && $profile = tinybrowser_load_profile($pid)) {
+    $form['#submit'][] = 'tinybrowser_profile_delete_submit';
+    $form['pid'] = array(
+      '#type' => 'hidden',
+      '#value' => $pid,
+    );
+    return confirm_form($form,
+      t('Are you sure you want to delete the profile %name?',
+        array('%name' => $profile['name'])),
+        TB_CONFIG_PAGE,
+        '',
+        t('Delete'),
+        t('Cancel')
+    );
+  }
+  drupal_goto(TB_CONFIG_PAGE);
+}
+
+/**
+ * Profile delete form submit
+ */
+function tinybrowser_profile_delete_submit($form, &$form_state) {
+  tinybrowser_update_profiles($form_state['values']['pid'], NULL);
+  drupal_set_message(t('Profile has been deleted.'));
+  $form_state['redirect'] = TB_CONFIG_PAGE;
+}
+
+/**
+ * Update role profile assignments
+ */
+function tinybrowser_update_roles($pid) {
+  $roles = variable_get('tinybrowser_roles_profiles', array());
+  foreach ($roles as $rid => $role) {
+    if ($role['pid'] == $pid) {
+      $roles[$rid]['pid'] = 0;
+    }
+    else if ($role['pid'] > $pid) {
+      $roles[$rid]['pid']--;
+    }
+  }
+  variable_set('tinybrowser_roles_profiles', $roles);
+}
+
+/**
+ * Add, update or delete a profile
+ */
+function tinybrowser_update_profiles($pid, $profile = NULL) {
+  $profiles = variable_get('tinybrowser_profiles', array());
+
+  // add or update
+  if (isset($profile)) {
+    $pid = isset($profiles[$pid]) ? $pid : count($profiles) + 1;
+    $profiles[$pid] = $profile;
+  }
+  // delete
+  else if (isset($profiles[$pid]) && $pid > 1) {
+    unset($profiles[$pid]);
+    for ($i = $pid + 1 ; isset($profiles[$i]) ; $i++) {
+      $profiles[$i - 1] = $profiles[$i];
+      unset($profiles[$i]);
+    }
+    tinybrowser_update_roles($pid);
+  } 
+  variable_set('tinybrowser_profiles', $profiles);
+  return $pid;
+}
+
+/**
+ * Load profile
+ */
+function tinybrowser_load_profile($pid) {
+  $profiles = variable_get('tinybrowser_profiles', array());
+  return isset($profiles[$pid]) ? $profiles[$pid] : NULL;
+}
+
+function tinybrowser_sorted_roles() {
+  static $sorted;
+  if (!isset($sorted)) {
+    $sorted = array();
+    $member_only = TRUE;
+    $roles = user_roles($member_only);
+    $profiles = variable_get('tinybrowser_profiles', array());
+    $rp = variable_get('tinybrowser_roles_profiles', array());
+    // $rp[DRUPAL_ANONYMOUS_RID]['weight'] = 12;
+    $rp[DRUPAL_AUTHENTICATED_RID]['weight'] = 11;
+    foreach ($roles as $rid => $rname) {
+      $sorted[$rid] = array(
+        'name' => $rname,
+        'weight' => isset($rp[$rid]['weight']) ? $rp[$rid]['weight'] : 0,
+        'pid' => isset($rp[$rid]['pid']) && isset($profiles[$rp[$rid]['pid']]) ? $rp[$rid]['pid'] : 0,
+      );
+    }
+    uasort($sorted, 'tinybrowser_rolesort');
+  }
+  return $sorted;
+}
+
+/**
+ * Sorting function for roles
+ */
+function tinybrowser_rolesort($r1, $r2) {
+  return $r1['weight'] - $r2['weight'];
+}
+
+/**
+ * Get the profile for the user
+ */
+function tinybrowser_get_user_profile($user) {
+  $profiles = variable_get('tinybrowser_profiles', array());
+  if ($user->uid == 1 && isset($profiles[1])) {
+    return $profiles[1];
+  }
+  else {
+    foreach (variable_get('tinybrowser_roles_profiles', array()) as $rid => $role) {
+      if (isset($user->roles[$rid]) && isset($profiles[$role['pid']])) {
+        return $profiles[$role['pid']];
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Check if the user has access or not
+ */
+function tinybrowser_access($user = FALSE) {
+  if ($user === FALSE) {
+    global $user;
+  }
+  if ($user->uid == 1) { // admin
+    return TRUE;
+  }
+  $roles_profiles = variable_get('tinybrowser_roles_profiles', array());
+  foreach ($user->roles as $rid => $role) {
+    if (isset($roles_profiles[$rid]['pid']) && $roles_profiles[$rid]['pid']) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_element_info().
+ */
+function tinybrowser_element_info() {
+  return array(
+    'textarea' => array('#process' => array('tinybrowser_textarea')),
+    'textfield' => array('#process' => array('tinybrowser_textarea'))
+  );
+}
+
+/**
+ * Inline image/link insertion to textareas.
+ */
+function tinybrowser_textarea($element, $form_state, $complete_form) {
+  static $ids;
+  if (!isset($ids)) {
+    $ids = FALSE;
+    if (tinybrowser_access() && $setting = str_replace(' ', '', variable_get('tinybrowser_textarea', ''))) {
+      $ids = array();
+      foreach (explode(',', $setting) as $id) {
+        $ids[$id] = 1;
+      }
+    }
+  }
+  // $ids is something like below when user entered
+  //  'edit-body-und-0-summary, edit-body-und-0-value' in the config page
+  // Array(
+  //   [edit-body-und-0-summary] => 1,
+  //   [edit-body-und-0-value] => 1,
+  // );
+  //
+  // $element['#id'] is the ID of the current form element
+  //
+  // This function is called for every 'textfield' and 'textarea' form element.
+  //
+
+  if ($ids) {
+    if ((isset($ids[$element['#id']])) || tinybrowser_id_match($ids, $element['#id'])) {
+      tinybrowser_set_js_variables();
+      drupal_add_js(drupal_get_path('module', 'tinybrowser') .'/tinybrowser/tb_standalone.js');
+      if(!isset($element['#description'])) $element['#description'] = ''; // avoid warning
+      $element['#description'] .= '<div class="tinybrowser-inline-wrapper">'
+        . t('Insert !image or !link.',
+          array(
+            '!image' => 
+            '<a href="" onclick="tinyBrowserPopUp(\'image\',\''.$element['#id'].'\'); return false;">' . t('image') . '</a>',
+            '!link' => 
+            '<a href="" onclick="tinyBrowserPopUp(\'file\',\''.$element['#id'].'\'); return false;">' . t('link') . '</a>',
+          )
+        )
+        . '</div>';
+    }
+  }
+  return $element;
+}
+
+/**
+ * Check if specified element ID and current element ID matches
+ *
+ * For example, we handle these case as a match
+ *  user specified ID: edit-body
+ *  current element ID: edit-body-und-0-summary or edit-body-und-0-value
+ */
+function tinybrowser_id_match($ids, $target_id) {
+  foreach ($ids as $id => $value) {
+    if (preg_match('/^' . $id . '/i', $target_id)) {
+      return TRUE;
+    }
+  } 
+  return FALSE;
+}

@@ -1,0 +1,51 @@
+/**
+ * Views Slideshow Xtra Example CSS.
+ */
+
+#views-slideshow-xtra-overlay--views-slideshow-xtra-example-attachment-1 {
+	z-index: 51;
+}
+
+#views-slideshow-xtra-overlay--views-slideshow-xtra-example--attachment-1 .views-slideshow-xtra-overlay-row a,
+#views-slideshow-xtra-overlay--views-slideshow-xtra-example--attachment-1 .views-slideshow-xtra-overlay-row a:link,
+#views-slideshow-xtra-overlay--views-slideshow-xtra-example--attachment-1 .views-slideshow-xtra-overlay-row a:visited
+{
+	margin-top: 10px;
+  margin-left: 10px;
+  color: #333;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+#views-slideshow-xtra-overlay--views-slideshow-xtra-example--attachment-2 .views-slideshow-xtra-overlay-row {
+	color: #966;
+	margin-top: 15px;
+	margin-left: 160px;
+	width: 150px;
+	height: 20px;
+	padding: 8px;
+	background: #EEE;
+	border: 2px solid #366; 
+}
+
+#views-slideshow-xtra-overlay--views-slideshow-xtra-example--attachment-2 .views-slideshow-xtra-overlay-row-1 {
+  color: #966;
+  margin-top: 60px;
+  margin-left: 160px;
+  width: 150px;
+  height: 20px;
+  padding: 8px;
+  background: #EEE;
+  border: 2px solid #366; 
+}
+
+#views-slideshow-xtra-overlay--views-slideshow-xtra-example--attachment-2 .views-slideshow-xtra-overlay-row-2 {
+  color: #966;
+  margin-top: 60px;
+  margin-left: 200px;
+  width: 150px;
+  height: 20px;
+  padding: 8px;
+  background: #EEE;
+  border: 2px solid #366; 
+}

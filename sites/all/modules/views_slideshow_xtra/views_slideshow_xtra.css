@@ -1,0 +1,17 @@
+/**
+ * Views Slideshow Xtra CSS. 
+ */
+.views-slideshow-xtra-wrapper {
+  z-index: 50;
+  position: absolute;
+}
+
+.views-slideshow-xtra-row {
+  display: none;
+  min-height: 10px;
+}
+
+.views-slideshow-xtra-element {
+  position: absolute;
+}
+

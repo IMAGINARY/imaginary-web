@@ -1,0 +1,6 @@
+<?php
+
+/**
+ * @file
+ * Allows users to upload files without clicking the upload button
+ */

@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Implementation of hook_install()
+ *
+ */
+function whammy_bar_install() {
+  $new_style = array('name' => 'whammy-bar-profile-picture');
+  image_style_save($new_style);
+  $image_style = image_style_load($new_style['name']);
+
+  image_effect_save(array(
+    'module' => 'image',
+    'name' => 'image_scale_and_crop',
+    'data' => 
+    array (
+      'width' => '30',
+      'height' => '30',
+    ),
+    'ieid' => null,
+    'isid' => $image_style['isid'],
+  ));
+}
+
+/**
+ * Remove the image style
+ *
+ */
+function whammy_bar_uninstall() {
+  $image_style = image_style_load('whammy-bar-profile-picture');
+  image_style_delete($image_style);
+}

@@ -1,0 +1,23 @@
+.VS-search .VS-icon-cancel {
+  background-image: url(../../libraries/visualsearch/cancel_search.png);
+}
+
+.VS-search .VS-icon-search {
+  background-image: url(../../libraries/visualsearch/search_glyph.png);
+}
+
+.VS-interface.ui-autocomplete .ui-menu-item {
+  float: none;
+}
+
+.VS-interface.ui-autocomplete .ui-menu-item a {
+  background-image: none;
+}
+
+.VS-interface.ui-autocomplete .ui-menu-item .ui-state-hover {
+  background-image: none;
+  margin: 0;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+

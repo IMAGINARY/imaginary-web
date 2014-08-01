@@ -1,0 +1,7 @@
+name = Entity Translation testing
+description = Tests Entity Translation module functionality. Do not enable.
+core = 7.x
+package = Testing
+hidden = TRUE
+dependencies[] = entity_translation
+files[] = entity_translation_test.module

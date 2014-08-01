@@ -1,0 +1,12 @@
+name = "Views Slideshow Xtra"
+description = "Adds additional functionality to the Views Slideshow module. NOTE: This module has been deprecated, use views_slideshow_xtra_overlay instead"
+core = "7.x"
+package = "Views"
+dependencies[] = views_slideshow
+
+; Information added by drupal.org packaging script on 2012-08-08
+version = "7.x-3.8"
+core = "7.x"
+project = "views_slideshow_xtra"
+datestamp = "1344389845"
+

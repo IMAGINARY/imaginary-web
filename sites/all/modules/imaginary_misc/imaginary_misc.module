@@ -1,0 +1,8 @@
+<?php
+
+function imaginary_misc_panels_pane_content_alter(&$content, $pane, $args, $context) {
+
+  if(!empty($content->title)) {
+    $content->title = t($content->title);
+  }
+}

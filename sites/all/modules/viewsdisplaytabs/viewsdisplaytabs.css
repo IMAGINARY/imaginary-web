@@ -1,0 +1,73 @@
+/**
+ * CSS Tabs
+ *
+ * Copy these rules to your theme's stylesheet to override!
+ * Inspired by: http://unraveled.com/publications/assets/css_tabs/index.html
+ */
+
+.viewsdisplaytabs-wrapper .viewsdisplaytabs-group-wrapper {
+  float: left;
+  margin: 0 .5em;
+}
+
+.viewsdisplaytabs-wrapper .viewsdisplaytabs-group-wrapper ul {
+  text-align: left; /* set to left, right or center */
+  margin: 1em 0 1em 0; /* set margins as desired */
+  font: bold 11px verdana, arial, sans-serif; /* set font as desired */
+  border-bottom: 1px solid #ccc; /* set border COLOR as desired */
+  list-style-type: none;
+  padding: 3px 0px 3px 0px; /* THIRD number must change with respect to padding-top (X) below */
+}
+
+.viewsdisplaytabs-wrapper .viewsdisplaytabs-group-wrapper ul li {
+  display: inline;
+  background: none;
+  padding: 0;
+}
+
+.viewsdisplaytabs-wrapper .viewsdisplaytabs-group-wrapper ul li a {
+  padding: 3px 8px; /* set padding (tab size) as desired; FIRST number must change with respect to padding-top (X) above */
+  border: 1px solid #ccc; /* set border COLOR as desired; usually matches border color specified in #tabnav */
+  background-color: #eee; /* set unselected tab background color as desired */
+  color: #666; /* set unselected tab link color as desired */
+  margin-right: 0px; /* set additional spacing between tabs as desired */
+  text-decoration: none;
+  border-bottom: none;
+  -webkit-border-radius: 4px 4px 0 0;
+  -moz-border-radius: 4px 4px 0 0;
+  border-radius: 4px 4px 0 0;
+}
+
+.viewsdisplaytabs-wrapper .viewsdisplaytabs-group-wrapper ul li.last a {
+  margin-right: 4px; /* set additional spacing between tabs as desired */
+}
+
+.viewsdisplaytabs-wrapper .viewsdisplaytabs-group-wrapper ul li a.viewsdisplaytabs-active {
+  background-color: #fff; /* set selected tab background color as desired */
+  border-bottom: 1px solid #fff;
+  color: #000; /* set selected tab link color as desired */
+  position: relative;
+  top: 0px;
+  padding-top: 4px; /* must change with respect to padding (X) above and below */
+}
+
+.viewsdisplaytabs-wrapper-closure {
+  clear: both;
+}
+
+
+/**
+ * Administration page
+ */
+table.viewsdisplaytabs-admin td {
+  vertical-align: top;
+}
+
+/* Uses CSS3 nth-child(n) selector */
+table.viewsdisplaytabs-admin td:nth-child(4) {
+  padding-top: .7em;
+}
+
+form#-viewsdisplaytabs-admin dt {
+  font-weight: bold;
+}

@@ -1,0 +1,240 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for the User Stats module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function user_stats_schema() {
+  $schema['user_stats_values'] = array(
+    'description' => 'User Stats data.',
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The name of the statistic.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {users}.uid of the statistic user.',
+      ),
+      'value' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The value of the statistic.',
+      ),
+    ),
+    'primary key' => array('name', 'uid'),
+  );
+  $schema['user_stats_ips'] = array(
+    'description' => 'IP address storage, links timestamps and uids to IP',
+    'fields' => array(
+      'iid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary key: IP address unique ID.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {users}.uid of the user.',
+      ),
+      'ip_address' => array(
+        'type' => 'varchar',
+        'length' => 15,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "The user's IP address.",
+      ),
+      'first_seen_timestamp' => array(
+        'description' => 'The Unix timestamp when the IP address was first used by this user.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('iid'),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'first_seen_timestamp' => array('first_seen_timestamp'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function user_stats_install() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('user_stats')
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function user_stats_uninstall() {
+  variable_del('user_stats_rebuild_stats');
+  variable_del('user_stats_last_cron_check');
+  variable_del('user_stats_included_content_types');
+  variable_del('user_stats_reset_login_count');
+  variable_del('user_stats_reset_post_count');
+  variable_del('user_stats_user_per_cron');
+  variable_del('user_stats_count_posts');
+  variable_del('user_stats_count_comments');
+  variable_del('user_stats_count_logins');
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('user_stats')
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function user_stats_update_6100() {
+  $ret = array();
+  // Making variable names consistent: 'postcount' becomes 'post_count'.
+  $post_count_field = variable_get('user_stats_postcount_profile_field', 'user_post_count');
+  variable_set('user_stats_post_count_profile_field', $post_count_field);
+  variable_del('user_stats_postcount_profile_field');
+
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function user_stats_update_6101() {
+  variable_del('user_stats_post_count_profile_field');
+  variable_del('user_stats_postcount_profile_field');
+  // Need to reset statistics.
+  variable_set('user_stats_rebuild_stats', TRUE);
+
+  $ret = array();
+
+  // Install new table schema.
+  $schema['user_stats_values'] = array(
+    'description' => 'User Stats data.',
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The name of the statistic.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {users}.uid of the statistic user.',
+      ),
+      'value' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The value of the statistic.',
+      ),
+    ),
+    'primary key' => array('name', 'uid'),
+  );
+  $schema['user_stats_ips'] = array(
+    'description' => 'IP address storage, links timestamps and uids to IP',
+    'fields' => array(
+      'iid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary key: IP address unique ID.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {users}.uid of the user.',
+      ),
+      'ip_address' => array(
+        'type' => 'varchar',
+        'length' => 15,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "The user's IP address.",
+      ),
+      'first_seen_timestamp' => array(
+        'description' => 'The Unix timestamp when the IP address was first used by this user.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('iid'),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'first_seen_timestamp' => array('first_seen_timestamp'),
+    ),
+  );
+  db_create_table('user_stats_values', $schema['user_stats_values']);
+  db_create_table('user_stats_ips', $schema['user_stats_ips']);
+
+  $post_count_profile_field = variable_get('user_stats_post_count_profile_field', 'user_post_count');
+
+  // Migrate old data, only the login count is necessary, post counts are reset.
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("INSERT INTO {user_stats_values} (name, uid, value)
+        SELECT 'login_count', pv.uid, CAST(pv.value AS SIGNED)
+        FROM {profile_fields} pf INNER JOIN {profile_values} pv ON pf.fid = pv.fid
+        WHERE pf.name = 'user_login_count'") */;
+      break;
+    case 'pgsql':
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("INSERT INTO {user_stats_values} (name, uid, value)
+        SELECT 'login_count', pv.uid, CAST(pv.value AS INT)
+        FROM {profile_fields} pf INNER JOIN {profile_values} pv ON pf.fid = pv.fid
+        WHERE pf.name = 'user_login_count'") */;
+      break;
+  }
+
+  // IP Addresses to new dedicated table, unfortunately we don't have timestamps.
+  // TODO update_sql has been removed. Use the database API for any schema or data changes.
+  $ret[] = array() /* update_sql("INSERT INTO {user_stats_ips} (uid, ip_address)
+    SELECT pv.uid, pv.value
+    FROM {profile_fields} pf INNER JOIN {profile_values} pv ON pf.fid = pv.fid
+    WHERE pf.name = 'user_ip_address'") */;
+
+  // Delete old data.
+  // TODO Please convert this statement to the D7 database API syntax.
+  $query = db_query("SELECT fid FROM {profile_fields}
+    WHERE name IN ('%s', 'user_ip_address', 'user_login_count')", $post_count_profile_field);
+
+  while ($fid = db_fetch_object($query)) {
+    // TODO update_sql has been removed. Use the database API for any schema or data changes.
+    $ret[] = array() /* update_sql("DELETE FROM {profile_values} WHERE fid = " . (int) $fid->fid) */;
+  }
+
+  // TODO update_sql has been removed. Use the database API for any schema or data changes.
+  $ret[] = array() /* update_sql("DELETE FROM {profile_fields}
+    WHERE name IN ('" . db_escape_string($post_count_profile_field) . "', 'user_ip_address', 'user_login_count')") */;
+
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
+}

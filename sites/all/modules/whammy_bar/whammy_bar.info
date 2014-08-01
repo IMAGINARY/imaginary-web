@@ -1,0 +1,11 @@
+name = Whammy Bar
+description = You will hate this module, but your users will like it. It adds a nice menu designed for non-techies.
+core = 7.x
+package = Administration
+
+; Information added by drupal.org packaging script on 2012-03-14
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "whammy_bar"
+datestamp = "1331746244"
+

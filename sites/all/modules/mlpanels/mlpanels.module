@@ -1,0 +1,155 @@
+<?php
+/**
+ * @file
+ * Multilingual panels.
+ *
+ * Allows create language depended pane congirations.
+ */
+
+define('MLPANELS_VARIABLE_SETTINGS', 'mlpanels_variable_settings');
+
+define('MLPANELS_RENDERER_EDITOR_CLASS', 'mlpanels_panels_renderer_editor');
+define('MLPANELS_RENDERER_STANDARD', 'mlpanels_renderer_standard');
+
+define('MLPANELS_PERM_ADMIN', 'mlpanels_perm_admin');
+
+/**
+ * Implements hook_permission().
+ */
+function mlpanels_permission() {
+  return array(
+    MLPANELS_PERM_ADMIN => array(
+      'title' => t('Administer Multilingual panels'),
+      'description' => t('Perform administration tasks for Multilingual panels.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function mlpanels_ctools_plugin_api($owner, $api) {
+  if ($owner == 'panels' && $api == 'pipelines') {
+    return array(
+      'version' => 1,
+      'path' => drupal_get_path('module', 'mlpanels') . '/includes',
+    );
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function mlpanels_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'page_manager' || $module == 'panels' || $module == 'ctools' || $module == 'stylizer') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implements hook _ctools_plugin_pre_alter().
+ *
+ * Change editor renderer to multilingual, renderer has backward compability
+ * and will pass any action if display doe not have ML standart renderer.
+ */
+function mlpanels_ctools_plugin_pre_alter(&$plugin, &$info) {
+
+  // Override a function defined by the plugin.
+  if (($plugin['name'] == 'editor') && ($plugin['plugin type'] == 'display_renderers')) {
+
+    // Save original plugin.
+    variable_set('mlpanels_ctools_plugin_editor', $plugin);
+
+    // Preload all nessesary files.
+    require_once $plugin['path'] . '/' . $plugin['renderer'] . '.class.php';
+
+    // Order plugin to use our class.
+    if (class_exists('panels_renderer_editor')) {
+      $plugin['renderer'] = MLPANELS_RENDERER_EDITOR_CLASS;
+    }
+  }
+}
+
+/**
+ * Implements hook_default_panels_renderer_pipeline().
+ */
+function mlpanels_default_panels_renderer_pipeline() {
+  $pipelines = array();
+  $pipeline = new stdClass();
+  $pipeline->disabled = FALSE;
+  $pipeline->api_version = 1;
+  $pipeline->name = MLPANELS_RENDERER_STANDARD;
+  $pipeline->admin_title = t('Multilingual Standard');
+  $pipeline->admin_description = t("Inherit standard renderer but allow different pane's setting per language.");
+  $pipeline->weight = -99;
+  $pipeline->settings = array(
+    'renderers' => array(
+      0 => array(
+        'access' => array(),
+        'renderer' => MLPANELS_RENDERER_STANDARD,
+        'options' => array(),
+      ),
+    ),
+  );
+  $pipelines[$pipeline->name] = $pipeline;
+
+  return $pipelines;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function mlpanels_menu() {
+
+  $items['admin/config/regional/mlpanels'] = array(
+    'title' => 'Multilingual panels',
+    'description' => 'Allow panel panes to be configured per language.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mlpanels_admin_form'),
+    'access arguments' => array(MLPANELS_PERM_ADMIN),
+    'file' => 'mlpanels.admin.inc',
+    'module' => 'mlpanels',
+  );
+
+  return $items;
+}
+
+/**
+ * Helper function to return configuration settings.
+ */
+function _mlpanels_settings($key = NULL) {
+  $default = array(
+    'cke_fix'       => TRUE,
+    'keep_window'   => TRUE,
+    'show_messages' => TRUE,
+    'show_types'    => FALSE,
+    'exclude_cct'   => '',
+  );
+  $settings = variable_get(MLPANELS_VARIABLE_SETTINGS, $default);
+  return !empty($key)
+    ? $settings[$key]
+    : $settings;
+}
+
+/**
+ * Helper fnction to check if we should translate this pane.
+ */
+function _mlpanels_pane_skip($type, $subtype) {
+  $exclude = _mlpanels_settings('exclude_cct');
+  if (empty($exclude)) {
+    return FALSE;
+  }
+
+  foreach (explode(PHP_EOL, $exclude) as $match) {
+    // Full match.
+    if (($type . '::' . $subtype) == trim($match)) {
+      return TRUE;
+    }
+
+    // Type only match.
+    if (($type . '::*') == trim($match)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}

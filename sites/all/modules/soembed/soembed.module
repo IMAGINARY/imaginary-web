@@ -1,0 +1,155 @@
+<?php
+
+/**
+ * @file
+ * Lets author embed rich media by inserting UTL using oEmbed techonology
+ */
+
+function soembed_wysiwyg_editor_settings_alter(&$settings, $context) {
+  // Each editor has its own collection of native settings that may be extended
+  // or overridden. Please consult the respective official vendor documentation
+  // for details.
+  if ($context['profile']->editor == 'tinymce') {
+    // Supported values to JSON data types.
+    //$settings['cleanup_on_startup'] = TRUE;
+    //$settings['readonly'] = 1;
+  }
+}
+
+function soembed_filter_info() {
+  $filters['soembed'] = array(
+    'title' => t('Simple oEmbed filter'), 
+    'description' => t('Embeds media for URL that supports oEmbed standard.'),
+    'process callback' => 'soembed_filter_embed_process',
+    'settings callback' => 'soembed_filter_oembed_settings',
+    'tips callback' => 'soembed_filter_embed_tips',
+    'default settings' => array(
+      'soembed_maxwidth' => '500',
+    ),
+  );
+  return $filters;
+}
+
+/**
+ * Implements hook_filter_FILTER_process().
+ */
+function soembed_filter_embed_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  static $check_settings;
+
+  // Set maxwidth variable for use by soembed_filter_embed(), otherwise cannot pass the value.
+  if (empty($check_settings)) {
+    if ($filter->settings['soembed_maxwidth'] != variable_get('soembed_maxwidth', 0)) {
+      variable_set('soembed_maxwidth', (int)$filter->settings['soembed_maxwidth']);
+    }
+
+    $check_settings = TRUE;
+  }
+
+  $lines = explode("\n", $text);
+  $lines = preg_replace_callback('#^(<p>)?(https?://\S+?)(</p>)?$#', 'soembed_filter_embed', $lines);
+  
+  return implode("\n", $lines);
+}
+
+/**
+ * Implements hook_filter_FILTER_settings().
+ */
+function soembed_filter_oembed_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
+  $filter->settings += $defaults;
+
+  $settings = array();
+  $settings['soembed_maxwidth'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum width of media embed'),
+    '#default_value' => $filter->settings['soembed_maxwidth'],
+    '#description' => t('Set the maximum width of an embedded media. The unit is in pixels, but only put a number in the textbox.'),
+  );
+  return $settings;
+}
+
+/**
+ * Implements hook_filter_FILTER_tips().
+ */
+function soembed_filter_embed_tips($filter, $format, $long) {
+  if ($long) {
+    return t('To embed an external media, place the URL on its own line. If there is an error or no support, the URL will be printed as is.');
+  }
+  else {
+    return t('To embed an external media, place the URL on its own line.');
+  }
+}
+
+function soembed_filter_embed($match) {
+  static $providers;
+
+  if (empty($providers)) {
+    require_once "soembed.providers.inc";
+  }
+
+  $url = $match[2];
+
+  foreach ($providers as $matchmask => $data) {
+    list($providerurl, $regex) = $data;
+
+    if (!$regex) {
+      $matchmask = '#' . str_replace( '___wildcard___', '(.+)', preg_quote(str_replace('*', '___wildcard___', $matchmask), '#')) . '#i';
+    }
+
+    if (preg_match($matchmask, $url)) {
+      $provider = $providerurl;
+      break;
+    }
+  }
+
+  if (!empty($provider)) {
+    // http://www.php-code.net/2010/05/oembed-transforming-video-links-to-embeds/
+    // SEE FOR RESIZING MEDIA: https://gist.github.com/1313517
+    if ($regex === 'LOCAL') {
+      $output = somebed_get_contents($provider, $url);
+    }
+    elseif ($response = drupal_http_request($provider . "?url=$url&format=json&maxwidth=" . variable_get('soembed_maxwidth', 0))) {
+      if ($response->code == 200) {
+        $embed = json_decode($response->data);
+
+        if (!empty($embed->html)) {
+          $output = $embed->html;
+        }
+        elseif ($embed->type == 'photo') {
+          $output = '<img src="' . $embed->url . '" title="' . $embed->title . '" style="width: 100%" />';
+          $output = '<a href="' . $url . '">' . $output .'</a>';
+        }
+      }
+    }
+  }
+
+  $output = empty($output) ? $url : $output;
+
+  if (count($match) > 3) {
+    $output = $match[1] . $output . $match[3]; // Add <p> and </p> back.
+  }
+
+  return $output;
+}
+
+/**
+ * Locally create HTML after pattern study for sites that don't support oEmbed.
+ */
+function somebed_get_contents($provider, $url) {
+  $width = variable_get('soembed_maxwidth', 0);
+
+  switch ($provider) {
+    case 'google-maps':
+      //$url    = str_replace('&', '&amp;', $url); Though Google encodes ampersand, it seems to work without it.
+      $height = (int)($width / 1.3);
+      $embed  = "<iframe width='{$width}' height='{$height}' frameborder='0' scrolling='no' marginheight='0' marginwidth='0' src='{$url}&output=embed'></iframe><br /><small><a href='{$url}&source=embed' style='color:#0000FF;text-align:left'>View Larger Map</a></small>";
+      break;
+    case 'google-docs':
+      $height = (int)($width * 1.5);
+      $embed  = "<iframe width='{$width}' height='{$height}' frameborder='0' src='{$url}&widget=true'></iframe>";
+      break;
+    default:
+      $embed = $url;
+  }
+
+  return $embed;
+}

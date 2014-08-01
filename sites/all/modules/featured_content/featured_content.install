@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the featured_content module.
+ *
+ */
+
+/**
+ * @file
+ * Provides install, upgrade and un-install functions for featured_content.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function featured_content_uninstall() {
+
+  // delete featured_content variables
+  variable_del('featured_content_blocks'); // array with all blocks data
+  variable_del('featured_content_block_ids'); // array with all block ids
+
+  // remove block configurations
+  //db_query("DELETE FROM {blocks} WHERE module = 'featured_content'");
+  db_delete('block')
+    ->condition('module', 'featured_content')
+    ->execute();
+
+  //db_query("DELETE FROM {blocks_roles} WHERE module = 'featured_content'");
+  db_delete('block_role')
+    ->condition('module', 'featured_content')
+    ->execute();
+
+  cache_clear_all();
+}
+
+/**
+ * Implements hook_enable().
+ */
+function featured_content_enable() {
+  drupal_set_message(t('To add Featured Content blocks, find the "Add Featured Content block" action link on the <a href="@url">administer blocks page</a>.', array('@url' => url('admin/structure/block'))));
+}
+
+/**
+ * Implements hook_install().
+ */
+function featured_content_install() {
+  // nothing to do
+}

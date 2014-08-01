@@ -1,0 +1,90 @@
+<?php
+/**
+ * @file
+ * Install file for Views Slideshow Xtra Example module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function views_slideshow_xtra_example_install() {
+
+  $types = node_type_get_types();
+  if(array_key_exists('vsx_slide', $types)) {
+    return;
+  }
+
+  $t = get_t();
+  // Define and save the slide node type.
+  $slide_node_type = array(
+    'type' => 'vsx_slide',
+    'custom' => 1,
+    'name' => $t('Slide'),
+    'base' => 'node_content',
+    'description' => $t('Node type used for making Views Slideshow Slides.'),
+  );
+  $slide_node_type = node_type_set_defaults($slide_node_type);
+  node_type_save($slide_node_type);
+  node_add_body_field($slide_node_type, $t('Overlay Text'));
+
+  // Create all the fields
+  // http://api.drupal.org/api/function/field_create_field/7
+  foreach (_views_slideshow_xtra_example_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+  // Create all the instances for our fields.
+  // http://api.drupal.org/api/function/field_create_instance/7
+  foreach (_views_slideshow_xtra_example_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'vsx_slide';
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Return a structured array defining the fields created by this content type.
+ */
+function _views_slideshow_xtra_example_installed_fields() {
+
+  $t = get_t();
+  return array(
+    'vsx_slide_image' => array(
+      'field_name' => 'vsx_slide_image',
+      'type'       => 'image',
+      'cardinality' => 1,
+    ),
+    'vsx_slide_order' => array(
+      'field_name' => 'vsx_slide_order',
+      'type'       => 'number_integer',
+      'cardinality' => 1,
+    ),
+  );
+}
+
+/**
+ * Return a structured array defining the instances for this content type.
+ */
+function _views_slideshow_xtra_example_installed_instances() {
+
+ $t = get_t();
+  return array(
+    'vsx_slide_image' => array(
+      'field_name'  => 'vsx_slide_image',
+      'label'       => $t('Slide Image'),
+      'required'    => FALSE,
+      'widget' => array(
+        'type'    => 'image_image',
+      ),
+    ),
+    'vsx_slide_order' => array(
+      'field_name'  => 'vsx_slide_order',
+      'label'       => $t('Slide Order'),
+      'required'    => FALSE,
+      'widget' => array(
+        'type'    => 'number',
+      ),
+    ),
+  );
+}
+

@@ -1,0 +1,12 @@
+name = AutoUpload
+description = Automatically upload a file without needing to push the upload button
+core = 7.x
+
+scripts[] = js/autoupload.js
+
+; Information added by drupal.org packaging script on 2013-01-06
+version = "7.x-1.0"
+core = "7.x"
+project = "autoupload"
+datestamp = "1357510256"
+

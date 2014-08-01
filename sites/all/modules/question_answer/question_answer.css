@@ -1,0 +1,14 @@
+.question_answer-answer {
+  border: 1px #ccc solid;
+  margin: 2px;
+  padding: 5px;
+}
+.question_answer-answer-author {
+  font-size: 90%;
+}
+.question_answer-answer-content {
+  font-style: italic;
+}
+.question_answer-selected {
+  border: 2px solid #999900;
+}

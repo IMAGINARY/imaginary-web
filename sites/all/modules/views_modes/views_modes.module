@@ -1,0 +1,291 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function views_modes_views_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "views" && $api == "views_default") {
+    return array("version" => "3.0");
+  }
+}
+
+/**
+ * Provides a links array of potential modes for the current page view.
+ */
+function views_modes_get_links($icons = TRUE) {
+  $links = array();
+
+  $view = views_get_page_view();
+  if ($view) {
+
+    // Active mode
+    $active_mode = views_modes_get_active_mode();
+    $active_display = views_modes_get_active_mode_display($view);
+
+    foreach ($view->display as $display_id => $display) {
+      if ($display->display_plugin == 'mode' && !empty($display->handler) && $display->handler->is_attached_to($view->current_display) && $display->handler->access()) {
+        $mode_id = $display->handler->get_option('mode_id');
+        $mode_id = empty($mode_id) ? $display_id : $mode_id;
+
+        $purl_ops = array('views_modes' => 'default');
+        $title = $display->handler->get_option('mode_name');
+        $links[$mode_id] = array(
+          'title' => $icons ? "<span class='icon'></span>{$title}" : $title,
+          'href' => $view->get_url(),
+          'html' => $icons,
+          'purl' => array('add' => array(array(
+                'provider' => 'views_modes',
+                'id' => $mode_id,
+              ))),
+          'query' => drupal_get_query_parameters($_GET, array('q', 'page')),
+          'attributes' => array(
+            'class' => array(
+                $active_display === $display ? 'views-modes-active' : '',
+                ),
+            'title' => $display->handler->get_option('mode_name'),
+          ),
+        );
+      }
+    }
+
+    if (!empty($links)) {
+      $title = 'Default';
+      // Only use page display title if not the default "Page"
+      if (isset($view->display[$view->current_display], $view->display[$view->current_display]->display_title)) {
+        $title = $view->display[$view->current_display]->display_title !== 'Page' ? $view->display[$view->current_display]->display_title : $title;
+      }
+      // Provide a 'reset' mode link.
+      $query['views_mode'] = 'default';
+      $links = array('default' => array(
+          'title' => $icons ? "<span class='icon'></span>" . t($title) : t($title),
+          'href' => $view->get_url(),
+          'html' => $icons,
+          'purl' => array('add' => array(array(
+                'provider' => 'views_modes',
+                'id' => 'default',
+              ))),
+          'query' => drupal_get_query_parameters($_GET, array('q', 'page')),
+          'attributes' => array(
+            'class' => array(
+              $active_mode === 'default' ? 'views-modes-active' : ''
+            ),
+            'title' => $title,
+          ),
+        )) + $links;
+    }
+  }
+
+  return $links;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function views_modes_block_info() {
+  $blocks = array();
+  $blocks['modes']['info'] = t('Views mode links');
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function views_modes_block_view($delta) {
+  if ($delta == 'modes' && $links = views_modes_get_links()) {
+    $return = array(
+    'subject' => "Views Modes",
+    'content' => theme('links', array(
+                   'links' => $links,
+                   'attributes' => array('id' => 'view-modes', 'class' => array('links', 'clearfix')),
+                   'header' => array(
+                      'text' => t('View Modes'), 
+                      'level' => 'h2', 
+                      'class' => array('element-invisible'),
+                   ),
+                 )
+      ),
+    );
+   return $return;
+  }
+}
+
+/**
+ * Implements hook_block().
+ */
+function views_modes_block_OLD($op = 'list', $delta = 0) { }
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function views_modes_ctools_plugin_api($module, $api) {
+  if ($module == 'context' && $api == 'plugins') {
+    return array('version' => 3);
+  }
+}
+
+/**
+ * Implements hook_context_plugins().
+ */
+function views_modes_context_plugins() {
+  $plugins = array();
+  $plugins['views_modes_context_condition_views_modes'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'views_modes'),
+      'file' => 'views_modes_context_condition_views_modes.inc',
+      'class' => 'views_modes_context_condition_views_modes',
+      'parent' => 'context_condition',
+    ),
+  );
+  return $plugins;
+}
+
+/**
+ * Implements hook_context_registry().
+ */
+function views_modes_context_registry() {
+  return array(
+    'conditions' => array(
+      'views_modes' => array(
+        'title' => t('View mode'),
+        'plugin' => 'views_modes_context_condition_views_modes',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_plugins().
+ */
+function views_modes_views_plugins() {
+  return array(
+    'display' => array(
+      'mode' => array(
+        'title' => t('Mode'),
+        'help' => t('Modes can be attached to other displays to allow them to switch display modes.'),
+        'handler' => 'views_modes_plugin_display_mode',
+        'theme' => 'views_view',
+        'use ajax' => TRUE,
+        'use pager' => TRUE,
+        'parent' => 'attachment',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_pre_build().
+ */
+function views_modes_views_pre_build(&$view) {
+  $display = views_modes_get_active_mode_display($view);
+  if ($display && $display->handler->access()) {
+    if (module_exists('context')) {
+      $mode_id = views_modes_get_active_mode();
+      if ($plugin = context_get_plugin('condition', 'views_modes')) {
+        $plugin->execute($mode_id);
+      }
+    }
+
+    // Display options which can be overridden by modes.
+    foreach ($display->handler->defaultable_sections() as $key => $items) {
+      if (!$display->handler->is_defaulted($key)) {
+        $value = $display->handler->get_option($key);
+        $view->display_handler->set_option($key, $value);
+      }
+    }
+
+    // Uninit any handlers which have been inited.
+    if (!empty($view->inited)) {
+      foreach (views_object_types() as $key => $info) {
+        unset($view->{$key});
+      }
+      $view->inited = FALSE;
+    }
+
+    // Clear out other inited values.
+    $view->display_handler->handlers = array();
+
+    // Re-init everything.
+    // @TODO: There are almost certainly other init events that need to be
+    // re-run here.
+    $view->init_handlers();
+    $view->set_use_ajax($view->display_handler->use_ajax());
+  }
+  else if (module_exists('context') && ($plugin = context_get_plugin('condition', 'views_modes')) && _views_modes_has_modes($view)) {
+    $plugin->execute('default');
+  }
+}
+
+/**
+ * Get the active mode ID.
+ */
+function views_modes_get_active_mode($mode = '') {
+  static $mode_id;
+  if (!isset($mode_id)) {
+    $mode_id = empty($mode) ? 'default' : $mode;
+  }
+  return $mode_id;
+}
+
+/**
+ * Retrieve the display of the active mode for the given view.
+ */
+function views_modes_get_active_mode_display($view) {
+  $mode_id = views_modes_get_active_mode();
+  foreach ($view->display as $display_id => $display) {
+    if ($display->display_plugin == 'mode' && $options = $display->handler->get_option('displays')) {
+      if (($display->handler->get_option('mode_id') === $mode_id || $display_id === $mode_id) && $display->handler->is_attached_to($view->current_display)) {
+        return $display;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Return if the current display has any associated modes.
+ */
+function _views_modes_has_modes($view) {
+  foreach ($view->display as $display_id => $display) {
+    if ($display->display_plugin == 'mode' && $options = $display->handler->get_option('displays')) {
+      if ($display->handler->is_attached_to($view->current_display)) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * PURL module integration
+ *
+ * Implements hook_purl_provider().
+ */
+function views_modes_purl_provider() {
+  return array(
+    'views_modes' => array(
+      'name' => t('Views modes'),
+      'description' => t('Set the mode to be use in with enabled views.'),
+      'callback' => 'views_modes_purl',
+      'example' => '?views-mode=list',
+    ),
+  );
+}
+
+/**
+ * Purl callback to set the proper mode.
+ */
+function views_modes_purl($value) {
+  views_modes_get_active_mode($value);
+}
+
+/**
+ *
+ * Implementation of hook_page_preprocess
+ *
+ * Adds the current viewmode as a class to the page
+ */
+function views_modes_preprocess_page(&$vars) {
+  $mode = 'view-modes-' . views_modes_get_active_mode();
+  $vars['classes_array'][] = $mode;
+}

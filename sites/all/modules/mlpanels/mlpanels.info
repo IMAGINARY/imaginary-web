@@ -1,0 +1,16 @@
+name = Multilingual panels
+description = Multilingual support for panel panes
+core = 7.x
+package = QTools
+
+files[] = mlpanels_panels_renderer_editor.class.php
+
+version = "7.x-1.0"
+core = "7.x"
+
+; Information added by drupal.org packaging script on 2013-01-22
+version = "7.x-1.0"
+core = "7.x"
+project = "mlpanels"
+datestamp = "1358866110"
+

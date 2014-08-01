@@ -1,0 +1,32 @@
+
+name = User Stats
+description = "Provides post count and other user statistics. Integrates well with Token and Advanced Forum (if installed)."
+core = 7.x
+
+configure = admin/config/people/user_stats
+
+project = "user_stats"
+
+files[] = user_stats.admin.inc
+files[] = user_stats.api.php
+files[] = user_stats.author-pane.inc
+files[] = user_stats.install
+files[] = user_stats.module
+files[] = user_stats.rules.inc
+files[] = views/user_stats.views.inc
+files[] = views/user_stats.views_default.inc
+files[] = views/views_handler_field_ip_user_count.inc
+files[] = views/views_handler_field_is_online.inc
+files[] = views/views_handler_field_user_ip_count.inc
+files[] = views/views_handler_field_user_picture_bare.inc
+files[] = views/views_handler_filter_is_online.inc
+files[] = views/views_handler_sort_ip_user_count.inc
+files[] = views/views_handler_sort_is_online.inc
+files[] = views/views_handler_sort_user_ip_count.inc
+
+; Information added by drupal.org packaging script on 2012-02-17
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "user_stats"
+datestamp = "1329439506"
+
