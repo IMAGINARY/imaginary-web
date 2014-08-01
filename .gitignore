@@ -4,8 +4,10 @@ sites/*/settings*.php
 # Ignore paths that contain user-generated content.
 sites/*/files
 sites/*/private
+sites/all/drush/*aliases.drushrc.php
 
 /applets
 /cache
 /logs
 /stats
+/google*.html
