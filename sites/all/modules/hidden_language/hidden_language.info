@@ -1,0 +1,12 @@
+name = Hidden Language
+description = Hide language for end users.
+core = 7.x
+package = Multilingual - Internationalization
+dependencies[] = locale
+
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "hidden_language"
+datestamp = "1413911932"
+

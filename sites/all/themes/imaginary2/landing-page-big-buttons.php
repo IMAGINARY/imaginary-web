@@ -117,7 +117,7 @@ $size = ' width="400" height="220" ';
     		</div>
     	</a>
 
-    	<a href="/event/imaginary-in-cooperation-with-aims-at-p-day-in-dar-es-salaam">
+    	<a href="/aims">
     		<div class="big-button africa">
     				<div class="inner">
 						<div class="text">

@@ -692,7 +692,7 @@ h2.pane-title {
 			 border-bottom: 1px solid #b4b4b4;
 		 }
 
-		 .fr {
+		 .fr, .ko, .tr {
     		 display: none;
 		 }
     }
@@ -2426,7 +2426,9 @@ width: auto;
 	.pane-node-field-imu-classification-seconda,
 	.pane-node-field-snapshot-licence,
 	.pane-node-field-snapshots-keywords,
-	.pane-snapshot-imu-classification {
+	.pane-snapshot-imu-classification,
+	.pane-node-field-mathematical-subjects,
+	.pane-node-field-connections-to-other-field {
 		border-top: 1px solid #d3d7d9;
 		color: #666;
 		ul {
@@ -2458,6 +2460,16 @@ width: auto;
 	iframe {
 		width: 100%;
 		height: 800px;
+	}
+
+    //hack because cant find view backend/structure/views/view/snapshot_persons_sidebar/edit/panel_pane_1
+	.field-name-field-collection-person {
+    	.field-name-field-person-town, .field-name-field-person-country {
+        	display: none;
+    	}
+    	.field-name-field-person-last-name {
+        	border-right: none !important;
+    	}
 	}
 
 }
@@ -6443,6 +6455,7 @@ width:650px;
 #admin-menu {
     font: normal small Arial, Helvetica, "Lucida Grande", Verdana, sans-serif;
     box-shadow: none !important;
+    z-index: 100000000;
 
     * {
     	color: white !important;
@@ -6567,6 +6580,19 @@ html.js fieldset.collapsed {
 
 
 
+
+
+.page-snapshots-admin {
+    .views-field-field-collection-person {
+        div {
+            display: inline-block;
+        }
+
+        .field-name-field-person-first-name {
+            margin-right: 4px;
+        }
+    }
+}
 
 
 
@@ -6730,7 +6756,6 @@ html.js fieldset.collapsed {
         page-break-after: avoid;
     }
 }
-
 
 
 

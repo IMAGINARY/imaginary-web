@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * file_description
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function i18n_access_schema() {
+  $schema['i18n_access'] = array(
+    'description' => 'Store language permissions per user',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'The primary identifier for a user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'perm' => array(
+        'description' => 'List of languages that the user has permission for.',
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+    ),
+    'primary key' => array('uid'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function i18n_access_install() {
+  // Set module weight for it to run after core and i18n modules
+  db_query("UPDATE {system} SET weight = 20 WHERE name = 'i18n_access' AND type = 'module'");
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function i18n_access_uninstall() {
+}

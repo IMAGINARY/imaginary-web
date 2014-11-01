@@ -1,0 +1,333 @@
+<?php
+
+/**
+ * @file
+ * file_description
+ */
+
+define('I18N_ACCESS_LANGUAGE_NEUTRAL', 'NEUTRAL');
+
+/**
+ * Implements hook_user_insert().
+ */
+function i18n_access_user_insert(&$edit, &$account, $category = NULL) {
+  if ($category == 'account') {
+    // see user_admin_perm_submit()
+    if (isset($edit['i18n_access'])) {
+      db_delete('i18n_access')
+        ->condition('uid', $account->uid)
+        ->execute();
+      $edit['i18n_access'] = array_filter($edit['i18n_access']);
+      if (count($edit['i18n_access'])) {
+        db_insert('i18n_access')
+          ->fields(array(
+            'uid' => $account->uid,
+            'perm' => implode(', ', array_keys($edit['i18n_access'])),
+        ))->execute();
+      }
+      unset($edit['i18n_access']);
+    }
+  }
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function i18n_access_user_update(&$edit, &$account, $category = NULL) {
+  if ($category == 'account') {
+    // see user_admin_perm_submit()
+    if (isset($edit['i18n_access'])) {
+      db_delete('i18n_access')
+        ->condition('uid', $account->uid)
+        ->execute();
+      $edit['i18n_access'] = array_filter($edit['i18n_access']);
+      if (count($edit['i18n_access'])) {
+        db_insert('i18n_access')
+          ->fields(array(
+            'uid' => $account->uid,
+            'perm' => implode(', ', array_keys($edit['i18n_access'])),
+        ))->execute();
+      }
+      unset($edit['i18n_access']);
+    }
+  }
+}
+
+/**
+ * Load the language permissions for a given user
+ */
+function i18n_access_load_permissions($uid = NULL) {
+  static $perms = array();
+
+  // use the global user id if none is passed
+  if (!isset($uid)) {
+    $uid = $GLOBALS['user']->uid;
+    $account = NULL;
+  }
+  else {
+    $account = user_load($uid);
+  }
+
+  if (!isset($perms[$uid])) {
+    $perm_string = db_query('SELECT perm FROM {i18n_access} WHERE uid = :uid', array(':uid' => $uid))->fetchField();
+
+    if ($perm_string) {
+      $perms[$uid] = drupal_map_assoc(explode(', ', $perm_string));
+    }
+    else {
+      $perms[$uid] = array();
+    }
+  }
+
+  // adding the default languages if permission has been granted
+  if (user_access('access selected languages', $account)) {
+    $perms[$uid] = array_merge($perms[$uid], drupal_map_assoc(variable_get('i18n_access_languages', array())));
+  }
+
+  return $perms[$uid];
+}
+
+/**
+ * Implements hook_permission().
+ */
+function i18n_access_permission() {
+  return array(
+    'access selected languages' => array(
+      'title' => t('Access selected languages'),
+      'description' => t('access selected languages.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_node_form_alter().
+ */
+function i18n_access_form_node_form_alter(&$form, &$form_state, $form_id) {
+
+  if (isset($form['language']['#options'])) {
+  // Remove inaccessible languages from the select box
+    // don't do it for  admininstrators
+    if (!user_access('administer nodes')) {
+      $perms = i18n_access_load_permissions();
+      foreach ($form['language']['#options'] as $key => $value) {
+        $perm_key = ($key == '') ? I18N_ACCESS_LANGUAGE_NEUTRAL : $key;
+        if ($key!='en' && empty($perms[$perm_key])) {
+          unset($form['language']['#options']["$key"]);
+        }
+      }
+    }
+    unset($form['#after_build']['0']);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function i18n_access_form_alter(&$form, &$form_state, $form_id) {
+
+  //Configuring translation edit form to limit it to allowed language
+  if ($form_id == 'i18n_node_select_translation' && !user_access('administer nodes')) {
+
+    $perms = i18n_access_load_permissions();
+
+    foreach ($form['translations']['nid'] as $language => $translation) {
+      if (!isset($perms[$language]) && $language != '#tree') {
+        unset($form['translations']['nid'][$language]);
+      }
+    }
+    foreach ($form['translations']['language'] as $language => $translation) {
+      if (!isset($perms[$language]) && $language != '#tree') {
+        unset($form['translations']['language'][$language]);
+      }
+    }
+    foreach ($form['translations']['node'] as $language => $translation) {
+      if (!isset($perms[$language]) && $language != '#tree') {
+        unset($form['translations']['node'][$language]);
+      }
+    }
+
+  }
+
+  // Add i18n_access things to user/edit /user/add
+  if ($form_id == 'user_register_form' || $form_id == 'user_profile_form' ) {
+
+    $form['i18n_access'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Translation access'),
+      '#tree' => 0,
+      '#access' => user_access('administer users'),
+    );
+    $form['i18n_access']['i18n_access'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(I18N_ACCESS_LANGUAGE_NEUTRAL => t('Language neutral')) + locale_language_list('name'),
+      '#default_value' => i18n_access_load_permissions($form['#user']->uid),
+      '#description' => t('Select the languages that this user should have permission to create and edit content for.'),
+    );
+  }
+}
+
+/**
+ * Wrapper around node_access() with additional checks for language permissions.
+ *
+ * @see node_access()
+ */
+function i18n_access_node_access($node, $op, $account = NULL) {
+  if (is_object($node)) {
+
+    global $user;
+
+    // If no user object is supplied, the access check is for the current user.
+    if (empty($account)) {
+      $account = $user;
+    }
+
+    // Bypass completely if node_access returns false.
+   //TODO $access = node_access($node, $op, $account);
+
+    /* TODO if (!$access) {
+      return FALSE;
+    } */
+
+    // This module doesn't deal with view permissions
+    if ($op == 'view') {
+      return NODE_ACCESS_IGNORE;
+    }
+
+    // make sure that administrators always have access
+    if (user_access('administer nodes', $account)) {
+      return TRUE;
+    }
+
+    $perms = i18n_access_load_permissions($account->uid);
+
+    // Make sure to use the language neutral constant if node language is empty
+    $langcode = $node->language ? $node->language : I18N_ACCESS_LANGUAGE_NEUTRAL;
+
+    //return isset($perms[$langcode]) ? (bool) $perms[$langcode] : NODE_ACCESS_DENY;
+    return isset($perms[$langcode]) ? NODE_ACCESS_ALLOW : NODE_ACCESS_DENY;
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function i18n_access_menu_alter(&$items) {
+  // Replace the translation overview page since we can't hook it.
+  $items['node/%node/translate']['page callback'] = 'i18n_access_translation_node_overview';
+}
+
+function i18n_access_translation_node_overview($node) {
+
+  include_once DRUPAL_ROOT . '/includes/language.inc';
+
+  if (!empty($node->tnid)) {
+    // Already part of a set, grab that set.
+    $tnid = $node->tnid;
+    $translations = translation_node_get_translations($node->tnid);
+  }
+  else {
+    // We have no translation source nid, this could be a new set, emulate that.
+    $tnid = $node->nid;
+    $translations = array($node->language => $node);
+  }
+
+  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
+
+  //added from i18n/i18n_node/i18n_node.pages.inc function
+  global $user;
+  $account = $user;
+  $perms = i18n_access_load_permissions($account->uid);
+  //end
+
+
+  // Modes have different allowed languages
+  foreach (i18n_node_language_list($node) as $langcode => $language_name) {
+    if ($langcode == LANGUAGE_NONE) {
+      // Never show language neutral on the overview.
+      continue;
+    }
+    $options = array();
+    if (isset($translations[$langcode])) {
+      // Existing translation in the translation set: display status.
+      // We load the full node to check whether the user can edit it.
+      $translation_node = node_load($translations[$langcode]->nid);
+      $path = 'node/' . $translation_node->nid;
+      $title = i18n_node_translation_link($translation_node->title, $path, $langcode);
+      if (node_access('update', $translation_node)) {
+        $text = t('edit');
+        $path = 'node/' . $translation_node->nid . '/edit';
+        $options[] = i18n_node_translation_link($text, $path, $langcode);
+      }
+      $status = $translation_node->status ? t('Published') : t('Not published');
+      $status .= $translation_node->translate ? ' - <span class="marker">' . t('outdated') . '</span>' : '';
+      if ($translation_node->nid == $tnid) {
+        $language_name = t('<strong>@language_name</strong> (source)', array('@language_name' => $language_name));
+      }
+    }
+    else {
+      // No such translation in the set yet: help user to create it.
+      $title = t('n/a');
+      if (node_access('create', $node)) {
+        $text = t('add translation');
+        $path = 'node/add/' . str_replace('_', '-', $node->type);
+        $query = array('query' => array('translation' => $node->nid, 'target' => $langcode));
+
+        //condition added from i18n/i18n_node/i18n_node.pages.inc
+        if (in_array($langcode, $perms)) {
+          $options[] = i18n_node_translation_link($text, $path, $langcode, $query);
+        }
+      }
+      $status = t('Not translated');
+    }
+    $rows[] = array($language_name, $title, $status, implode(" | ", $options));
+  }
+
+  drupal_set_title(t('Translations of %title', array('%title' => $node->title)), PASS_THROUGH);
+
+  $build['translation_node_overview'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+  );
+
+  if (user_access('administer content translations')) {
+    $build['translation_node_select'] = drupal_get_form('i18n_node_select_translation', $node, $translations);
+  }
+  return $build;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function i18n_access_menu() {
+  $items = array();
+
+  $items['admin/settings/language/access'] = array(
+    'title' => 'Access',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('i18n_access_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+/**
+ * Admin settings form
+ */
+function i18n_access_admin_settings() {
+
+  $form['i18n_access_languages'] = array(
+    '#title' => t('Select the default access languages'),
+    '#type' => 'select',
+    '#multiple' => 'true',
+    '#options' => array(I18N_ACCESS_LANGUAGE_NEUTRAL => t('Language neutral')) + locale_language_list('name'),
+    '#default_value' => variable_get('i18n_access_languages', array()),
+    '#description' => t("This selection of languages will be connected with the 'access selected languages' permission which you can use to grant a role access to these languages at once.")
+  );
+
+  return system_settings_form($form);
+}

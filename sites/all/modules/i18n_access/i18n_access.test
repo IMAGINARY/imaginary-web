@@ -1,0 +1,208 @@
+<?php
+
+/**
+ * @file
+ * Test suite for i18n_access.module
+ */
+
+class i18nAccessTestCase extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo().
+   */
+  function getInfo() {
+    return array(
+      'name' => t('Translation Access'),
+      'description' => t('Test suite for the i18n_access module.'),
+      'group' => t('i18n'),
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  function setUp() {
+    parent::setUp('locale', 'translation', 'i18n_access');
+
+    $this->admin_user = $this->drupalCreateUser(array('administer languages', 'administer site configuration', 'access administration pages', 'administer content types', 'administer nodes', 'administer users'));
+    $this->translator = $this->drupalCreateUser(array('create story content', 'edit own story content', 'translate content'));
+    $this->visitor = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($this->admin_user);
+    $this->addLanguage('fr');
+    $this->addLanguage('de');
+    $this->setLanguagePermissions($this->translator, array('en', 'fr'));
+
+    // Set Story content type to use multilingual support with translation.
+    $edit = array();
+    $edit['language_content_type'] = 2;
+    $this->drupalPost('admin/content/node-type/story', $edit, t('Save content type'));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Story')), t('Story content type has been updated.'));
+
+  }
+
+  /**
+   * Enable the specified language if it has not been already.
+   *
+   * @param string $language_code
+   *   The language code to enable.
+   */
+  function addLanguage($language_code) {
+    // Check to make sure that language has not already been installed.
+    $this->drupalGet('admin/settings/language');
+
+    if (strpos($this->drupalGetContent(), 'enabled[' . $language_code . ']') === FALSE) {
+      // Doesn't have language installed so add it.
+      $edit = array();
+      $edit['langcode'] = $language_code;
+      $this->drupalPost('admin/settings/language/add', $edit, t('Add language'));
+
+      $languages = language_list('language', TRUE); // Make sure not using cached version.
+      $this->assertTrue(array_key_exists($language_code, $languages), t('Language was installed successfully.'));
+
+      if (array_key_exists($language_code, $languages)) {
+        $this->assertRaw(t('The language %language has been created and can now be used.', array('%language' => $languages[$language_code]->name)), t('Language has been created.'));
+      }
+    }
+    else {
+      // Ensure that it is enabled.
+      $this->drupalPost(NULL, array('enabled[' . $language_code . ']' => TRUE), t('Save configuration'));
+
+      $this->assertRaw(t('Configuration saved.'), t('Language successfully enabled.'));
+    }
+  }
+
+  /**
+   * Sets the language permission for the specified user. Must be logged in as
+   * an 'administer users' privileged user before calling this.
+   *
+   * @param $account
+   *   The user account to modify
+   * @param $languages
+   *   An array of language codes to give permission for
+   */
+  function setLanguagePermissions($account, $languages = array()) {
+    $this->assertTrue(user_access('administer users'), t('User has permission to administer users'));
+
+    foreach ($languages as $langcode) {
+      $key = 'i18n_access[' . $langcode . ']';
+      $edit[$key] = $langcode;
+      $expected[$langcode] = $langcode;
+    }
+    $this->drupalPost('user/' . $account->uid . '/edit', $edit, t('Save'));
+
+    $actual = i18n_access_load_permissions($account->uid);
+    $this->assertEqual($expected, $actual, t('Language permissions set correctly.'), 'i18n_access');
+  }
+
+  /**
+   * Assert that a language option exists in the language select field on the
+   * current page.
+
+   * @param $langcode
+   *   Value of the language option to assert.
+   * @param $message
+   *   Message to display.
+   * @param $group
+   *   The group this message belongs to.
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  function assertLanguageOption($langcode, $message, $group = 'Other') {
+    $xpath = '//select[@name="language"]/option';
+    $fields = $this->xpath($xpath);
+
+    // If value specified then check array for match.
+    $found = TRUE;
+    if (isset($langcode)) {
+      $found = FALSE;
+      if ($fields) {
+        foreach ($fields as $field) {
+          if ($field['value'] == $langcode) {
+            $found = TRUE;
+          }
+        }
+      }
+    }
+    return $this->assertTrue($fields && $found, $message, $group);
+  }
+
+  /**
+   * Assert that a language option does not exist in the language select field
+   * on the current page.
+
+   * @param $langcode
+   *   Value of the language option to assert.
+   * @param $message
+   *   Message to display.
+   * @param $group
+   *   The group this message belongs to.
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  function assertNoLanguageOption($langcode, $message, $group = 'Other') {
+    $xpath = '//select[@name="language"]/option';
+    $fields = $this->xpath($xpath);
+
+    // If value specified then check array for match.
+    $found = TRUE;
+    if (isset($langcode)) {
+      $found = FALSE;
+      if ($fields) {
+        foreach ($fields as $field) {
+          if ($field['value'] == $langcode) {
+            $found = TRUE;
+          }
+        }
+      }
+    }
+    return $this->assertFalse($fields && $found, $message, $group);
+  }
+
+  function dsm($object) {
+    $this->error('<pre>' . check_plain(print_r($object, 1)) . '</pre>');
+  }
+
+  /**
+   * Test translator user.  User with 'create story content' and 'edit own story
+   * content' permissions should be able to create and edit story nodes only in
+   * the languages that they have permissions for.
+   */
+  function testTranslatorUser() {
+    $this->drupalLogin($this->translator);
+
+    $this->drupalGet('node/add/story');
+    $this->assertField('language', t('Found language selector.'));
+
+    $perms = i18n_access_load_permissions($this->translator->uid);
+    $languages = language_list();
+    $languages[I18N_ACCESS_LANGUAGE_NEUTRAL] = (object)array('language' => '', 'name' => 'Language Neutral');
+    foreach ($languages as $key => $language) {
+      // TODO: Add in check for language neutral
+      if (isset($perms[$key]) && $perms[$key]) {
+        $this->assertLanguageOption($language->language, t('Option found for %language in language selector.', array('%language' => $language->name)));
+      }
+      else {
+        $this->assertNoLanguageOption($language->language, t('Option not found for %language in language selector.', array('%language' => $language->name)));
+      }
+    }
+  }
+
+  /**
+   * Test admin user.  User with 'administer nodes' permission should be able to
+   * create and edit nodes regardless of the language
+   */
+  function testAdminUser() {
+    $this->drupalLogin($this->admin_user);
+
+    $this->drupalGet('node/add/story');
+    $this->assertField('language', t('Found language selector.'));
+
+    $perms = i18n_access_load_permissions($this->admin_user->uid);
+    $languages = language_list();
+    $languages[I18N_ACCESS_LANGUAGE_NEUTRAL] = (object)array('language' => '', 'name' => 'Language Neutral');
+    foreach ($languages as $language) {
+      // TODO: Add in check for language neutral
+      $this->assertLanguageOption($language->language, t('Option found for %language, regardless of permission, for administrator.', array('%language' => $language->name)));
+    }
+  }
+
+}

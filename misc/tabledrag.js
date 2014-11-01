@@ -20,7 +20,6 @@ Drupal.behaviors.tableDrag = {
         Drupal.tableDrag[base] = new Drupal.tableDrag(this, settings.tableDrag[base]);
       });
     }
-    Drupal.tableDrag.initWeightColumnVisibility();
   }
 };
 
@@ -120,7 +119,6 @@ Drupal.tableDrag = function (table, tableSettings) {
  * 'Drupal.tableDrag.showWeight' cookie.
  */
 Drupal.tableDrag.prototype.initColumns = function () {
-
   for (var group in this.tableSettings) {
     // Find the first field in this group.
     for (var d in this.tableSettings[group]) {
@@ -160,11 +158,8 @@ Drupal.tableDrag.prototype.initColumns = function () {
       });
     }
   }
-};
 
-Drupal.tableDrag.initWeightColumnVisibility = function() {
-
-  // Hide cells and reduce colspans unless cookie indicates previous choice.
+  // Now hide cells and reduce colspans unless cookie indicates previous choice.
   // Set a cookie if it is not already present.
   if ($.cookie('Drupal.tableDrag.showWeight') === null) {
     $.cookie('Drupal.tableDrag.showWeight', 0, {
@@ -172,15 +167,15 @@ Drupal.tableDrag.initWeightColumnVisibility = function() {
       // The cookie expires in one year.
       expires: 365
     });
-    Drupal.tableDrag.hideColumns();
+    this.hideColumns();
   }
   // Check cookie value and show/hide weight columns accordingly.
   else {
     if ($.cookie('Drupal.tableDrag.showWeight') == 1) {
-      Drupal.tableDrag.showColumns();
+      this.showColumns();
     }
     else {
-      Drupal.tableDrag.hideColumns();
+      this.hideColumns();
     }
   }
 };
@@ -189,8 +184,7 @@ Drupal.tableDrag.initWeightColumnVisibility = function() {
  * Hide the columns containing weight/parent form elements.
  * Undo showColumns().
  */
-Drupal.tableDrag.prototype.hideColumns = Drupal.tableDrag.hideColumns = function () {
-
+Drupal.tableDrag.prototype.hideColumns = function () {
   // Hide weight/parent cells and headers.
   $('.tabledrag-hide', 'table.tabledrag-processed').css('display', 'none');
   // Show TableDrag handles.
@@ -215,8 +209,7 @@ Drupal.tableDrag.prototype.hideColumns = Drupal.tableDrag.hideColumns = function
  * Show the columns containing weight/parent form elements
  * Undo hideColumns().
  */
-Drupal.tableDrag.prototype.showColumns = Drupal.tableDrag.showColumns = function () {
-
+Drupal.tableDrag.prototype.showColumns = function () {
   // Show weight/parent cells and headers.
   $('.tabledrag-hide', 'table.tabledrag-processed').css('display', '');
   // Hide TableDrag handles.

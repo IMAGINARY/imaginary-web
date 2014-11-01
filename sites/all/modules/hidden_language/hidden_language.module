@@ -1,0 +1,159 @@
+<?php
+
+/**
+ * Implements hook_init().
+ */
+function hidden_language_init() {
+  global $language;
+  $access_hidden_language = user_access('access all hidden languages') || user_access("access hidden language $language->language");
+
+  // Check if Drush executed this request.
+  $is_drush = drupal_is_cli() && function_exists('drush_main');
+
+  // Check if current path is user login form.
+  $path = current_path();
+  $is_user_page = user_is_anonymous() && (in_array($path, array('user', 'user/login', 'user/password')) || fnmatch('user/reset/*', $path));
+
+  if (isset($language->hidden) && $language->hidden && !$access_hidden_language && !$is_drush && !$is_user_page) {
+    drupal_access_denied();
+    drupal_exit();
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function hidden_language_permission() {
+  $languages = language_list('enabled');
+
+  $permissions = array();
+
+  foreach ($languages[1] as $language) {
+    $permissions["access hidden language $language->language"] = array(
+      'title' => t('Access hidden language @language', array('@language' => $language->name)),
+    );
+  }
+
+  $permissions['access all hidden languages'] = array(
+    'title' => t('Access all hidden languages')
+  );
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function hidden_language_views_api() {
+  return array(
+    'api' => '3',
+    'path' => drupal_get_path('module', 'hidden_language') . '/views',
+  );
+}
+
+/**
+ * Implements hook_schema_alter().
+ */
+function hidden_language_schema_alter(&$schema) {
+  $schema['languages']['fields']['hidden'] = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'Hidden flag (1 = Hidden, 0 = Visible).',
+  );
+}
+
+/**
+ * Implements hook_language_switch_links_alter().
+ */
+function hidden_language_language_switch_links_alter(&$links, $type, $path) {
+  $languages = language_list('enabled');
+
+  foreach ($languages[1] as $language) {
+    $langcode = $language->language;
+    $access_hidden_language = user_access('access all hidden languages') || user_access("access hidden language $langcode");
+    if ($language->hidden && isset($links[$langcode]) && !$access_hidden_language) {
+      unset($links[$langcode]);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function hidden_language_preprocess_table(&$variables) {
+  if (isset($variables['attributes']['id']) && in_array($variables['attributes']['id'], array('language-order', 'language-order-weight', 'language-items-table'))) {
+    if (module_exists('language_hierarchy_form') && $variables['attributes']['id'] != 'language-order-weight') {
+      $form = drupal_get_form('language_hierarchy_form');
+    }
+    else {
+      $form = drupal_get_form('locale_languages_overview_form');
+    }
+
+    array_splice($variables['header'], 5, 0, t('Hidden'));
+
+    foreach ($variables['rows'] as $id => &$row) {
+      array_splice($row['data'], 5, 0, array(NULL));
+      $row['data'][5] = array(
+        'data' => drupal_render($form['hidden'][$row['data'][2]]),
+        'align' => 'center',
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function hidden_language_form_alter(&$form, &$form_state, $form_id) {
+  if (!in_array($form_id, array('locale_languages_overview_form', 'language_hierarchy_form'))) {
+    return;
+  }
+
+  $languages = language_list();
+
+  // Initialise checkboxes array.
+  $options = $hidden = array();
+
+  // Iterate through each database result.
+  foreach ($languages as $item) {
+    // Create list of hidden languages and the language checkboxes options for later use.
+    $options[$item->language] = '';
+    if ($item->hidden) {
+      $hidden[] = $item->language;
+    }
+  }
+
+  $form['hidden'] = array(
+    '#type' => 'checkboxes',
+    '#title' => 'Hidden languages',
+    '#title_display' => 'invisible',
+    '#options' => $options,
+    '#default_value' => $hidden,
+    '#printed' => TRUE,
+  );
+
+  array_unshift($form['#submit'], 'hidden_language_form_submit');
+}
+
+/**
+ * Submit callback for the language_hierarchy_form form.
+ *
+ */
+function hidden_language_form_submit($form, &$form_state) {
+  // Save information about hidden languages to DB.
+  foreach ($form_state['values']['hidden'] as $langcode => $is_hidden) {
+    $hidden = $is_hidden ? 1 : 0;
+
+    // Update the language row in the db.
+    db_update('languages')
+      ->fields(array(
+        'hidden' => $hidden,
+      ))
+      ->condition('language', $langcode, '=')
+      ->execute();
+
+    // Copy data to where locale submit function expects it.
+    $form_state['values']['hidden'][$langcode] = $hidden;
+  }
+}

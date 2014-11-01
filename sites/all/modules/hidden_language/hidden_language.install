@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function hidden_language_install() {
+  db_add_field('languages', 'hidden', array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'Hidden flag (1 = Hidden, 0 = Visible).',
+  ));
+
+  db_update('system')
+    ->fields(array('weight' => 1))
+    ->condition('type', 'module')
+    ->condition('name', 'hidden_language')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function hidden_language_uninstall() {
+  db_drop_field('languages', 'hidden');
+}
