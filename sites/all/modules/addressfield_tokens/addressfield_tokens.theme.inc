@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file
+ * Theme Controllers.
+ */
+
+/**
  * Implements theme_field();
  * 
  * Themes an address according to the default renderer.
@@ -102,5 +107,5 @@ function theme_addressfield_formatter__components($vars) {
     }
   }
   
-  return filter_xss(implode($separator, $out));
+  return implode($separator, $out);
 }
