@@ -634,7 +634,12 @@ if (!(window.console && console.log)) {
                 }
             );
 
-            $(".download-button a").text("Download");
+            // Programs buttons
+            $(".download-button a").text(Drupal.t("Download"));
+            $("#launch-button a").text(Drupal.t("Launch"));
+
+            // Film button
+            $('.node-type-film .field-name-field-download-link a').text(Drupal.t("Download Link"));
 
 
         //Rename Description and open it
