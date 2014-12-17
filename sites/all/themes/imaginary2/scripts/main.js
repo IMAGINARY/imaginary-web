@@ -12,11 +12,9 @@ if (!(window.console && console.log)) {
     }());
 }
 
+(function($){
 
-(function($){ //for jquery 172
-
-    $(document).ready(function() {
-
+    $(function(){
 
         //hack for height of events slider
         if ($("body").hasClass("front")) {
@@ -520,7 +518,7 @@ if (!(window.console && console.log)) {
 
                 if ($(this).find("img").length > 1) {
 
-                    $(this).after('<div class="gallery-two-columns-next-previous clearfix"><span class="previous"><span class="left-arrow">◄</span><span class="underline">previous</span>&nbsp;</span> <span class="next">&nbsp;<span class="underline">next</span><span class="right-arrow">►</span></span></div>');
+                    $(this).after('<div class="gallery-two-columns-next-previous clearfix"><span class="previous"><span class="left-arrow">◄</span><span class="underline">' + Drupal.t("previous") + '</span>&nbsp;</span> <span class="next">&nbsp;<span class="underline">' + Drupal.t("next") + '</span><span class="right-arrow">►</span></span></div>');
 
                     //check if view or field collection
                     //console.log($(this).find("ul"));
@@ -724,6 +722,5 @@ if (!(window.console && console.log)) {
         setTimeout(function(){ movePageIfAdmin() }, 1000);
         setTimeout(function(){ movePageIfAdmin() }, 2000);
 
-    }); /*end document ready*/
-
-})(jQuery)
+  });
+})(jQuery);
