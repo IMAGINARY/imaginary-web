@@ -578,30 +578,35 @@ h2.pane-title {
     #block-menu-menu-meta-menu {
 	    position: absolute;
     	top: 12px;
-		width: 50%;
-		margin: 0 25% 0 32%;
-		left: 0px;
+      width: 50%;
+      margin: 0 25%;
+      left: 0px;
     	z-index: 1000;
     	font-family: FuturaPTMedium-Reg;
 
     	.content {
 	    	text-align: center;
-			width: 400px;
-			margin: 0 auto;
+  			margin: 0 auto;
     	}
 
     	ul {
         	margin: 0;
         	padding: 0;
         	background-color: white;
+          text-align: center;
 
         	li {
             	list-style: none;
-            	float: left;
-            	width: 90px;
+            	display: inline-block;
             	text-align: center;
             	margin: 0;
             	padding: 0;
+              margin-right: 30px;
+              position: relative;
+
+              &.last {
+                margin-right: 0px;
+              }
 
             	a {
                 	display: block;
@@ -610,11 +615,13 @@ h2.pane-title {
 
                 ul {
                 	position: absolute;
+                  left: 0px;
                 	display: none;
 
                     li {
                     	float: none;
                     	display: inline;
+                      text-align: left;
                     	a {
                         	width: 90px;
                         	position: relative;
