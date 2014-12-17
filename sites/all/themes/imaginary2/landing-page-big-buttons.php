@@ -11,8 +11,8 @@ $size = ' width="400" height="220" ';
     		<div class="big-button programs">
     			<div class="inner">
     				<div class="text">
-    					<h2>PROGRAMS</h2>
-    					<p>experiment with interactive <br />math software</p>
+    					<h2><?php print t('PROGRAMS');?></h2>
+    					<p><?php print t('experiment with interactive<br>math software');?></p>
     				</div>
     				<div class="background-image">
     				    <img src="<?php echo $themePath; ?>programs.jpg" alt="image1"<?php echo $size; ?>>
@@ -25,8 +25,8 @@ $size = ' width="400" height="220" ';
     		<div class="big-button galleries">
     			<div class="inner">
     				<div class="text">
-    					<h2>GALLERIES</h2>
-    					<p>enjoy beautiful math pictures</p>
+    					<h2><?php print t('GALLERIES');?></h2>
+    					<p><?php print t('enjoy beautiful math pictures');?></p>
     				</div>
     				<div class="background-image"><img src="<?php echo $themePath; ?>galleries.jpg" alt="image1"<?php echo $size; ?>></div>
     			</div>
@@ -37,8 +37,8 @@ $size = ' width="400" height="220" ';
     		<div class="big-button hands-on random">
     			<div class="inner">
     				<div class="text">
-    					<h2>HANDS-ON</h2>
-    					<p>play with creative exhibits</p>
+    					<h2><?php print t('HANDS-ON');?></h2>
+    					<p><?php print t('play with creative exhibits');?></p>
     				</div>
     				<div class="background-image"><img src="<?php echo $themePath; ?>hands-on.jpg" alt="image1"<?php echo $size; ?>></div>
     			</div>
@@ -48,8 +48,8 @@ $size = ' width="400" height="220" ';
     		<div class="big-button films random hidden">
     			<div class="inner">
     				<div class="text">
-    					<h2>FILMS</h2>
-    					<p>watch math movies</p>
+    					<h2><?php print t('FILMS');?></h2>
+    					<p><?php print t('watch math movies');?></p>
     				</div>
     				<div class="background-image"><img src="<?php echo $themePath; ?>films-2.jpg" alt="image1"<?php echo $size; ?>></div>
     			</div>
@@ -60,8 +60,8 @@ $size = ' width="400" height="220" ';
     		<div class="big-button exhibitions random hidden">
     			<div class="inner">
     				 <div class="text">
-						 <h2>EXHIBITIONS</h2>
-						 <p>organize your own math exhibitions</p>
+						 <h2><?php print t('EXHIBITIONS');?></h2>
+						 <p><?php print t('organize your own math exhibitions');?></p>
 					</div>
         			<div class="background-image"><img src="<?php echo $themePath; ?>exhibitions.jpg" alt="image1"<?php echo $size; ?>>
         		</div>
@@ -77,8 +77,8 @@ $size = ' width="400" height="220" ';
 
 				<div class="inner">
     				<div class="text">
-						<h2>BE PART OF IT</h2>
-						<p>participate and share ideas</p>
+						<h2><?php print t('BE PART OF IT');?></h2>
+						<p><?php print t('participate and share ideas');?></p>
 					</div>
 
 					<div class="background-image">
@@ -94,8 +94,8 @@ $size = ' width="400" height="220" ';
 
     			<div class="inner">
 					<div class="text">
-						<h2>ENTDECKERBOX</h2>
-						<p>explore our math school box</p>
+						<h2><?php print t('ENTDECKERBOX');?></h2>
+						<p><?php print t('explore our math school box');?></p>
 					</div>
 					<div class="background-image">
     			    	<img src="<?php echo $themePath; ?>entdeckerbox.jpg" alt="image1"<?php echo $size; ?>>
@@ -108,8 +108,8 @@ $size = ' width="400" height="220" ';
     		<div class="big-button texts">
     			<div class="inner">
     				<div class="text">
-    					<h2>TEXTS</h2>
-    					<p>read math background info</p>
+    					<h2><?php print t('TEXTS');?></h2>
+    					<p><?php print t('read math background info');?></p>
     				</div>
         			<div class="background-image"><img src="<?php echo $themePath; ?>texts.jpg" alt="image1"<?php echo $size; ?>>
         			</div>
