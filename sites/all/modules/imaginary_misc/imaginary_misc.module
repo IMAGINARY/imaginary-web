@@ -1,7 +1,11 @@
 <?php
 
+/**
+* implements hook_panels_pane_content_alter()
+*/
 function imaginary_misc_panels_pane_content_alter(&$content, $pane, $args, $context) {
 
+  // Translate pane titles
   if(!empty($content->title)) {
     $content->title = t($content->title);
   }

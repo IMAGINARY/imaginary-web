@@ -57,14 +57,12 @@ function imaginary2_wysiwyg_editor_settings_alter(&$settings, $context) {
  */
 
 function imaginary2_file_icon($variables) {
-    print "<!-- hello world -->";
     $file = $variables['file'];
     $icon_directory = drupal_get_path('theme', 'imaginary2') . '/images/icons';
 
     $mime = check_plain($file->filemime);
     $icon_url = file_icon_url($file, $icon_directory);
-    print("<!-- test -->");
-    return '<img alt="" class="file-icon" src="' . $icon_url . '" title="' . $mime . '" /><!-- test -->';
+    return '<img alt="" class="file-icon" src="' . $icon_url . '" title="' . $mime . '" />';
 }
 
 
