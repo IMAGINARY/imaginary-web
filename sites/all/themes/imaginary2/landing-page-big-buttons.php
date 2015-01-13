@@ -7,7 +7,7 @@ $size = ' width="400" height="220" ';
 
 <div id="big-buttons">
     <div class="row">
-    	<a href="/programs">
+    	<a href="<?php print url('programs')?>">
     		<div class="big-button programs">
     			<div class="inner">
     				<div class="text">
@@ -21,7 +21,7 @@ $size = ' width="400" height="220" ';
     		</div>
     	</a>
 
-    	<a href="/galleries">
+    	<a href="<?php print url('galleries')?>">
     		<div class="big-button galleries">
     			<div class="inner">
     				<div class="text">
@@ -33,7 +33,7 @@ $size = ' width="400" height="220" ';
     		</div>
     	</a>
 
-    	<a href="/physical-exhibits">
+    	<a href="<?php print url('physical-exhibits')?>">
     		<div class="big-button hands-on random">
     			<div class="inner">
     				<div class="text">
@@ -44,7 +44,7 @@ $size = ' width="400" height="220" ';
     			</div>
     		</div>
     	</a>
-    	<a href="/films">
+    	<a href="<?php print url('films')?>">
     		<div class="big-button films random hidden">
     			<div class="inner">
     				<div class="text">
@@ -56,7 +56,7 @@ $size = ' width="400" height="220" ';
     		</div>
     	</a>
 
-        <a href="/exhibitions">
+        <a href="<?php print url('exhibitions')?>">
     		<div class="big-button exhibitions random hidden">
     			<div class="inner">
     				 <div class="text">
@@ -72,7 +72,7 @@ $size = ' width="400" height="220" ';
 
     <div class="row">
 
-    	<a href="/participate">
+    	<a href="<?php print url('participate')?>">
     		<div class="big-button register">
 
 				<div class="inner">
@@ -89,7 +89,7 @@ $size = ' width="400" height="220" ';
     		</div>
     	</a>
 
-        <a href="/imaginary-entdeckerbox">
+        <a href="<?php print url('imaginary-entdeckerbox')?>">
     		<div class="big-button entdeckerbox">
 
     			<div class="inner">
@@ -104,7 +104,7 @@ $size = ' width="400" height="220" ';
     		</div>
     	</a>
 
-        <a href="/background-materials">
+        <a href="<?php print url('background-materials')?>">
     		<div class="big-button texts">
     			<div class="inner">
     				<div class="text">
