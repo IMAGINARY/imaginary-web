@@ -10,3 +10,12 @@ function imaginary_misc_panels_pane_content_alter(&$content, $pane, $args, $cont
     $content->title = t($content->title);
   }
 }
+
+/**
+* implements hook_block_view_MODULE_DELTA_alter
+*/
+function imaginary_misc_block_view_system_user_menu_alter(&$data, $block) {
+
+  // Translates the block title
+  $block->title = t($block->title);
+}
