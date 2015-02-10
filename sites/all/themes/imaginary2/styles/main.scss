@@ -749,8 +749,6 @@ input[type=password] {
     padding: 20px 0 10px 0;
     z-index: 100;
     background-color: white;
-    /*background-color: white;*/
-    z-index: 100;
    	font-family: FuturaPTMedium-Reg;
 	font-size: 26px;
 	font-weight: normal;
@@ -761,15 +759,15 @@ input[type=password] {
 	    	list-style: none;
 	    	margin: 0;
 	    	padding: 0;
+            text-align: center;
     	}
 
 	li {
+        display: inline-block;
     	list-style: none !important;
     	list-style-image: none !important;
     	list-style-type: none !important;
-    	float: left;
-    	margin: 0;
-
+    	margin: 0px 12px;
 
     	a:link,
     	a:focus {
@@ -791,54 +789,62 @@ input[type=password] {
 	}
 
 	li.first {
-		margin-right: 97px;
+		position: absolute;
+        left: 0px;
+        margin: 0px !important;
 	}
 
 	li.last {
-		float: right;
-	}
-
-	li.programs, li.mid-10454,
-	li.galleries, li.mid-10455,
-	li.films, li.mid-10457,
-	li.hands-on, li.mid-10456,
-	li.texts, li.mid-10458 {
-		margin: 0 13px 0 13px;
+		position: absolute;
+        right: 0px;
+        margin: 0px !important;
 	}
 }
 
-//overwrite German
+// The default style centers the menu items with a 12px margin between them
+// and places the first item completely to the left and the last one
+// completly to the right. These are the desired "sane defaults" for new languages.
+//
+// Below fine-tuned styles are provided for each language where the centered
+// block of items are given a negative left margin as to make the distance of this
+// block to the first item the same as the distance from the block to the last item.
+// Also, the margin between items can be tweaked for languages with longer words.
+
+// English
+.i18n-en #block-menu-menu-main-menu-2 {
+    ul { margin-left: -44px; }
+    li { margin: 0px 12px; }
+}
+
+// German
 .i18n-de #block-menu-menu-main-menu-2 {
-	li.veranstaltungen {
-    	margin-right: 24px;
-	}
-
-	li.programs, li.mid-10454,
-	li.galleries, li.mid-10455,
-	li.films, li.mid-10457,
-	li.hands-on, li.mid-10456,
-	li.texts, li.mid-10458 {
-		margin: 0 7px 0 7px;
-	}
+    ul { margin-left: -80px; }
+    li { margin: 0px 9px; }
 }
 
-//overwrite Spanish
+// Spanish
 .i18n-es #block-menu-menu-main-menu-2 {
-    //events
-	li.mid-10453 {
-    	margin-right: 47px;
-	}
-
-	li.programs, li.mid-10454,
-	li.galleries, li.mid-10455,
-	li.films, li.mid-10457,
-	li.hands-on, li.mid-10456,
-	li.texts, li.mid-10458 {
-		margin: 0 7px 0 7px;
-	}
+    ul { margin-left: -55px; }
+    li { margin: 0px 7px; }
 }
 
+// French
+.i18n-fr #block-menu-menu-main-menu-2 {
+    ul { margin-left: 0px; }
+    li { margin: 0px 7px; }
+}
 
+// Korean
+.i18n-ko #block-menu-menu-main-menu-2 {
+    ul { margin-left: 0px; }
+    li { margin: 0px 16px; }
+}
+
+// Turkish
+.i18n-tr #block-menu-menu-main-menu-2 {
+    ul { margin-left: 14px; }
+    li { margin: 0px 9px; }
+}
 
 
 /* == Content ================================================================= */
