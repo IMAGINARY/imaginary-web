@@ -342,8 +342,15 @@ if (!(window.console && console.log)) {
             var viewFilters = $('.view-filters');
 
             var title = $("#page-title").text();
+            if($('h2.pane-title').text()) {
+                title = jQuery('h2.pane-title').text().toLowerCase();
+                // Capitalize first letter
+                title = title.charAt(0).toUpperCase() + title.slice(1);
+            }
 
-            viewFilters.append($('<div class="exh-user-select-wrapper"><div class="label">Show '+title+' from:</div><ul class="exh-user-select"></ul></div><div class="clearfix"></div>'));
+            var filterText = Drupal.t('Show !content_type from:', {'!content_type': title});
+
+            viewFilters.append($('<div class="exh-user-select-wrapper"><div class="label">'+ filterText +'</div><ul class="exh-user-select"></ul></div><div class="clearfix"></div>'));
 
             $uList = viewFilters.find("ul");
 
@@ -356,6 +363,14 @@ if (!(window.console && console.log)) {
                 }
 
                 var text = $(this).text();
+                // This replacement is ugly, but Drupal can only do client side translation
+                // of strings that explicitly appear in the js in the format below. It's not
+                // possible to do Drupal.t(text)
+                if(text == 'Users') {
+                    text = Drupal.t('Users');
+                } else if(text == 'Exhibitions') {
+                    text = Drupal.t('Exhibitions');
+                }
 
                 $uList.append('<li class="'+activeClass+' button"><a href="?tid[]='+$(this).val()+'">' + text + '</a></li>');
 
