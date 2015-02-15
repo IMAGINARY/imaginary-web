@@ -83,7 +83,7 @@ if (!(window.console && console.log)) {
 
         $("#block-user-login")
             .wrapInner('<div class="user-login clearfix" />')
-            .prepend('<div class="get-access">Get Access</div>')
+            .prepend('<div class="get-access">' + Drupal.t('Get Access') + '</div>')
             .mouseover(function() {
                 $(".user-login").show();
             }).mouseout(function(){
