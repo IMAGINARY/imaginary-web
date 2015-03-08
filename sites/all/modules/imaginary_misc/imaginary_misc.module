@@ -5,8 +5,16 @@
 */
 function imaginary_misc_panels_pane_content_alter(&$content, $pane, $args, $context) {
 
+  //
   // Translate pane titles
-  if(!empty($content->title)) {
+  if($content->title == t('<none>')) {
+    // For some reason some panels have a translated version of <none> as a title,
+    // (e.g. "--aucun--" in french) which is showing on the page instead of indicating
+    // Drupal not to show a title.
+    // I'm not still sure why this is, so this is a bit of a dirty fix.
+    $content->title = '<none>';
+  }
+  if(!empty($content->title) && $content->title !== '<none>') {
     $content->title = t($content->title);
   }
 }
@@ -17,5 +25,7 @@ function imaginary_misc_panels_pane_content_alter(&$content, $pane, $args, $cont
 function imaginary_misc_block_view_system_user_menu_alter(&$data, $block) {
 
   // Translates the block title
-  $block->title = t($block->title);
+  if(!empty($block->title) && $block->title !== '<none>') {
+    $block->title = t($block->title);
+  }
 }
