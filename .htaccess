@@ -57,7 +57,6 @@ DirectoryIndex index.php index.html index.htm
   RewriteEngine on
 
   Redirect 301 /workplan http://workplan.imaginary.org
-  Redirect 301 /uruguay http://uruguay.imaginary.org
   Redirect 301 /entdeckerbox http://imaginary.org/de/imaginary-entdeckerbox
 
   # Set "protossl" to "s" if we were accessed via https://.  This is used later
