@@ -154,45 +154,6 @@ if (!(window.console && console.log)) {
             $("#edit-terms-of-use .fieldset-wrapper").jScrollPane().css({"border":"1px black solid"});
         }
 
-        //highlight links
-        $("#main").find("a").wrap('<span class="links-change link-underline"></span>');
-
-
-        var justHidden = false;
-
-        var j;
-        $(document).mousemove(function() {
-            if (!justHidden) {
-                justHidden = false;
-
-                clearTimeout(j);
-
-                //$('html').css({cursor: 'default'});
-                $('body').addClass('showlinks');
-                //console.log("moving");
-
-                j = setTimeout(hide, 400);
-            }
-        });
-
-
-        function hide() {
-            //$('html').css({cursor: 'none'});
-            $('body').removeClass('showlinks');
-            //console.log("stop");
-
-            justHidden = true;
-            setTimeout(function() {
-                justHidden = false;
-            }, 300);
-        }
-
-
-
-
-
-
-
         //menu
 
         var menu = $("#block-panels-mini-imaginary-main-navigation");
