@@ -16,7 +16,7 @@
 
 function imaginary2_preprocess_html(&$variables) {
 
-    drupal_add_js('http://cdn.mathjax.org/mathjax/2.1-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', 'external');
+    drupal_add_js('https://cdn.mathjax.org/mathjax/2.1-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', 'external');
 
     $viewport = array(
       '#tag' => 'meta',
