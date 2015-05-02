@@ -369,14 +369,14 @@ if (!(window.console && console.log)) {
        if ($("body").hasClass("node-type-project") && !$("body").hasClass("page-node-edit")) {
 
             what = $('#block-system-main');
-            $('#block-system-main').html(what.html().replace('[iframe]', '<iframe src="http://math-communication-network.imaginary.org" width="100%" height="300" name="map" scrolling="no"></iframe>'));
+            $('#block-system-main').html(what.html().replace('[iframe]', '<iframe src="//math-communication-network.imaginary.org" width="100%" height="300" name="map" scrolling="no"></iframe>'));
 
        }
-       /*$('.center-wrapper').html($('.center-wrapper').html().replace('[iframe]', '<iframe src="http://math-communication-network.imaginary.org" width="100%" height="450" name="map"></iframe>'));
+       /*$('.center-wrapper').html($('.center-wrapper').html().replace('[iframe]', '<iframe src="//math-communication-network.imaginary.org" width="100%" height="450" name="map"></iframe>'));
        }*/
 
 /*
-       $('.center-wrapper').html($('.center-wrapper').html().replace('[iframe]', '<iframe src="http://math-communication-network.imaginary.org" width="100%" height="450" name="map"></iframe>'));
+       $('.center-wrapper').html($('.center-wrapper').html().replace('[iframe]', '<iframe src="//math-communication-network.imaginary.org" width="100%" height="450" name="map"></iframe>'));
        }
 */
 
