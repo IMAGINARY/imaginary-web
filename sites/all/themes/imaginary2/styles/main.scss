@@ -983,6 +983,11 @@ width: auto;
 		}
         margin-top: 60px;
 
+        & > .pane-content {
+            height: 296px !important;
+            overflow: hidden;
+        }
+
     	.vco-navigation {
         	display: none;
     	}
