@@ -4378,7 +4378,7 @@ iframe {
 	}
 
 	.views-field-field-open-closed {
-		width: 20%;
+		display: table;
 		background-color: #f6f6f6;
 		padding: 10px;
 		font-family: FuturaPTMedium-Reg;
@@ -4386,11 +4386,13 @@ iframe {
 		margin: 0.25em auto 0.5em auto;
 
 		.views-label {
-			float: left;
 			color: #666;
-			display: inline;
+			display: inline-block;
 			margin-right: 0.25em;
 		}
+        .field-content {
+            display: inline-block;
+        }
 	}
 
 
