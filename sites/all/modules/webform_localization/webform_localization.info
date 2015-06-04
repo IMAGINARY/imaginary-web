@@ -1,0 +1,16 @@
+
+name = Webform Localization
+description = Enables localization features to forms and questionnaires.
+dependencies[] = webform
+dependencies[] = i18n_string
+core = 7.x
+package = Webform
+
+files[] = tests/webform_localization.test
+
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "webform_localization"
+datestamp = "1414543429"
+

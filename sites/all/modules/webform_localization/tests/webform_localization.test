@@ -1,0 +1,454 @@
+<?php
+
+/**
+ * @file
+ * Webform localization module tests.
+ */
+class WebformLocalizationWebTestCase extends DrupalWebTestCase {
+
+  // Webform test class instance.
+  public $wtc;
+  // Users.
+  public $admin_user;
+  public $translator;
+  public $normal_user;
+
+  /**
+   * Implements setUp().
+   */
+  function setUp($modules = array()) {
+    $modules = array_merge($modules, array('locale', 'webform', 'webform_localization'));
+    parent::setUp($modules);
+
+    // We load webform test class to reuse webform and components creation functions.
+    module_load_include('test', 'webform', 'tests/webform');
+    $this->wtc = new WebformTestCase;
+
+    // Setup users.
+    $this->admin_user = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages', 'translate content', 'create webform content',
+          'edit any webform content',
+          'access all webform results',
+          'edit all webform submissions',
+          'delete all webform submissions',
+          'translate interface',
+          'translate user-defined strings'));
+
+    $this->translator = $this->drupalCreateUser(array('translate content',
+          'create webform content',
+          'edit any webform content',
+          'access all webform results',
+          'translate interface',
+          'translate user-defined strings'));
+
+    $this->normal_user = $this->drupalCreateUser(array('access content', 'edit own webform submissions'));
+
+    // Fix for reuse of webform test class.
+    $this->wtc->webform_users['admin'] = $this->admin_user;
+    $this->wtc->webform_users['admin']->profile_gender = array('Female', 'Male');
+
+    $this->drupalLogin($this->admin_user);
+
+    // Add languages.
+    $this->addLanguage('en');
+    $this->addLanguage('es');
+    $this->addLanguage('de');
+
+    // Enable URL language detection and selection.
+    $edit = array('language[enabled][locale-url]' => TRUE);
+    $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
+    $this->assertRaw(t('Language negotiation configuration saved.'), 'URL language detection enabled.');
+    drupal_static_reset('locale_url_outbound_alter');
+  }
+
+  /**
+   * Create a webform node with test components.
+   */
+  function createWebformForm() {
+    if (isset($this->_webform_node)) {
+      return $this->_webform_node;
+    }
+
+    $settings = array(
+      'type' => 'webform',
+      'language' => 'en',
+      'uid' => '1',
+      'status' => '1',
+      'promote' => '1',
+      'moderate' => '0',
+      'sticky' => '0',
+      'tnid' => '0',
+      'translate' => '0',
+      'title' => 'Webform title in english',
+      'body' => array('en' => array(
+          array('value' => 'Donec placerat. Nullam nibh dolor, blandit sed, fermentum id, imperdiet sit amet, neque. Nam mollis ultrices justo.
+                                 Sed tempor. Sed vitae tellus. Etiam sem arcu, eleifend sit amet, gravida eget, porta at, wisi. Nam non lacus vitae ipsum viverra
+                                 pretium. Phasellus massa. Fusce magna sem, gravida in, feugiat ac, molestie eget, wisi. Fusce consectetuer luctus ipsum.
+                                 Vestibulum nunc. Suspendisse dignissim adipiscing libero. Integer leo. Sed pharetra ligula a dui. Quisque ipsum nibh,
+                                 llamcorper eget, pulvinar sed, posuere vitae, nulla. Sed varius nibh ut lacus. Curabitur fringilla. Nunc est ipsum,
+                                 retium quis, dapibus sed, varius non, lectus. Proin a quam. Praesent lacinia, eros quis aliquam porttitor, urna lacus
+                                 volutpat urna, ut fermentum neque mi egestas dolor.'))),
+      'teaser' => array('en' => array(
+          array('value' => 'Donec placerat. Nullam nibh dolor, blandit sed, fermentum id, imperdiet sit amet, neque. Nam mollis ultrices justo.
+                                   Sed tempor. Sed vitae tellus. Etiam sem arcu, eleifend sit amet, gravida eget, porta at, wisi. Nam non lacus vitae ipsum
+                                   viverra pretium. Phasellus massa. Fusce magna sem, gravida in, feugiat ac, molestie eget, wisi. Fusce consectetuer luctus
+                                   ipsum. Vestibulum nunc. Suspendisse dignissim adipiscing libero. Integer leo. Sed pharetra ligula a dui. Quisque ipsum nibh,
+                                   ullamcorper eget, pulvinar sed, posuere vitae, nulla. Sed varius nibh ut lacus. Curabitur fringilla.'))),
+      'log' => '',
+      'format' => '1',
+      'webform' => array(
+    'confirmation' => 'Thanks!',
+      ) + webform_node_defaults(),
+    );
+    $components = $this->wtc->testWebformComponents();
+
+    /*
+     *  @todo : We need further debug to find how to support
+     *  this components or why are they breaking everything
+     */
+    unset($components['select_no_default_zero']);
+    unset($components['radios_zero']);
+    unset($components['select_zero']);
+    unset($components['select_optgroup']);
+
+    $cid = 0;
+    foreach ($components as $key => $component_info) {
+      $cid++;
+      $settings['webform']['components'][$cid] = $component_info['component'];
+      $settings['webform']['components'][$cid]['cid'] = $cid;
+      $settings['webform']['components'][$cid]['pid'] = 0;
+    }
+
+    $this->_webform_node = $this->drupalCreateNode($settings);
+
+    return $this->_webform_node;
+  }
+
+  /**
+   * Install a the specified language if it has not been already. Otherwise make sure that
+   * the language is enabled.
+   *
+   * @param $language_code
+   *   The language code the check.
+   */
+  function addLanguage($language_code) {
+    // Check to make sure that language has not already been installed.
+    $this->drupalGet('admin/config/regional/language');
+
+    if (strpos($this->drupalGetContent(), 'enabled[' . $language_code . ']') === FALSE) {
+      // Doesn't have language installed so add it.
+      $edit = array();
+      $edit['langcode'] = $language_code;
+      $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+
+      // Make sure we are not using a stale list.
+      drupal_static_reset('language_list');
+      $languages = language_list('language');
+      $this->assertTrue(array_key_exists($language_code, $languages), 'Language was installed successfully.');
+
+      if (array_key_exists($language_code, $languages)) {
+        $this->assertRaw(t('The language %language has been created and can now be used. More information is available on the <a href="@locale-help">help screen</a>.', array('%language' => $languages[$language_code]->name, '@locale-help' => url('admin/help/locale'))), 'Language has been created.');
+      }
+    }
+    elseif ($this->xpath('//input[@type="checkbox" and @name=:name and @checked="checked"]', array(':name' => 'enabled[' . $language_code . ']'))) {
+      // It's installed and enabled. No need to do anything.
+      $this->assertTrue(TRUE, 'Language [' . $language_code . '] already installed and enabled.');
+    }
+    else {
+      // It's installed but not enabled. Enable it.
+      $this->assertTrue(TRUE, 'Language [' . $language_code . '] already installed.');
+      $this->drupalPost(NULL, array('enabled[' . $language_code . ']' => TRUE), t('Save configuration'));
+      $this->assertRaw(t('Configuration saved.'), 'Language successfully enabled.');
+    }
+  }
+
+  /**
+   * Create a translation for the specified webform in the specified
+   * language.
+   *
+   * @param $node
+   *   The basic page to create translation for.
+   * @param $title
+   *   Title of basic page in specified language.
+   * @param $body
+   *   Body of basic page in specified language.
+   * @param $language
+   *   Language code.
+   */
+  function createWebformTranslation($node, $title, $body, $language) {
+    $this->drupalGet('node/add/webform', array('query' => array('translation' => $node->nid, 'target' => $language)));
+
+    $langcode = $language;
+    $body_key = "body[" . LANGUAGE_NONE . "][0][value]";
+    //$this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");
+    //$this->assertFieldByXPath("//textarea[@name='$body_key']", $node->body[$node->language][0]['value'], "Original body value correctly populated.");
+
+    $edit = array();
+    $edit["title"] = $title;
+    //$edit[$body_key] = $body;
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->assertRaw(t('Webform %title has been created.', array('%title' => $title)), 'Translation created.');
+
+    // Check to make sure that translation was successful.
+    $translation = $this->drupalGetNodeByTitle($title);
+    $this->assertTrue($translation, 'Node found in database.');
+    $this->assertTrue($translation->tnid == $node->nid, 'Translation set id correctly stored.');
+
+    return $translation;
+  }
+
+  /**
+   * Create translation for string in textgroup
+   *
+   * @param $translations
+   *   Optional array of langcode => translation. If not present, it will be generated.
+   */
+  function createStringTranslation($textgroup, $name, $translations = NULL) {
+
+    // This is the language indicator on the translation search screen for
+    // untranslated strings. Copied straight from locale.inc.
+    $language_indicator = "<em class=\"locale-untranslated\">";
+    // Search for the name and translate it.
+    $search = array(
+      'string' => $name,
+      'language' => 'all',
+      'translation' => 'untranslated',
+      'group' => $textgroup,
+    );
+    $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
+    // assertText() seems to remove the input field where $name always could be
+    // found, so this is not a false assert. See how assertNoText succeeds
+    // later.
+    $this->assertText(check_plain($name), 'Search found the name.');
+    $this->assertRaw($language_indicator, 'Name is untranslated.');
+
+    // Is not always the only result, if there is more than one click the first.
+    if ($this->countString(check_plain($name)) > 1) {
+      $this->clickLink(t('edit'), 0);
+    }
+    else {
+      $this->clickLink(t('edit'));
+    }
+
+    // We save the lid from the path.
+    $matches = array();
+    preg_match('!admin/config/regional/translate/edit/(\d+)!', $this->getUrl(), $matches);
+    $lid = $matches[1];
+
+    /*
+     * Using check_plain() and wordwrap() as i18n_string_locale_translate_edit_form().
+     * Assert fails otherwise.
+     */
+    $this->assertRaw(check_plain(wordwrap($name, 0)), t($name . ' name found on edit screen.'));
+    foreach ($translations as $langcode => $translation) {
+      $edit["translations[$langcode]"] = $translation;
+    }
+    $this->drupalPost(NULL, $edit, t('Save translations'));
+    $this->assertText(t('The string has been saved.'), 'The string has been saved.');
+    $this->assertEqual($this->getUrl(), url('admin/config/regional/translate/translate', array('absolute' => TRUE)), 'Correct page redirection.');
+    $search = array(
+      'string' => $name,
+      'language' => 'all',
+      'translation' => 'translated',
+      'group' => $textgroup,
+    );
+    $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
+    $this->assertText(check_plain($name), 'Search found the name.');
+    $this->assertNoRaw($language_indicator, 'Name is translated.');
+
+    return $translations;
+  }
+
+  /**
+   * Get all languages that are not default
+   */
+  public function getOtherLanguages() {
+    $languages = language_list();
+    unset($languages[language_default('language')]);
+    return $languages;
+  }
+
+  public function countString($string) {
+    if ($this->plainTextContent === FALSE) {
+      $this->plainTextContent = filter_xss($this->drupalGetContent(), array());
+    }
+    return substr_count($this->plainTextContent, $string);
+  }
+
+}
+
+class WebformLocalizationStringTranslationTestCase extends WebformLocalizationWebTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Webform Localization',
+      'description' => 'Webform localization String Translations Tests.',
+      'group' => 'Webform Localization',
+    );
+  }
+
+  /**
+   * Set up test.
+   */
+  public function setUp($modules = array()) {
+    parent::setUp(array('translation', 'i18n', 'i18n_string'));
+
+    // Set "Webform" content type to use multilingual support with translation.
+    $this->drupalGet('admin/structure/types/manage/webform');
+    $edit = array();
+    $edit['language_content_type'] = 2;
+    $this->drupalPost('admin/structure/types/manage/webform', $edit, t('Save content type'));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Webform')), 'Webform content type has been updated.');
+  }
+
+  /**
+   * Test creating a webform and enabling localization by string translation
+   */
+  function testWebformLocalizationStringTranslation() {
+    $this->drupalLogin($this->admin_user);
+    /**
+     * Create the Webform test node, and enable
+     * localization by string translation feature
+     */
+    $node = $this->createWebformForm();
+
+    // Submit translation in Spanish.
+    $node_translation_title = 'Webform title in Spanish';
+    $node_translation_body = 'Content in Spanish';
+    $node_translation1 = $this->createWebformTranslation($node, $node_translation_title, $node_translation_body, 'es');
+
+    // Submit translation in German.
+    $node_translation_title = 'Webform title in German';
+    $node_translation_body = 'Content in German';
+    $node_translation2 = $this->createWebformTranslation($node, $node_translation_title, $node_translation_body, 'de');
+
+    /**
+     * Enables localization by string translation and reuse the single webform
+     * across the translation set.
+     */
+    $edit = array();
+    $edit['expose_strings'] = TRUE;
+    $edit['single_webform'] = TRUE;
+    $this->drupalPost('node/' . $node->nid . '/webform/configure', $edit, t('Save configuration'));
+    $this->assertRaw(t('The form settings have been updated.'), 'Webform string translation and single webform enabled.');
+
+    // Checks for webform components in the Spanish node
+    $this->drupalGet('es/node/' . $node_translation1->nid);
+    foreach ($node->webform['components'] as $key => $value) {
+      if ($value['name'] == 'Hidden') {
+        $this->assertNoRaw($value['name'], format_string('The %c webform component is not present.', array('%c' => $value['name'])), 'Spanish Webform translation');
+        CONTINUE;
+      }
+      $this->assertRaw($value['name'], format_string('The %c webform component is present.', array('%c' => $value['name'])), 'Spanish Webform translation');
+    }
+
+    // Checks for webform components in the Deutsch node
+    $this->drupalGet('de/node/' . $node_translation2->nid);
+    foreach ($node->webform['components'] as $key => $value) {
+      if ($value['name'] == 'Hidden') {
+        $this->assertNoRaw($value['name'], format_string('The %c webform component is not present.', array('%c' => $value['name'])), 'German Webform translation');
+        CONTINUE;
+      }
+      $this->assertRaw($value['name'], format_string('The %c webform component is present.', array('%c' => $value['name'])), 'Deutsch Webform translation');
+    }
+
+    // Refresh webform strings
+    $edit = array();
+    $edit['groups[webform]'] = 'webform';
+    $this->drupalPost('admin/config/regional/translate/i18n_string', $edit, t('Refresh strings'));
+
+    // Select webform localization options that match this node ID.
+    $options = db_select('locales_source')
+            ->fields('locales_source')
+            ->condition('textgroup', 'webform', '=')
+            ->execute()
+            ->fetchAllAssoc('lid', PDO::FETCH_ASSOC);
+
+    // Translates webform components.
+    $translations = array();
+    $extra_translations = array();
+    foreach ($options as $key => $value) {
+      $name = $value['source'];
+      $translations['de'] = 'de:' . $name;
+      $translations['es'] = 'es:' . $name;
+      $this->createStringTranslation('webform', $name, $translations);
+      // We take out confirmation to check after submit.
+      if (strpos($value['location'], 'confirmation')) {
+        $extra_translations['confirmation'] = $value['source'];
+        unset($options[$key]);
+      }
+    }
+    $this->drupalGet('es/node/' . $node_translation1->nid);
+    foreach ($options as $key => $value) {
+      list(, $cid, ) = explode(':', $value['context']);
+      $component = $node->webform['components'][$cid];
+      $name = $value['source'];
+      $translation = 'es:' . $name;
+      if ($name == 'Hidden') {
+        CONTINUE;
+      }
+      $this->assertRaw($translation, format_string('%c translation is present.', array('%c' => $name)), 'Spanish Webform translation');
+    }
+    $this->drupalGet('de/node/' . $node_translation2->nid);
+    foreach ($options as $key => $value) {
+      $name = $value['source'];
+      $translation = 'de:' . $name;
+      if ($name == 'Hidden') {
+        CONTINUE;
+      }
+      $this->assertRaw($translation, format_string('%c translation is present.', array('%c' => $name)), 'Deutsch Webform translation');
+    }
+  }
+
+}
+
+class WebformLocalizationApiTestCase extends WebformLocalizationWebTestCase {
+
+  /**
+   * Test info.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Test Webform Localization API.',
+      'description' => 'Test webform and webform localization interaction at API level.',
+      'group' => 'Webform Localization',
+    );
+  }
+
+  /**
+   * Set up test.
+   */
+  public function setUp($modules = array()) {
+    parent::setUp(array('translation', 'i18n', 'i18n_string'));
+
+    // Set "Webform" content type to use multilingual support with translation.
+    $this->drupalGet('admin/structure/types/manage/webform');
+    $edit = array();
+    $edit['language_content_type'] = 2;
+    $this->drupalPost('admin/structure/types/manage/webform', $edit, t('Save content type'));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Webform')), 'Webform content type has been updated.');
+  }
+
+  /**
+   * Test submissions API function with webform localization presence.
+   */
+  function testWebformLocalizationApi() {
+    $this->drupalLogin($this->admin_user);
+    $node = $this->createWebformForm();
+    /**
+     * Enables localization by string translation and reuse the single webform
+     * across the translation set.
+     */
+    $edit = array();
+    $edit['expose_strings'] = TRUE;
+    $edit['single_webform'] = TRUE;
+    $this->drupalPost('node/' . $node->nid . '/webform/configure', $edit, t('Save configuration'));
+    $this->assertRaw(t('The form settings have been updated.'), 'Webform string translation and single webform enabled.');
+
+    module_load_include('inc', 'webform', 'includes/webform.submissions');
+    $this->assertFalse(webform_get_submissions($node->nid), "Function webform_get_submission($node->nid,1000) work correctly with empty submissions.");
+  }
+
+}
