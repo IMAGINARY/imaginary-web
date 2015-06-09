@@ -13,7 +13,6 @@ if (!(window.console && console.log)) {
 }
 
 (function($){
-
     $(function(){
 
         //hack for height of events slider
@@ -44,8 +43,6 @@ if (!(window.console && console.log)) {
 
             E.addClass("hidden");
             E.eq(n).removeClass("hidden");
-
-
 
 		    function isIE() { return ((navigator.appName == 'Microsoft Internet Explorer') || ((navigator.appName == 'Netscape') && (new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})").exec(navigator.userAgent) != null))); }
 
@@ -114,8 +111,11 @@ if (!(window.console && console.log)) {
                 if( !$.trim( $(this).html() ).length ) {
                     $(this).hide();
 
+                    //I took this out because it made problems here:
+                    //http://dev-kr.imaginary.org/snapshots
+
                     var panelPane = $(this).closest(".panel-pane");
-                    panelPane.hide();
+                    //panelPane.hide();
 
                     var prevElement = panelPane.prev();
 
@@ -155,8 +155,7 @@ if (!(window.console && console.log)) {
         }
 
         //highlight links
-        $("#main").find("a").wrap('<span class="links-change link-underline"></span>');
-
+        //$("#main").find("a").wrap('<span class="links-change link-underline"></span>');
 
         var justHidden = false;
 
@@ -742,5 +741,61 @@ if (!(window.console && console.log)) {
         setTimeout(function(){ movePageIfAdmin() }, 1000);
         setTimeout(function(){ movePageIfAdmin() }, 2000);
 
-  });
+
+        /*Masonry*/
+
+        function initMasonry() {
+    		var $container = $(".view-id-snapshots_overview>.view-content, .view-texts-recent-2>.view-content, .view-background-materials-overview>.view-content");
+
+            $container.imagesLoaded(function () {
+                $container.masonry({
+                    itemSelector: ".masonry-item",
+                    columnWidth: 300,
+                    gutter: 10,
+                    isAnimated: 0,
+                    animationOptions: {
+                        duration: 500
+                    },
+                    isResizable: 0,
+                    isFitWidth: 0,
+                    gutterWidth: 20,
+                    isRTL: 0
+                });
+
+            }).bind("views_infinite_scroll_updated", function () {
+                $container.masonry("reload");
+            });
+        }
+
+        initMasonry();
+
+
+        function initChosen() {
+    		$(".view-snapshots-overview select").chosen({width: "290px"});
+    		$(".view-background-materials-overview select").chosen({width: "290px"});
+        }
+		/*Chosen*/
+
+		if (
+		    $("body").hasClass("page-snapshots") ||
+		    $("body").hasClass("node-type-snapshot") ||
+		    $("body").hasClass("page-background-materials") ||
+		    $("body").hasClass("node-type-background-material")
+            ) {
+            initChosen();
+		}
+
+
+        $(document).ajaxComplete(function(){
+            initChosen();
+
+            initMasonry();
+        });
+
+
+
+
+
+
+  }); //end use $ as jQuery
 })(jQuery);
