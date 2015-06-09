@@ -546,12 +546,14 @@ if (!(window.console && console.log)) {
                     }
 
                     //console.log(what);
-                    $(this).find(what).cycle({
-                        fx:     'fade',
-                        speed:  'fast',
-                        prev:   $(this).closest(".gallery-two-columns").parent().find(".previous"),
-                        next:   $(this).closest(".gallery-two-columns").parent().find(".next"),
-                        timeout: 0
+                    $(this).find(what).imagesLoaded(function( instance ) {
+                        $(this).cycle({
+                            fx:     'fade',
+                            speed:  'fast',
+                            prev:   $(this).closest(".gallery-two-columns").parent().find(".previous"),
+                            next:   $(this).closest(".gallery-two-columns").parent().find(".next"),
+                            timeout: 0
+                        });
                     });
                  }
             });
