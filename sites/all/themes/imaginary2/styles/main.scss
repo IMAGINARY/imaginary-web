@@ -2574,17 +2574,23 @@ width: auto;
 		margin-top: 3em;
 	}
 
-	.pane-2 {
-		.pane-content {
-			width: 75%;
-			margin: 0 auto;
-		}
+	.panel-2col-stacked {
+		
+		.panel-col-top {
 
-		img {
-			width: 100%;
-			height: auto;
-			display: block;
-		}
+			.pane-2 {
+				.pane-content {
+					width: 75%;
+					margin: 0 auto;
+				}
+		
+				img {
+					width: 100%;
+					height: auto;
+					display: block;
+				}
+			}
+		}	
 	}
 
 
