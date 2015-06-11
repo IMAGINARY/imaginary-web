@@ -102,29 +102,37 @@ if (!(window.console && console.log)) {
         //move register and password below button
         $("#block-user-login").find(".item-list").appendTo('.user-login');
 
+        if (
+    	    !$("body").hasClass("page-snapshots") &&
+    	    !$("body").hasClass("node-type-snapshot") &&
+    	    !$("body").hasClass("page-background-materials") &&
+    	    !$("body").hasClass("node-type-background-material")
+        ) {
+            //find empty divs / mini panels and hide them
+            //2do: could be fixed like so https://drupal.org/node/1391450
+            $(".views-row-first").each(function(){
+                if ($(this).hasClass("views-row-last")) {
 
-        //find empty divs / mini panels and hide them
-        //2do: could be fixed like so https://drupal.org/node/1391450
-        $(".views-row-first").each(function(){
-            if ($(this).hasClass("views-row-last")) {
+                    if( !$.trim( $(this).html() ).length ) {
+                        $(this).hide();
 
-                if( !$.trim( $(this).html() ).length ) {
-                    $(this).hide();
+                        //I took this out because it made problems here:
+                        //http://dev-kr.imaginary.org/snapshots
 
-                    //I took this out because it made problems here:
-                    //http://dev-kr.imaginary.org/snapshots
+                        var panelPane = $(this).closest(".panel-pane");
+                        panelPane.hide();
 
-                    var panelPane = $(this).closest(".panel-pane");
-                    //panelPane.hide();
+                        var prevElement = panelPane.prev();
 
-                    var prevElement = panelPane.prev();
-
-                    if (prevElement.hasClass("panel-separator")) {
-                        prevElement.hide();
+                        if (prevElement.hasClass("panel-separator")) {
+                            prevElement.hide();
+                        }
                     }
                 }
-            }
-        });
+            });
+
+        }
+
 
         $(".view").each(function(){
 

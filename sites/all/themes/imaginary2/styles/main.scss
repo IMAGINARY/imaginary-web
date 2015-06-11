@@ -2575,7 +2575,7 @@ width: auto;
 	}
 
 	.panel-2col-stacked {
-		
+
 		.panel-col-top {
 
 			.pane-2 {
@@ -2583,14 +2583,14 @@ width: auto;
 					width: 75%;
 					margin: 0 auto;
 				}
-		
+
 				img {
 					width: 100%;
 					height: auto;
 					display: block;
 				}
 			}
-		}	
+		}
 	}
 
 
@@ -2611,7 +2611,7 @@ width: auto;
 
 	#edit-combine-wrapper {
 		width: 18%;
-		
+
 		input {
 			width: 100%;
 			min-height: 30px;
@@ -2745,49 +2745,49 @@ width: auto;
 	}
 
 	.region-content {
-	
+
 		.pane-custom {
 			border-top: 1px solid #d3d7d9;
 		}
-	
-	
-	
+
+
+
 		.panel-col-last {
 			text-align: center;
 			font-family: FuturaPTMedium-Reg;
-	
+
 			h2.pane-title {
 				margin-bottom: 0;
 				margin-top: 0.5rem;
 			}
-	
+
 			.panel-separator {
 				margin-bottom: 0.5rem;
 			}
-	
+
 			.pane-content {
 				color: black;
 				text-align: center;
-	
+
 				li {
 					float: none !important;
 				}
 			}
-			
-			
+
+
 			.field-type-file {
 				.field-item {
 					padding-bottom: 10px;
-	
+
 					img.file-icon {
 						float: none;
 						margin: 0em 1em 0em 0em;
 						padding-bottom: 0px !important;
 					}
 				}
-			}		
+			}
 		}
-	
+
 		.pane-node-field-collection-person {
 			color: #666;
 			.field-name-field-person-first-name,
@@ -2798,63 +2798,63 @@ width: auto;
 				float: left;
 				margin-right: 0.3em;
 			}
-	
+
 			.field-name-field-person-last-name,
 			.field-name-field-person-town {
 				border-right: 1px solid #666;
 				padding-right: 0.3rem;
 			}
-	
+
 			.field-name-field-person-town {
 			}
 		}
-	
+
 		.pane-snapshot-image {
 			margin-bottom: 1em;
 			text-align: center;
-	
+
 			div {
 				display: inline;
 			}
-	
+
 			.field-content {
 			}
-	
+
 			img {
 				width: 25%;
 				height: auto;
 				margin: 0 0.5em 0 0.5em;
 			}
 		}
-	
+
 		.pane-snapshots-editor,
 		.pane-snapshots-author {
-	
+
 			border-bottom: 1px solid #d3d7d9;
 			padding-top: 0.5em;
 			padding-bottom: 0.5em;
-	
+
 			.views-label {
 				display: inline-block;
 			}
-	
+
 			.field-content {
 				display: inline;
 			}
 		}
-	
-	
+
+
 		.view-background-materials-authors {
 			border-bottom: 1px solid #d3d7d9;
 			padding-top: 0.5em;
 			padding-bottom: 0.5em;
-	
+
 			.views-field-field-contribution {
 				color: #666;
-	
+
 			}
 		}
-	
+
 		.pane-node-field-imu-classification-primary,
 		.pane-node-field-imu-classification-seconda,
 		.pane-node-field-snapshot-licence,
@@ -2867,11 +2867,11 @@ width: auto;
 			border-bottom: 1px solid #d3d7d9;
 			color: #666;
 			padding-bottom: 0.5em;
-	
+
 			ul {
 				margin: 0;
 				padding: 0;
-	
+
 				li {
 					padding: 0;
 					margin: 0;
@@ -2879,27 +2879,27 @@ width: auto;
 					text-align: center;
 				}
 			}
-	
+
 			ul.links {
 				li {
 					float: left;
 					margin-right: 0.3rem;
 			}
 		}
-	
+
 		}
-	
+
 		.pane-node-field-pdf {
 			border-bottom: 1px solid #d3d7d9;
 			margin-bottom: 0.5em;
 		}
-	
+
 	    //pdf generation iframe
 		iframe {
 			width: 100%;
 			height: 800px;
 		}
-	
+
 	    //hack because cant find view backend/structure/views/view/snapshot_persons_sidebar/edit/panel_pane_1
 		.field-name-field-collection-person {
 	    	.field-name-field-person-town, .field-name-field-person-country {
@@ -2909,30 +2909,30 @@ width: auto;
 	        	border-right: none !important;
 	    	}
 		}
-	
-	
+
+
 		.pane-snapshot-files,
 		.pane-snapshot-additional-files {
 			border-bottom: 1px solid #d3d7d9;
 			padding-bottom: 1em;
 			font-family: FuturaPTMedium-Reg;
-	
+
 		}
-	
-	
+
+
 		.pane-files-for-background-materials {
 			margin-top: 3em;
 			border-top: 1px solid #d3d7d9;
-	
-	
+
+
 			font-family: FuturaPTMedium-Reg;
 			.views-row {
 				clear: both;
 				border-bottom: 1px solid #d3d7d9;
 				padding-bottom: 2em;
 				margin-bottom: 1em;
-	
-	
+
+
 				.views-field-field-background-material-file {
 					float: left;
 					margin-right: 1em;
@@ -2941,78 +2941,78 @@ width: auto;
 						width: auto;
 					}
 				}
-	
+
 				.views-field-field-background-material-file-t {
 					display: inline;
-	
+
 				}
-	
+
 				.views-field-field-background-material-file-l {
 					float: right;
 					color: #666;
 				}
 			}
 		}
-	
+
 		.pane-mathematical-subjects-term-and-image,
 		.pane-connections-to-other-fields-term-and-image {
-	
+
 			border-bottom: 1px solid #d3d7d9;
 			padding-bottom: 0.5em;
 			clear: both;
 			text-align: left !important;
-	
+
 			h2.pane-title {
 				margin-bottom: 0.5em !important;
 			}
-	
+
 			.view-mathematical-subjects-term-and-image div {
 			}
-	
+
 			.views-row {
 				display: block;
 				width: 100%;
 				clear: both;
 				margin-bottom: 0.5em;
-	
-	
+
+
 				.views-field-field-mathemathical-subject-imag,
 				.views-field-field-connection-to-other-fields {
 					margin: 0 0.5em 0 0;
 					width: 10%;
 					display: inline-block;
 				}
-	
+
 				img {
 					width: 100%;
 					height: auto;
 				}
-	
+
 				.views-field-name {
 					display: inline;
 					clear: both;
 				}
 			}
-	
+
 			.views-row-even  {
 			}
-	
+
 			.views-row-1 {
 			}
 		}
-	
+
 		.pane-connections-to-other-fields-term-and-image {
 		}
-	
+
 		.pane-node-field-program-licence {
 		}
-		
+
 		.pane-snapshots-overview-panel-pane-1 {
 			h2.pane-title {
 				display: none;
 			}
 		}
-	}	
+	}
 
 }
 
@@ -4221,10 +4221,6 @@ iframe {
 		text-align: center;
 	}
 
-	img {
-
-	}
-
 }
 
 
@@ -4607,9 +4603,7 @@ iframe {
 			margin-right: 0.25em;
 		}
 
-
 	}
-
 
 	.pane-node-field-program-licence {
 		color: #666;
@@ -4692,6 +4686,12 @@ iframe {
 
 	.pane-files {
 		border-bottom: none;
+	}
+
+	.pane-related-exhibits-of {
+    	img {
+        	max-width: 100%;
+    	}
 	}
 
 }
