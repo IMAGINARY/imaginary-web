@@ -13,3 +13,4 @@ sites/all/drush/*aliases.drushrc.php
 /usage
 /google*.html
 
+/.idea
