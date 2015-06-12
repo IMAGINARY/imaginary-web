@@ -136,3 +136,22 @@ function imaginary2_js_alter(&$javascript) {
     }
 }
 
+/**
+ * Overrides theme_links__locale_block
+ */
+function imaginary2_links__locale_block($variables) {
+
+    // Remove hidden languages from the language switcher block
+    if(!user_access('access all hidden languages')) {
+        foreach($variables['links'] as $lang => $params) {
+            if(isset($params['language']->hidden) && $params['language']->hidden == 1) {
+                if(!user_access("access hidden language $lang")) {
+                    unset($variables['links'][$lang]);
+                }
+            }
+        }
+    }
+
+    // Call the default implementation
+    return theme('links', $variables);
+}
