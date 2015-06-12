@@ -1,3 +1,7 @@
+/**
+ * @file
+ * Invokes the timeline js plugin.
+ */
 var embed_path;
 
 (function ($) {

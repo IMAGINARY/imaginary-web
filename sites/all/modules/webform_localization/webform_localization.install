@@ -1,0 +1,140 @@
+<?php
+
+/**
+ * @file
+ * Webform Localization module install/schema hooks.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function webform_localization_install() {
+  /**
+   * NOTE:
+   * We add a field to record the language of the submission since when using
+   * "Localization by String Translation" you can get single webform been
+   * submitted by several nodes in different languages.
+   */
+  db_add_field('webform_submissions', 'language', array(
+    'description' => 'The {languages}.language source of this submission.',
+    'type' => 'varchar',
+    'length' => 12,
+    'not null' => TRUE,
+    'default' => '',
+  ));
+  variable_set('webform_localization_using_uuid', module_exists('uuid'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function webform_localization_uninstall() {
+  db_drop_field('webform_submissions', 'language');
+  variable_del('webform_localization_using_uuid');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function webform_localization_schema() {
+  $schema = array();
+
+  $schema['webform_localization'] = array(
+    'description' => 'Table for storing additional properties for webform localization.',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The node identifier of a webform.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'expose_strings' => array(
+        'description' => 'Boolean value of a webform for expose component strings for translation or not.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'single_webform' => array(
+        'description' => 'A Tanslation set Id for keep one single webform across a translation set.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'webform_properties' => array(
+        'description' => 'Webform properties to be sync.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'sync_components' => array(
+        'description' => 'Boolean value for whether the webform components must be sync across translated nodes.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'sync_roles' => array(
+        'description' => 'Boolean value for whether the webform submission access roles must be sync across translated nodes.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'sync_emails' => array(
+        'description' => 'Boolean value for whether the webform emails must be sync across translated nodes.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+
+  $schema['webform_component_localization'] = array(
+    'description' => 'Stores information about components properties sync for webform localization.',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The node identifier of a webform.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'cid' => array(
+        'description' => 'The identifier for this component within this node, starts at 0 for each node.',
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'standar_properties' => array(
+        'description' => 'Standar properties of this component to be sync.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'extra_properties' => array(
+        'description' => 'Additional properties of this component to be sync.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_schema_alter().
+ *
+ * Add webform_submissions table language field
+ */
+function webform_localization_schema_alter(&$schema) {
+  $schema['webform_submissions']['fields']['language'] = array(
+    'description' => 'The {languages}.language source of this submission.',
+    'type' => 'varchar',
+    'length' => 12,
+    'not null' => TRUE,
+    'default' => '',
+  );
+}

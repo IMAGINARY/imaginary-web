@@ -1,26 +1,7 @@
-/**
-	* TimelineJS
-	* Designed and built by Zach Wise at VéritéCo
-
-	* This program is free software: you can redistribute it and/or modify
-	* it under the terms of the GNU General Public License as published by
-	* the Free Software Foundation, either version 3 of the License, or
-	* (at your option) any later version.
-
-	* This program is distributed in the hope that it will be useful,
-	* but WITHOUT ANY WARRANTY; without even the implied warranty of
-	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	* GNU General Public License for more details.
-
-	* http://www.gnu.org/licenses/
-
-*/  
-
+// VMM.Timeline.js
 /*	* CodeKit Import
 	* http://incident57.com/codekit/
 ================================================== */
-// @codekit-prepend "VMM.Timeline.License.js";
-
 // @codekit-prepend "Core/VMM.StoryJS.js";
 
 // @codekit-append "VMM.Timeline.TimeNav.js";
@@ -81,7 +62,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 			type: 					"timeline",
 			touch:					false,
 			orientation: 			"normal", 
-			maptype: 				"toner",
+			maptype: 				"",
 			version: 				"2.x", 
 			preload:				4,
 			current_slide:			0,
@@ -154,7 +135,12 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 			ease: 					"easeInOutExpo",
 			duration: 				1000,
 			gmap_key: 				"",
-			language: 				VMM.Language
+			language: 				VMM.Language,
+			tagSortFunction: 		function (arr) {
+				arr.sort(function (a, b) {
+					return a.localeCompare(b);
+				})
+			}
 		};
 		
 		if ( w != null && w != "") {
@@ -430,7 +416,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 			/* GET DATA
 			================================================== */
 			if (VMM.Browser.browser == "Explorer" || VMM.Browser.browser == "MSIE") {
-				if ( parseInt(VMM.Browser.version, 10) <= 7 ) {
+			    if (parseInt(VMM.Browser.version, 10) <= 7 && (VMM.Browser.tridentVersion == null || VMM.Browser.tridentVersion < 4)) {
 					ie7 = true;
 				}
 			}
@@ -505,7 +491,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 			// IE7
 			if (ie7) {
 				ie7 = true;
-				VMM.fireEvent(global, config.events.messege, "Internet Explorer " + VMM.Browser.version + " is not supported by TimelineJS. Please update your browser to version 8 or higher.");
+				VMM.fireEvent(global, config.events.messege, "Internet Explorer " + VMM.Browser.version + " is not supported by TimelineJS. Please update your browser to version 8 or higher. If you are using a recent version of Internet Explorer you may need to disable compatibility mode in your browser.");
 			} else {
 				
 				detachMessege();
@@ -529,28 +515,6 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 			}
 			
 			
-		};
-		
-		function ie7Build() {
-			trace("IE7 or lower");
-			for(var i = 0; i < _dates.length; i++) {
-				trace(_dates[i]);
-				/*
-				var st	= VMM.Date.prettyDate(data.startdate);
-				var en	= VMM.Date.prettyDate(data.enddate);
-				var tag	= "";
-				if (data.tag != null && data.tag != "") {
-					tag		= VMM.createElement("span", data.tag, "slide-tag");
-				}
-						
-				if (st != en) {
-					c.text += VMM.createElement("h2", st + " &mdash; " + en + tag, "date");
-				} else {
-					c.text += VMM.createElement("h2", st + tag, "date");
-				}
-				*/
-				
-			}
 		};
 		
 		function updateSize() {
@@ -577,7 +541,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 				*/
 			}
 			
-			if (config.width < 640) {
+			if (config.width < 641) {
 				VMM.Lib.addClass($timeline, "vco-skinny");
 			} else {
 				VMM.Lib.removeClass($timeline, "vco-skinny");
@@ -596,25 +560,19 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 				
 				if (data.date[i].startDate != null && data.date[i].startDate != "") {
 					
-					var _date = {};
-					
-					// START DATE
-					if (data.date[i].type == "tweets") {
-						_date.startdate = VMM.ExternalAPI.twitter.parseTwitterDate(data.date[i].startDate);
-					} else {
-						_date.startdate = VMM.Date.parse(data.date[i].startDate);
-					}
+					var _date		= {},
+						do_start	= VMM.Date.parse(data.date[i].startDate, true),
+						do_end;
+						
+					_date.startdate		= do_start.date;
+					_date.precisiondate	= do_start.precision;
 					
 					if (!isNaN(_date.startdate)) {
 						
 					
 						// END DATE
 						if (data.date[i].endDate != null && data.date[i].endDate != "") {
-							if (data.date[i].type == "tweets") {
-								_date.enddate = VMM.ExternalAPI.twitter.parseTwitterDate(data.date[i].endDate);
-							} else {
-								_date.enddate = VMM.Date.parse(data.date[i].endDate);
-							}
+							_date.enddate = VMM.Date.parse(data.date[i].endDate);
 						} else {
 							_date.enddate = _date.startdate;
 						}
@@ -626,11 +584,11 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 								_date.needs_slug = true;
 							}
 						}
-					
+						
 						_date.title				= data.date[i].headline;
 						_date.headline			= data.date[i].headline;
 						_date.type				= data.date[i].type;
-						_date.date				= VMM.Date.prettyDate(_date.startdate);
+						_date.date				= VMM.Date.prettyDate(_date.startdate, false, _date.precisiondate);
 						_date.asset				= data.date[i].asset;
 						_date.fulldate			= _date.startdate.getTime();
 						_date.text				= data.date[i].text;
@@ -638,6 +596,8 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 						_date.tag				= data.date[i].tag;
 						_date.slug				= data.date[i].slug;
 						_date.uniqueid			= VMM.Util.unique_ID(7);
+						_date.classname			= data.date[i].classname;
+						
 						
 						_dates.push(_date);
 					} 
@@ -659,12 +619,14 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 			if (data.headline != null && data.headline != "" && data.text != null && data.text != "") {
 
 				var startpage_date,
+					do_start,
 					_date			= {},
 					td_num			= 0,
 					td;
 					
 				if (typeof data.startDate != 'undefined') {
-					startpage_date	= VMM.Date.parse(data.startDate);
+					do_start		= VMM.Date.parse(data.startDate, true);
+					startpage_date	= do_start.date;
 				} else {
 					startpage_date = false;
 				}
@@ -697,11 +659,12 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 				
 				_date.uniqueid		= VMM.Util.unique_ID(7);
 				_date.enddate		= _date.startdate;
+				_date.precisiondate	= do_start.precision;
 				_date.title			= data.headline;
 				_date.headline		= data.headline;
 				_date.text			= data.text;
 				_date.type			= "start";
-				_date.date			= VMM.Date.prettyDate(data.startDate);
+				_date.date			= VMM.Date.prettyDate(data.startDate, false, _date.precisiondate);
 				_date.asset			= data.asset;
 				_date.slug			= false;
 				_date.needs_slug	= false;

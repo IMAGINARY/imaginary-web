@@ -1,0 +1,20 @@
+<?php
+/**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * Plugin integration for date sources, image sources and timeline themes.
+ */
+function views_timelinejs_extra_sources_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'views_timelinejs') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function views_timelinejs_extra_sources_ctools_plugin_type() {
+  return array(
+    'date_sources' => array()
+  );
+}

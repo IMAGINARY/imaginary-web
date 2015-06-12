@@ -15,38 +15,37 @@ $plugin = array(
  * Converts date stamp field formats, forces TimelineJS to ignore browser TZ.
  *
  * Converts different expected date formats to one global date format to be used
- * in TimelineJS. Uses Drupal's TZ, not field TZ. Adds Z to ISODate to force
- * TimelineJS to ignore browser timezone.
+ * in TimelineJS. Uses Drupal's TZ, not field TZ.
  *
  * @return string
  *   Formatted date.
  */
 function views_timelinejs_date_stamp_source_date_field_conversion($date, $output_format, $options = array()) {
+  $granularity = isset($options['field']['granularity']) ? $options['field']['granularity'] : '';
   $input_format = $options['field']['date_format'];
   $tz_handling = $options['field']['tz_handling'];
   $timezone = date_get_timezone($tz_handling);
   $db_timezone = date_get_timezone_db($tz_handling);
   switch ($output_format) {
-    case 'iso8601':
-      $ret['value'] = views_timelinejs_convert_to_iso($date['value'], $input_format, $timezone, $db_timezone);
+    case 'csv':
+      $ret['value'] = views_timelinejs_convert_to_csv($date['value'], $input_format, $timezone, $db_timezone, $granularity);
       if (isset($date['value2'])) {
-        $ret['value2'] = views_timelinejs_convert_to_iso($date['value2'], $input_format, $timezone, $db_timezone);
+        $ret['value2'] = views_timelinejs_convert_to_csv($date['value2'], $input_format, $timezone, $db_timezone, $granularity);
       }
-      return $ret;
-
-    case 'gregorian':
-      $ret['value'] = views_timelinejs_convert_to_gregorian($date['value'], $input_format, $timezone, $db_timezone);
-      if (isset($date['value2'])) {
-        $ret['value2'] = views_timelinejs_convert_to_gregorian($date['value2'], $input_format, $timezone, $db_timezone);
-      }
-      return $ret;
+      break;
 
     case 'timestamp':
-      $ret['value'] = views_timelinejs_convert_to_timestamp($date['value'], $input_format, $timezone, $db_timezone);
+      $ret['value'] = views_timelinejs_convert_to_timestamp($date['value'], $input_format, $timezone, $db_timezone, $granularity);
       if (isset($date['value2'])) {
-        $ret['value2'] = views_timelinejs_convert_to_timestamp($date['value2'], $input_format, $timezone, $db_timezone);
+        $ret['value2'] = views_timelinejs_convert_to_timestamp($date['value2'], $input_format, $timezone, $db_timezone, $granularity);
       }
-      return $ret;
+      break;
 
   }
+
+  if (isset($ret['value2']) && $ret['value'] == $ret['value2']) {
+    unset($ret['value2']);
+  }
+
+  return $ret;
 }
