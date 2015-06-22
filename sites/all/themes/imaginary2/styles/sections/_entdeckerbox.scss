@@ -1,0 +1,75 @@
+.entdeckerbox-landing-page {
+  text-align: center;
+  background-color: #f7f7f7;
+  font-family: $font-stack-futura;
+  padding: 5px;
+
+  h1 {
+    margin: 0 0 1em 0;
+    border-bottom: none;
+    padding: 0;
+    font-size: 32px;
+  }
+}
+
+.page-imaginary-entdeckerbox {
+  #node-532,
+  #node-533 {
+    width: 120px;
+    margin: 1em auto 0 auto;
+    display: block;
+    padding: 5px 10px;
+    background-color: #f4f4f4;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -khtml-border-radius: 4px;
+    border-radius: 4px;
+    text-align: center;
+    font-family: $font-stack-futura;
+    font-size: 20px;
+    line-height: 23px;
+    color: #555555;
+    text-decoration: none !important;
+
+  }
+
+  #node-534 {
+    font-family: $font-stack-futura;
+    color: #666;
+    font-size: 20px;
+    font-weight: normal;
+    line-height: 23px;
+    text-align: center;
+  }
+
+  .highlights {
+    border-top: 1px solid #d3d7d9;
+
+    p {
+      font-family: $font-stack-futura;
+      font-size: 20px;
+      line-height: 23px;
+      font-weight: normal;
+    }
+  }
+
+  .transparence,
+  .comments {
+    border-top: 1px solid #d3d7d9;
+
+  }
+
+  .content-list {
+    font-family: $font-stack-futura;
+    ul {
+      li {
+        border-bottom: 1px solid #d3d7d9;
+        list-style: none;
+        margin-bottom: 5px;
+        font-size: 20px;
+        line-height: 23px;
+      }
+    }
+  }
+}
+

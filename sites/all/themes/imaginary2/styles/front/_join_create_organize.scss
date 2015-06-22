@@ -1,0 +1,60 @@
+#join-create,
+.view-frontpage-join-create-organize {
+  font-family: $font-stack-futura;
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  .join-create {
+    width: 28%;
+    height: 150px;
+    margin-bottom: 1.5%;
+    float: left;
+    padding: 1em;
+  }
+
+  .join-create:hover {
+
+    background-image: linear-gradient(to bottom, #f3f3f3 0%, #FFFFFF 100%);
+
+    h2 {
+      color:  #999;
+    }
+  }
+
+  a:hover {
+
+    background-image: linear-gradient(to bottom, #f3f3f3 0%, #FFFFFF 100%);
+
+    h2 {
+      color:  #999;
+    }
+  }
+
+  h2 {
+    font-size: 30px;
+    letter-spacing: 2px;
+    margin: 0;
+    color:  #666;
+    font-weight: normal;
+    text-transform: uppercase;
+  }
+
+  p {
+    font-size: 18px;
+    line-height: 20px;
+    letter-spacing: 1px;
+    color: #999;
+    margin: 0.25em 0 0 0;
+  }
+
+  .create,
+  .views-row-2 {
+    margin: 0 1.5% 1.5% 1.5%;
+  }
+
+  .organize,
+  .views-row-3 {
+    width:28%;
+    float: right;
+  }
+}

@@ -1,0 +1,54 @@
+
+/*Newsletter Archive */
+
+.page-imaginary-newsletter {
+
+  .views-field-title {
+
+    font-family: $font-stack-futura;
+    font-size: 22px;
+    line-height: 1.2em;
+    text-align: center;
+  }
+
+  .views-field-created {
+    font-family: $font-stack-futura;
+    text-align: center;
+  }
+
+  blockquote {
+    display: block;
+    -webkit-margin-before: 0em;
+    -webkit-margin-after: 0em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+  }
+
+  h2 {
+    font-size: 1.2em;
+    font-family: $font-stack-futura;
+    font-weight: normal;
+  }
+
+}
+
+/*Newsletter Single */
+
+.node-type-simplenews {
+  .pane-node-title {
+    font-family: $font-stack-futura;
+    font-size: 22px;
+    line-height: 1.2em;
+    text-align: center;
+  }
+
+  .pane-node-created {
+    font-family: $font-stack-futura;
+    text-align: center;
+  }
+
+  blockquote {
+    font-size: 20px;
+    line-height: 26px;
+  }
+}

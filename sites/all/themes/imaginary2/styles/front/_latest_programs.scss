@@ -1,0 +1,38 @@
+.front .pane-landing-page-latest-programs {
+  border-top: 3px solid black;
+}
+
+.view-landing-page-latest-programs .views-row {
+  margin-bottom: 1em;
+  border-bottom: 1px solid #999;
+  padding-bottom: 1em;
+}
+
+.view-landing-page-latest-programs  .views-row-last {
+  border-bottom: 3px solid black;
+}
+
+.view-landing-page-latest-programs .views-field-title {
+  font-family: $font-stack-futura;
+  text-decoration: none !important;
+  color: black !important;
+  margin-bottom: 0.5em;
+  float: left;
+  width: 145px;
+}
+
+.view-landing-page-latest-programs .views-field-name {
+  font-family: $font-stack-futura;
+  font-size: 0.7em;
+  float: right;
+}
+
+.view-landing-page-latest-programs img {
+  margin: 0 auto;
+  clear: both;
+  display: block;
+}
+
+.view-landing-page-latest-programs .views-field-body {
+  clear: both;
+}

@@ -1,0 +1,355 @@
+
+/*Discussion Overview*/
+
+.page-discussions {
+
+  .big-text p {
+    margin: 0 !important;
+  }
+
+  .pane-comment-recent {
+
+    ul {
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #d3d7d9;
+      font-family: $font-stack-futura;
+
+    }
+
+    ul li {
+      border-bottom: 1px solid #d3d7d9;
+      list-style: none;
+      margin: 0;
+      padding: 3px 0 2px 0;
+    }
+  }
+
+
+  .pane-create {
+    background-color: #f6f6f6;
+    padding: 10px;
+    font-family: $font-stack-futura;
+    font-size: 22px;
+    text-align: center;
+    width: 80%;
+    margin: 0 auto;
+
+    ul li {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+    }
+
+  }
+
+  .pane-discussions-latest {
+    table {
+      width: 100%;
+
+      .tr.even, tr.odd {
+        background-color: white;
+      }
+
+      th {
+        text-align: center;
+        font-family: $font-stack-futura;
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      td.views-field-php {
+        width: 50%;
+        border-right: 1px solid #CCC;
+        padding: 1em 0 1em 0;
+
+
+        .discussion-title-wrapper {
+          width: 50%;
+          float: left;
+          margin-right: 2%;
+        }
+
+        .discussion-title {
+          font-family: $font-stack-futura;
+          font-size: 22px;
+          line-height: 1.2em;
+        }
+
+
+        .discussion-meta {
+          font-family: $font-stack-futura;
+          color: #CCC;
+        }
+
+        .discussion-body {
+          float: left;
+          width: 47.5%;
+
+          p {
+            margin: 0.65em 0 0 0 !important;
+            display: inline;
+          }
+        }
+      }
+
+      .views-field-comments-link {
+        padding: 1em 0 1em 1em;
+      }
+
+      .answer-meta {
+        font-family: $font-stack-futura;
+        color: #666;
+        width: 60%;
+        float: left;
+      }
+
+      .answer-link {
+        width: 30%;
+        float: right;
+        background-color: #f6f6f6;
+        padding: 10px;
+        font-family: $font-stack-futura;
+        text-align: center;
+      }
+
+    }
+  }
+
+}
+
+/* Discussion */
+
+.node-type-question-answer {
+
+  .pane-node-comments {
+    padding-top: 5em;
+  }
+
+  .pane-create {
+    background-color: #f6f6f6;
+    padding: 10px;
+    font-family: $font-stack-futura;
+    font-size: 22px;
+    text-align: center;
+    width: 80%;
+    margin: 0 auto;
+
+    ul li {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+    }
+  }
+
+  .pane-node-title {
+    margin-bottom: 1em;
+  }
+
+  .pane-node-title .pane-content {
+    font-family: $font-stack-futura;
+    font-size: 22px;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pane-node-author {
+
+    width: 30%;
+
+    h2.pane-title {
+      text-align: left !important;
+      float: left;
+      line-height: 1em;
+      margin: 0 !important;
+    }
+
+    .pane-content {
+      float: left;
+      font-family: $font-stack-futura;
+      line-height: 1em;
+    }
+  }
+
+  article {
+    border-top: 1px solid #666;
+  }
+
+  .pane-node-created {
+    width: 60%;
+    float: right;
+    font-family: $font-stack-futura;
+    color: #666;
+    text-align: right;
+  }
+
+  .big-text {
+    clear: both;
+    border-bottom: 3px solid black;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+  }
+
+  .ajax-comment-wrapper {
+    border-bottom: 1px solid #d3d7d9;
+    margin-bottom: 1em;
+    position: relative;
+
+    .forum-posted-on {
+      font-size: 1em;
+      font-family: $font-stack-futura;
+      color: #666;
+      float: right;
+      width: 40%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      text-align: right;
+
+    }
+
+    .forum-post-number {
+      display: none;
+    }
+
+    .forum-post-title {
+      text-align: center;
+      font-family: $font-stack-futura;
+      margin-top: 2em;
+    }
+
+    .forum-post-panel-sub .author-pane {
+      padding: 0 !important;
+      float: left;
+      width: 40%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-family: $font-stack-futura;
+    }
+
+
+    .forum-jump-links {
+      font-family: $font-stack-futura;
+      display: none;
+
+    }
+
+
+    .forum-post-links {
+      font-family: $font-stack-futura;
+
+      ul li {
+        border: 2px solid black;
+        margin: 0 0.25em 0 0.25em;
+      }
+    }
+  }
+
+
+  .pane-node-comment-form {
+    background-color: #fcfcfc;
+    padding: 10px;
+
+    label {
+      font-family: $font-stack-futura;
+      color: #666;
+    }
+
+    .username {
+      font-family: $font-stack-futura;
+    }
+
+    .form-item-subject {
+      width: 400px;
+      margin: 0 auto;
+
+      label {
+        text-align: center;
+
+      }
+
+      input {
+        border: 1px solid black;
+      }
+    }
+
+    textarea {
+      border: 1px solid black;
+      min-height: 300px;
+    }
+
+    #edit-actions {
+      input {
+        margin-right: 1em;
+      }
+    }
+  }
+
+  .pane-discussions-lates-small {
+
+    .views-row {
+      border-bottom: 1px solid #d3d7d9;
+    }
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    p {
+      margin: 0;
+      padding: 0 0 1em 0;
+    }
+  }
+
+
+  .user-picture {
+    display: none;
+  }
+
+  .new {
+    background-color: #f6f6f6;
+    padding: 5px;
+    font-family: $font-stack-futura;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .comment {
+
+    h3 {
+      font-family: $font-stack-futura;
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 0.25em;
+    }
+
+    .submitted {
+      font-family: $font-stack-futura;
+      color: #666666;
+      text-align: center;
+
+      .permalink {
+        display: none;
+      }
+    }
+
+    footer {
+      margin: 1em 0 0 0;
+      font-family: $font-stack-futura;
+      color: #666666;
+      text-align: center;
+      .comment-reply,
+      .question_answer-action {
+        display: none;
+      }
+    }
+  }
+}

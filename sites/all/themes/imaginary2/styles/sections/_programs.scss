@@ -1,0 +1,409 @@
+.node-type-program {
+
+  .pane-programs-panel-pane-1 .pane-title {
+    display: none;
+  }
+
+  .pane-custom {
+    font-family: $font-stack-futura;
+    font-size: 0.9em;
+    text-align: center;
+    color: #666;
+    letter-spacing: 2px;
+
+    p {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .pane-node-title {
+    font-family: $font-stack-futura;
+    font-size: 24px;
+    line-height: 1.2em;
+    text-align: center;
+  }
+
+  .pane-node-author {
+    color: #666;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #d3d7d9;
+    line-height: 1em;
+    text-align: center;
+    font-family: $font-stack-futura;
+  }
+
+  .pane-main-file {
+    border-top: 3px solid black;
+    display: block;
+    height: auto;
+
+    .pane-content {
+      content: " "; /* 1 */
+      display: table; /* 2 */
+      clear: both;
+    }
+  }
+
+  .pane-programs-small {
+    font-family: $font-stack-futura;
+    text-align: center;
+    line-height: 1.2em;
+    border-top: 3px solid black;
+
+
+    img {
+      width: 80%;
+      margin: 0 10% 0 10%;
+      height: auto;
+    }
+
+    .masonry-item {
+      margin-bottom: 40px;
+    }
+  }
+}
+
+/* title, Icon, Download */
+
+.program-title, h1,
+.events .pane-node-title,
+.exhibition-title, .gallery-title, .view-gallery-complete .view-grouping-content h3 {
+  font-family: $font-stack-futura;
+  font-size: 24px;
+  line-height: 26px;
+  letter-spacing: 3px;
+  color: black;
+  text-align: center;
+  font-weight: normal;
+  border-bottom: 1px solid #d3d7d9;
+  padding-bottom: 1em;
+}
+
+.program-icon {
+  text-align: center;
+  margin: 1em auto 0;
+}
+
+
+
+
+#launch-button, .button, .download-button {
+  width: 120px;
+  margin: 0 auto;
+
+  display: block;
+  padding: 10px 20px;
+
+  background-color: #f4f4f4;
+  border-radius: 4px;
+
+  text-align: center;
+  font-family: $font-stack-futura;
+  font-size: 20px;
+  color: #555;
+  text-decoration: none !important;
+
+  &:hover {
+    color: #999;
+  }
+}
+
+
+.download-button {
+  .file-icon {
+    display: none;
+  }
+}
+
+
+
+.main-file-description {
+  color: #666;
+  border-bottom: 1px solid #d3d7d9;
+  padding: 0em 0 1em 0;
+  text-align: center;
+  font-size: 0.8em;
+  line-height: 1em;
+  margin-bottom: 1em;
+}
+
+
+
+.pane-node-field-program-licence {
+  border-bottom: 1px solid #d3d7d9;
+  color: #666;
+  padding-bottom: 1em;
+  line-height: 1em;
+  text-align: center;
+  font-family: $font-stack-futura;
+
+
+  h2.pane-title {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0.5em 0 0 0;
+    padding: 0;
+  }
+
+}
+
+
+
+
+.pane-node-field-embed-external-video {
+  padding: 0em 0em 0em 0em;
+
+}
+
+.all-downloads {
+  font-family: $font-stack-futura;
+
+  color: #666;
+
+  font-size: 0.8em;
+  line-height: 1em;
+  width: 140px;
+  padding: 5px 0px 4px 0px;
+  text-align: center;
+  margin: 0px auto;
+  letter-spacing: 1px;
+}
+
+.all-downloads a:link,
+.all-downloads a:focus,
+.all-downloads a:visited {
+  color: #999 !important;
+}
+
+.all-downloads a:hover {
+  color: #333 !important;
+}
+
+
+
+.node-type-program {
+  //2do: hide with php
+  .filetype-icon span:nth-child(2){
+    display: none;
+  }
+
+  //hide backend language select
+  //take out when available
+  .form-item-language {
+    display: none;
+  }
+}
+
+
+/* pane-titles */
+
+
+.description-text h2.pane-title,{
+  border-top: 1px solid #999;
+  padding-top: 1em;
+}
+
+/* related programs */
+
+
+.view-related-programs {
+  clear: both;
+  padding: 1em 0em 6em 0em;
+  margin-bottom: 4em;
+}
+
+.view-related-programs .views-row {
+  width: 45%;
+  font-family: $font-stack-futura;
+  font-size: 20px;
+  color: #555;
+  letter-spacing: 3px;
+  float: left;
+  margin-bottom: 2em;
+  text-align: center;
+
+}
+
+.view-related-programs .views-row-odd {
+  margin-right: 5%;
+}
+
+
+
+.program-files .field-collection-item-field-program-collection,
+.exhibition-files .field-collection-item-field-program-collection{
+  padding: 0.5em 0 0.5em 0;
+}
+
+.program-files .last .field-collection-item-field-program-collection,
+.exhibition-files .last .field-collection-item-field-program-collection{
+  border-bottom: 0px solid #999;
+  padding: 0.5em 0 0.5em 0;
+}
+
+.view-related-programs .views-field-title {
+  margin-right: 0.5em;
+  vertical-align: middle;
+}
+
+.view-related-programs .views-field-title a:link,
+.view-related-programs .views-field-title a:visited,
+.view-related-programs .views-field-title a:focus {
+  text-decoration: none !important;
+}
+
+.view-related-programs .views-field-title a:hover {
+  color: #999 !important;
+}
+
+
+.view-related-programs .views-field-field-program-icon img{
+  width: 40px;
+  height: auto;
+  margin-bottom: 0.5em;
+}
+
+
+
+.pane-related-program-exhibition {
+
+  background-color: #f9f9f9;
+  padding: 0.5em 1em 1em 1em;
+
+  .view-header {
+    font-family: $font-stack-futura;
+    font-size: 0.9em;
+    font-weight: normal;
+    letter-spacing: 2px;
+    text-align: center;
+    color: #666666;
+    margin: 0em 0 0 0;
+    padding: 0;
+
+    p {
+      margin: 0 !important;
+    }
+  }
+
+  .view-content {
+    margin: 0;
+    padding: 0;
+    font-family: $font-stack-futura;
+    text-align: center;
+  }
+}
+
+
+
+.pane-node-field-repository {
+  margin-bottom: 1em;
+  border-bottom: 1px solid #d3d7d9;
+  padding-bottom: 1em;
+
+  .pane-content {
+    text-align: center;
+
+    width: 50%;
+    margin: 0 auto;
+
+    a:link {
+      display: block;
+      text-align: center;
+      font-family: $font-stack-futura;
+      font-size: 16px;
+      color: #555555 !important;
+      text-decoration: none !important;
+      padding: 5px 10px;
+      background-color: #f4f4f4;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      -khtml-border-radius: 4px;
+      border-radius: 4px;
+    }
+  }
+}
+
+#mini-panel-program_third_row {
+  .panel-separator {
+    border-bottom: 1px solid #D3D7D9;
+  }
+}
+
+/* files */
+
+.program-files,
+.exhibition-files,
+{
+  clear: both;
+}
+
+.program-files .item-list ul li,
+.exhibition-files .item-list ul li{
+  margin: 0px;
+  padding: 0px;
+}
+
+.program-files .file {
+  font-family: $font-stack-futura;
+  width: 45%;
+  float: left;
+  margin-right: 5%;
+  vertical-align: top;
+}
+
+.program-files .file a:link,
+.program-files .file a:visited,
+.program-files .file a:focus {
+  text-decoration: none !important;
+  margin-top: 0px;
+  vertical-align: top;
+}
+
+.program-files .file a:hover {
+  color: #999 !important;
+}
+
+
+.program-files .field-type-text {
+  width: 45%;
+  float: left;
+  color: #666;
+  min-height: 52px;
+}
+
+.program-files img.file-icon {
+  width: 30px;
+  margin: 0em 1em 0em 1em;
+  padding-bottom: 20px;
+  float: left;
+}
+
+.file :nth-child(3) a{color:red;}
+
+.view-programs {
+
+  .views-field-field-program-licence {
+    font-family: $font-stack-futura;
+    color: #666;
+  }
+
+  .views-field-field-program-licence .views-label {
+    display: inline;
+    float: left;
+    margin-right: 0.3em;
+  }
+
+  .view-programs .views-field-title {
+    a, a:link, a:visited {
+      text-decoration: none !important;
+      color: red;
+    }
+  }
+}
+
+.page-programs #edit-submit {display:none;} /* hide "submit draggable views" button*/

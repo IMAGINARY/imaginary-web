@@ -1,0 +1,95 @@
+.col2 {
+  width: 66%;
+  float: left;
+}
+
+.col1 {
+  width: 33%;
+  float: left;
+}
+
+.front .col1-right {
+  width: 33%;
+  float: left;
+  padding-left: 20px;
+  margin-left: -20px;
+}
+
+.not-front .col1-right {
+  width: 33%;
+  float: right;
+  padding-left: 20px;
+  margin-left: -20px;
+}
+
+.col1-left {
+  width: 33%;
+  float: left;
+  padding-left: 20px;
+  margin-right: -20px;
+}
+
+.col2-left {
+  width: 596px;
+  float: left;
+  padding-left: 20px;
+  margin-right: -20px;
+}
+
+.col2-right {
+  width: 66%;
+  float: right;
+  padding-left: 20px;
+  margin-right: -20px;
+}
+
+.col2-center {
+  width: 66%;
+  margin: 0 auto;
+}
+
+.panel-col-first {
+  width: $small-column;
+}
+
+.panel-col-last {
+  width: $small-column;
+  padding-bottom: 20px;
+}
+
+.panel-2col-stacked .panel-col-first,
+.panel-2col-bricks .panel-col-first {
+  width: $big-column;
+
+  iframe {
+    width: 100% !important;
+  }
+}
+
+.panel-2col .panel-col-first {
+  width: $big-column;
+
+  .inside {
+    margin: 0;
+  }
+}
+
+.panel-2col .panel-col-last,
+.panel-2col-stacked .panel-col-last,
+.panel-2col-bricks .panel-col-last {
+  margin-left: $column-space;
+  width: $small-column;
+}
+
+.panel-2col-stacked .panel-col-first .inside {
+  margin: 0;
+}
+
+.panel-2col .panel-separator {
+  margin: 0 0 1em 0;
+  padding: 0;
+}
+
+.panel-separator {
+  clear: both;
+}

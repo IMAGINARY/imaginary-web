@@ -1,0 +1,74 @@
+.page-user-content {
+
+  .pane-user-recent-content {
+
+    .views-row {
+      margin-bottom: 3em;
+      border-bottom: 1px solid #d3d7d9;
+      padding-bottom: 1em;
+    }
+
+    font-family: $font-stack-futura;
+    text-align: center;
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+    }
+
+    .views-field-type {
+      color: #acacac;
+      text-align: center;
+      font-size: 0.7em;
+      line-height: 1.2em;
+    }
+
+    .username {
+      font-family: $font-stack-times;
+      margin-bottom: 0.25em;
+    }
+
+    img {
+      width: 80%;
+      height: auto;
+      margin: 0 auto;
+    }
+  }
+
+  .node-simple-node p {
+    margin: 0 !important;
+  }
+
+  .pane-landing-page-user-blog {
+
+    .views-row {
+      border-bottom: 1px solid #acacac;
+      margin-bottom: 3em;
+    }
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      font-size: 22px;
+      line-height: 1.1em;
+      text-align: left;
+      letter-spacing: 2px;
+      font-weight: normal;
+      text-transform: uppercase;
+    }
+
+    .views-field-created {
+      text-align: center;
+      font-family: $font-stack-futura;
+      color: #acacac;
+      font-size: 1em;
+    }
+
+    .views-field-name {
+      text-align: center;
+      font-family: $font-stack-futura;
+
+      .username {
+        font-family: $font-stack-times;
+      }
+    }
+  }
+}

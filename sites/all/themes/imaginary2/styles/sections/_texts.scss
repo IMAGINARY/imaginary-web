@@ -1,0 +1,716 @@
+.page-texts {
+  #node-886,
+  #node-912 {
+    p {
+      font-size: 20px;
+      line-height: 24px;
+    }
+  }
+
+  .panel-2col-stacked .panel-col-first,
+  .panel-2col-stacked .panel-col-last  {
+    background-color: #f5f5f5;
+    padding: 10px;
+    width: 45%;
+    margin-bottom: 3em;
+    font-family: $font-stack-futura;
+
+  }
+
+  h1 {
+    width: 75%;
+    margin: 0 auto 0 auto;
+    padding: 0.5em !important;
+  }
+
+  .panel-col-last {
+    background-color: #eaeaea !important;
+  }
+
+
+
+  .view-texts-snapshot-counter {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    text-align: center;
+    border-top: 1px solid #d3d7d9;
+    color: #999;
+  }
+
+  .masonry-item {
+    text-align: center;
+    float: left;
+    width: 300px;
+    padding: 1em 0 1em 0;
+    margin-bottom: 1em;
+    background-color: #f5f5f5;
+
+    .views-field-type {
+      font-family: $font-stack-futura;
+      color: #666;
+    }
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      font-size: 22px;
+      line-height: 1.1em;
+    }
+
+
+    .views-field-field-event-date {
+      font-family: $font-stack-futura;
+      color: #666;
+    }
+
+    .views-field-field-collection-person {
+      .field-item {
+        float: left;
+
+      }
+    }
+
+    .view-snapshot-image div {
+      display: inline;
+    }
+
+    img {
+      width: 28%;
+      height: auto;
+      padding: 4px;
+    }
+  }
+
+  .background-material {
+    background-color: #eaeaea !important;
+  }
+}
+
+.pane-mathematical-subjects-2,
+.pane-connections-to-other-fields {
+  margin-top: 3em;
+
+  .views-row {
+    width: 32%;
+    float: left;
+    font-family: $font-stack-futura;
+    color: #666;
+
+
+    img {
+      height: 2em;
+      width: auto;
+    }
+
+    .views-field-field-mathemathical-subject-imag,
+    .views-field-field-connection-to-other-fields {
+      float: left;
+      margin: 0 1em 1em 0;
+    }
+  }
+}
+
+.pane-connections-to-other-fields {
+  border-top: 1px solid #d3d7d9;
+  padding-top: 1em;
+}
+
+#node-891,
+#node-915 {
+  font-family: $font-stack-futura;
+  color: #666;
+}
+
+
+.form-item-field-person-last-name-value {
+
+  input {
+    min-height: 30px;
+  }
+}
+
+.page-snapshots,
+.page-background-materials,
+.pane-snapshots-overview-panel-pane-1,
+.pane-background-materials-overview {
+
+  .pane-1 {
+    margin-bottom: 2em;
+    p {
+      width: 75%;
+      margin: 0 auto;
+      font-size: 42px;
+      line-height: 46px;
+      text-align: center;
+      font-family: $font-stack-futura;
+      font-weight: normal;
+    }
+  }
+
+  .pane-snapshots-overview-panel-pane-1,
+  .pane-background-materials-overview-panel-pane-1 {
+
+    h2.pane-title {
+      display: none;
+    }
+  }
+
+  .pane-snapshots-overview {
+    margin-top: 3em;
+  }
+
+  .panel-2col-stacked {
+
+    .panel-col-top {
+
+      .pane-2 {
+        .pane-content {
+          width: 75%;
+          margin: 0 auto;
+        }
+
+        img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+      }
+    }
+  }
+
+
+  #node-888,
+  #node-916 {
+    p {
+      font-size: 20px;
+      line-height: 24px;
+    }
+  }
+
+  #node-889,
+  #node-917 {
+    font-family: $font-stack-futura;
+    text-align: center;
+  }
+
+
+  #edit-combine-wrapper {
+    width: 18%;
+
+    input {
+      width: 100%;
+      min-height: 30px;
+    }
+  }
+
+  .view-filters {
+    display: block;
+
+    label {
+      font-weight: normal;
+      font-family: $font-stack-futura;
+      color: #666;
+    }
+
+
+    .views-submit-button {
+      input {
+
+        width: 80px;
+        display: block;
+        padding: 4px 4px;
+        background-color: #f4f4f4;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        -khtml-border-radius: 4px;
+        border-radius: 4px;
+        text-align: center;
+        font-family: $font-stack-futura;
+        color: #555555;
+        text-decoration: none !important;
+        font-size: 16px;
+        background: none !important;
+        border-color: #999;
+        margin: 1.05em auto 0;
+      }
+    }
+
+    .views-submit-button {
+      input:hover {
+        background: #f4f4f4 !important;
+      }
+    }
+  }
+
+  .view-content {
+  }
+
+
+  .masonry-item {
+    text-align: center;
+    float: left;
+    margin: 10px;
+    width: 260px;
+    background-color: #f5f5f5;
+    padding: 10px 10px 20px 10px;
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      font-size: 22px;
+      line-height: 1.1em;
+      padding-bottom: 10px;
+    }
+
+
+    .views-field-field-event-date {
+      font-family: $font-stack-futura;
+      color: #666;
+    }
+
+    .views-field-field-collection-person {
+      .field-item {
+        float: left;
+      }
+    }
+
+    img {
+      width: 28%;
+      height: auto;
+      padding: 4px;
+    }
+  }
+
+
+  .view-snapshot-image div {
+    display: inline;
+  }
+
+  .pane-events-past .masonry-item {
+    margin-bottom: 2em;
+  }
+
+}
+
+.pane-background-materials-overview {
+  .masonry-item {
+    background-color: #eaeaea;
+  }
+}
+
+/*SNAPSHOTS*/
+/*Background Material*/
+
+.node-type-snapshot,
+.node-type-background-material {
+  .pane-node-title,
+  .pane-node-title-field {
+
+    border-bottom: none !important;
+
+    .pane-content {
+      font-size: 42px;
+      line-height: 44px;
+      width: 75%;
+      margin: 0 auto 1em auto;
+      font-family: $font-stack-futura;
+      text-align: center;
+    }
+
+    h2.pane-title {
+      width: 75%;
+      font-size: 16px;
+      margin: 0em auto 0.25em auto ;
+    }
+  }
+
+  .region-content {
+
+    .pane-custom {
+      border-top: 1px solid #d3d7d9;
+    }
+
+
+
+    .panel-col-last {
+      text-align: center;
+      font-family: $font-stack-futura;
+
+      h2.pane-title {
+        margin-bottom: 0;
+        margin-top: 0.5rem;
+      }
+
+      .panel-separator {
+        margin-bottom: 0.5rem;
+      }
+
+      .pane-content {
+        color: black;
+        text-align: center;
+
+        li {
+          float: none !important;
+        }
+      }
+
+
+      .field-type-file {
+        .field-item {
+          padding-bottom: 10px;
+
+          img.file-icon {
+            float: none;
+            margin: 0em 1em 0em 0em;
+            padding-bottom: 0px !important;
+          }
+        }
+      }
+    }
+
+    .pane-node-field-collection-person {
+      color: #666;
+      .field-name-field-person-first-name,
+      .field-name-field-person-last-name,
+      .field-name-field-person-town,
+      .field-name-field-person-country {
+        display: inline;
+        float: left;
+        margin-right: 0.3em;
+      }
+
+      .field-name-field-person-last-name,
+      .field-name-field-person-town {
+        border-right: 1px solid #666;
+        padding-right: 0.3rem;
+      }
+
+      .field-name-field-person-town {
+      }
+    }
+
+    .pane-snapshot-image {
+      margin-bottom: 1em;
+      text-align: center;
+
+      div {
+        display: inline;
+      }
+
+      .field-content {
+      }
+
+      img {
+        width: 25%;
+        height: auto;
+        margin: 0 0.5em 0 0.5em;
+      }
+    }
+
+    .pane-snapshots-editor,
+    .pane-snapshots-author {
+
+      border-bottom: 1px solid #d3d7d9;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+
+      .views-label {
+        display: inline-block;
+      }
+
+      .field-content {
+        display: inline;
+      }
+    }
+
+
+    .view-background-materials-authors {
+      border-bottom: 1px solid #d3d7d9;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+
+      .views-field-field-contribution {
+        color: #666;
+
+      }
+    }
+
+    .pane-node-field-imu-classification-primary,
+    .pane-node-field-imu-classification-seconda,
+    .pane-node-field-snapshot-licence,
+    .pane-node-field-snapshots-keywords,
+    .pane-snapshot-imu-classification,
+    .pane-node-field-mathematical-subjects,
+    .pane-node-field-connections-to-other-field,
+    .pane-node-field-doi-computed,
+    .pane-node-author {
+      border-bottom: 1px solid #d3d7d9;
+      color: #666;
+      padding-bottom: 0.5em;
+
+      ul {
+        margin: 0;
+        padding: 0;
+
+        li {
+          padding: 0;
+          margin: 0;
+          list-style: none;
+          text-align: center;
+        }
+      }
+
+      ul.links {
+        li {
+          float: left;
+          margin-right: 0.3rem;
+        }
+      }
+
+    }
+
+    .pane-node-field-pdf {
+      border-bottom: 1px solid #d3d7d9;
+      margin-bottom: 0.5em;
+    }
+
+    //pdf generation iframe
+    iframe {
+      width: 100%;
+      height: 800px;
+    }
+
+    //hack because cant find view backend/structure/views/view/snapshot_persons_sidebar/edit/panel_pane_1
+    .field-name-field-collection-person {
+      .field-name-field-person-town, .field-name-field-person-country {
+        display: none;
+      }
+      .field-name-field-person-last-name {
+        border-right: none !important;
+      }
+    }
+
+
+    .pane-snapshot-files,
+    .pane-snapshot-additional-files {
+      border-bottom: 1px solid #d3d7d9;
+      padding-bottom: 1em;
+      font-family: $font-stack-futura;
+
+    }
+
+
+    .pane-files-for-background-materials {
+      margin-top: 3em;
+      border-top: 1px solid #d3d7d9;
+
+
+      font-family: $font-stack-futura;
+      .views-row {
+        clear: both;
+        border-bottom: 1px solid #d3d7d9;
+        padding-bottom: 2em;
+        margin-bottom: 1em;
+
+
+        .views-field-field-background-material-file {
+          float: left;
+          margin-right: 1em;
+          img {
+            height: 2em;
+            width: auto;
+          }
+        }
+
+        .views-field-field-background-material-file-t {
+          display: inline;
+
+        }
+
+        .views-field-field-background-material-file-l {
+          float: right;
+          color: #666;
+        }
+      }
+    }
+
+    .pane-mathematical-subjects-term-and-image,
+    .pane-connections-to-other-fields-term-and-image {
+
+      border-bottom: 1px solid #d3d7d9;
+      padding-bottom: 0.5em;
+      clear: both;
+      text-align: left !important;
+
+      h2.pane-title {
+        margin-bottom: 0.5em !important;
+      }
+
+      .view-mathematical-subjects-term-and-image div {
+      }
+
+      .views-row {
+        display: block;
+        width: 100%;
+        clear: both;
+        margin-bottom: 0.5em;
+
+
+        .views-field-field-mathemathical-subject-imag,
+        .views-field-field-connection-to-other-fields {
+          margin: 0 0.5em 0 0;
+          width: 10%;
+          display: inline-block;
+        }
+
+        img {
+          width: 100%;
+          height: auto;
+        }
+
+        .views-field-name {
+          display: inline;
+          clear: both;
+        }
+      }
+
+      .views-row-even  {
+      }
+
+      .views-row-1 {
+      }
+    }
+
+    .pane-connections-to-other-fields-term-and-image {
+    }
+
+    .pane-node-field-program-licence {
+    }
+
+    .pane-snapshots-overview-panel-pane-1 {
+      h2.pane-title {
+        display: none;
+      }
+    }
+  }
+
+}
+
+/*SNAPSHOT Backend hacks*/
+
+.logged-in.node-type-snapshot,
+.logged-in.page-node-add-snapshot {
+
+  .field-name-field-background-material-file-l {
+    .form-item .form-item {
+      display:none;
+    }
+
+    //show english and german
+    @for $i from 0 to 40 {
+      .form-item.form-item-field-file-s-with-language-und-#{$i}-field-background-material-file-l-und-871,
+      .form-item.form-item-field-file-s-with-language-und-#{$i}-field-background-material-file-l-und-870
+      {
+        display: block !important;
+      }
+    }
+  }
+
+  .field-name-field-snapshot-licence {
+
+    .form-item-field-snapshot-licence-und input,
+    .form-item-field-snapshot-licence-und #edit-field-snapshot-licence-und label{
+      display: none;
+    }
+
+    .form-item-field-snapshot-licence-und #edit-field-snapshot-licence-und-44,
+    .form-item-field-snapshot-licence-und #edit-field-snapshot-licence-und-81,
+    .form-item-field-snapshot-licence-und #edit-field-snapshot-licence-und-69,
+    label[for=edit-field-snapshot-licence-und-44],
+    label[for=edit-field-snapshot-licence-und-81],
+    label[for=edit-field-snapshot-licence-und-69] {
+      display: inline-block !important;
+    }
+  }
+
+
+  .field-type-date {
+    margin-bottom: 0;
+  }
+
+  .field-name-field-snapshot-number {
+    width: 120px;
+    float: left;
+
+    .form-item-field-snapshot-number-und-0-value {
+      margin: 0;
+    }
+  }
+
+
+  #edit-field-snapshot-number {
+    margin-bottom: 0 !important;
+  }
+
+  .field-name-field-year {
+    margin-top: 20px;
+
+    .form-wrapper {
+      padding-left: 20px;
+    }
+
+    .description {
+      position: relative;
+      left: -140px;
+    }
+
+    legend {
+      display: none;
+    }
+
+    #edit-field-year-und-0-value {
+      padding: 0;
+    }
+
+    .form-type-date-select {
+      margin: 0;
+    }
+  }
+
+  .field-name-field-source-file-s- {
+
+    fieldset {
+      padding: 10px;
+    }
+
+    .fieldset-legend {
+      font-family: $font-stack-futura;
+      font-weight: normal;
+    }
+
+    .fieldset-description {
+      color: #999 !important;
+      font-size: 0.85em;
+    }
+
+    .form-type-managed-file {
+      margin-bottom: 1em;
+    }
+
+    .form-item-field-source-file-s--und-value--weight {
+      display: none;
+    }
+
+    table {
+      width: 80%;
+    }
+
+  }
+
+}
+
+//error for all backend elements that have an error
+//as from here https://drupal.org/node/222380
+
+.form-item input.error[type="checkbox"] + label,
+.form-item input.error[type="radio"] + label {
+  border: 2px solid red;
+}

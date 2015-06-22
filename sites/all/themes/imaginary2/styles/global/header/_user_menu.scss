@@ -1,0 +1,54 @@
+#header #block-system-user-menu {
+  position: absolute;
+  top: 15px;
+  right: 0px;
+
+  z-index: 1000;
+  width: 180px;
+  font-family: $font-stack-futura;
+  text-align: right;
+
+  ul {
+    margin: 0px;
+    padding: 0px;
+    font-size: 0.9em;
+  }
+
+  li {
+    list-style: none;
+    text-align: right;
+  }
+
+  a:link,
+  a:visited,
+  a:focus {
+    color: #b4b4b4 !important;
+  }
+
+  a:hover {
+    color: black !important;
+  }
+
+  h2 {
+    margin: 0 !important;
+    color: #b4b4b4;
+  }
+
+  .element-invisible {
+    overflow: visible !important;
+    position: relative !important;
+    clip: auto !important;
+    height: auto !important;
+  }
+
+  .content {
+    display: none;
+  }
+
+  &:hover {
+    cursor: pointer;
+    .content {
+      display: block !important;
+    }
+  }
+}

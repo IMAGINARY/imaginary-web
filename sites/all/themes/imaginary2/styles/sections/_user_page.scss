@@ -1,0 +1,175 @@
+.page-user {
+
+  .panel-col-last {
+    float: right;
+  }
+
+  h2.pane-title {
+    margin: 0 0 1em 0;
+  }
+
+  .pane-user-name {
+    font-family: $font-stack-futura;
+    font-size: 24px;
+    letter-spacing: 3px;
+    color: #666;
+    text-align: center;
+    font-weight: normal;
+    padding: 0em 0 0 0;
+    margin-bottom: 2em;
+    line-height: 1.2em;
+  }
+  .pane-user-picture {
+    margin: 0 auto 1em auto;
+    text-align: center;
+  }
+
+  .pane-user-field-user-about {
+    padding: 0em 0 0 0;
+  }
+
+  .pane-user-blog-entry {
+    border-top: 1px solid black;
+  }
+
+  .pane-user-field-user-website {
+    margin-bottom: 3em;
+    text-align: center;
+    h2.pane-title {
+      display: inline;
+      margin: 0 0.25em 0 0;
+      padding: 0;
+    }
+
+    .field-item {
+
+    }
+  }
+
+  .field-name-field-user-country,
+  .pane-user-field-organization {
+    color: #666;
+    border-top: 1px solid #d3d7d9;
+    border-bottom: 1px solid #d3d7d9;
+    float: left;
+    font-size: 0.8em;
+    line-height: 1em;
+    width: 45%;
+    padding: 5px 0px 4px 0px;
+
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    ul li {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    margin-bottom: 3em;
+  }
+
+  .field-name-field-user-country {
+    margin-right: 5%;
+  }
+
+
+  .field-name-field-user-country h2.pane-title,
+  .pane-user-field-organization h2.pane-title {
+    margin: 0 0 0.5em 0;
+  }
+
+  .pane-user-summary {
+    clear: both;
+  }
+
+  .pane-user-summary h3,
+  .pane-user-summary .user-profile-category dt{
+    display: none;
+  }
+
+  .pane-user-blog-entry {
+    clear: both;
+    margin-top: 1em;
+    padding-top: 1em;
+
+    .views-row {
+      border-bottom: 1px solid #d3d7d9;
+      margin-bottom: 3em;
+    }
+
+    .views-row-last {
+      border-bottom: 0px solid #d3d7d9;
+      margin-bottom: 3em;
+    }
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      font-size: 22px;
+      line-height: 1.1em;
+      width: 60%;
+      float: left;
+    }
+
+    .views-field-created {
+      width: 40%;
+      color: #666;
+      font-family: $font-stack-futura;
+      float: right;
+      text-align: right;
+    }
+
+    .views-field-body {
+      clear: both;
+      padding-top: 1em;
+    }
+
+  }
+
+  .pane-user-latest-gallery {
+    .views-field-title {
+      font-family: $font-stack-futura;
+      font-size: 22px;
+      line-height: 1.1em;
+      text-align: center;
+      margin-bottom: 1em;
+    }
+  }
+
+  .pane-user-recent-content-for-user-page {
+    border-top: 1px solid #d3d7d9;
+    padding-top: 1em;
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      text-align: center;
+    }
+
+    .views-field-type {
+      color: #666;
+      text-align: center;
+      font-family: $font-stack-futura;
+      font-size: 0.7em;
+    }
+
+  }
+
+  .pane-user-contact {
+    clear: both;
+
+    label {
+      font-family: $font-stack-futura;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid black;
+    }
+
+    .form-submit {
+      width: 50%;
+    }
+  }
+}

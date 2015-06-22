@@ -1,0 +1,45 @@
+/* @license
+ * MyFonts Webfont Build ID 2302885, 2012-06-04T10:32:55-0400
+ *
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are
+ * explicitly restricted from using the Licensed Webfonts(s).
+ *
+ * You may obtain a valid license at the URLs below.
+ *
+ * Webfont: Futura PT Medium by ParaType
+ * URL: http://www.myfonts.com/fonts/paratype/futura-book/futura-medium/
+ * Copyright: Copyright (c) 1990-2008 ParaType, Inc. All Rights Reserved.
+ * Licensed pageviews: 10,000
+ *
+ *
+ * License: http://www.myfonts.com/viewlicense?type=web&buildid=2302885
+ *
+ * � 2012 Bitstream Inc
+*/
+
+
+.FuturaPTMedium-Reg {
+  font-family: $font-stack-futura;
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'arrows';
+  src: font-url('arrows.eot?45124474');
+  src: font-url('arrows.eot?45124474#iefix') format('embedded-opentype'),
+  font-url('arrows.woff?45124474') format('woff'),
+  font-url('arrows.ttf?45124474') format('truetype'),
+  font-url('arrows.svg?45124474#arrows') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'FuturaPTMedium-Reg';
+  src: font-url('2323A5_0_0.eot');
+  src: font-url('2323A5_0_0.eot?#iefix') format('embedded-opentype'),
+  font-url('2323A5_0_0.woff') format('woff'),
+  font-url('2323A5_0_0.ttf') format('truetype');
+}

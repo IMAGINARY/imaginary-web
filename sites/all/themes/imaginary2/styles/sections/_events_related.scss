@@ -1,0 +1,56 @@
+.related-events  {
+
+  .views-row {
+    border-bottom: 1px solid #d3d7d9;
+    margin-bottom: 1em;
+  }
+
+  .views-row-last {
+    border-bottom: none;
+  }
+}
+
+.related-events .views-field-title .field-content a:link,
+.related-events .views-field-title .field-content a:visited,
+.related-events .views-field-title .field-content a:focus {
+  font-family: $font-stack-futura;
+  text-decoration: none !important;
+  color: black !important;
+  padding-bottom: 0.5em !important;
+  display: block;
+}
+
+.related-events .field-collection-view {
+  padding: 0px;
+  margin: 0px;
+}
+
+.related-events .views-field-title {
+  width: 180px;
+  float: left;
+}
+
+.related-events .views-field-field-time-place {
+  width: 104px;
+  float: right;
+  margin: 0px 0px 1em 0px;
+}
+
+.related-events .field-type-datetime {
+  font-family: $font-stack-futura;
+  color: #666;
+  font-size: 0.8em;
+  border: 1px solid #d3d7d9;
+  padding: 2px;
+  text-align: center;
+}
+
+.related-events .views-field-body {
+  clear: both;
+}
+
+.related-events img {
+  width: 80%;
+  margin: 0 10% 0 10%;
+  height: auto;
+}
