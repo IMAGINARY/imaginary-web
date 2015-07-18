@@ -16,7 +16,7 @@
  * @subpackage	Sass.extensions.compass.functions
  */
 class SassExtentionsCompassFunctionsUrls {
-	public function stylesheet_url($path, $only_path = null) {
+	public static function stylesheet_url($path, $only_path = null) {
 		$path = $path->value; # get to the string value of the literal.
 
 		# Compute the $path to the stylesheet, either root relative or stylesheet relative
@@ -31,7 +31,7 @@ class SassExtentionsCompassFunctionsUrls {
 		return new SassString(self::clean("$http_css_path/$path", $only_path));
 	}
 
-	public function font_url($path, $only_path = null) {
+	public static function font_url($path, $only_path = null) {
 		$path = $path->value; # get to the string value of the literal.
 
 		# Short circuit if they have provided an absolute url.
@@ -49,7 +49,7 @@ class SassExtentionsCompassFunctionsUrls {
 		return new SassString(self::clean("$http_fonts_path/$path", $only_path));
 	}
 
-	public function image_url($path, $only_path = null) {
+	public static function image_url($path, $only_path = null) {
 		$path = $path->value; # get to the string value of the literal.
 
 		if (preg_match('%^'.preg_quote(SassExtentionsCompassConfig::config('http_images_path'), '%').'/(.*)%',$path, $matches))
@@ -99,7 +99,7 @@ class SassExtentionsCompassFunctionsUrls {
 
 	# takes off any leading "./".
 	# if $only_path emits a $path, else emits a url
-	private function clean($url, $only_path) {
+	private static function clean($url, $only_path) {
 		if (!$only_path instanceof SassBoolean) {
 			$only_path = new SassBoolean('false');
 		}
@@ -108,12 +108,12 @@ class SassExtentionsCompassFunctionsUrls {
 		return ($only_path->toBoolean() ? $url : "url('$url')");
 	}
 
-	private function is_absolute_path($path) {
+	private static function is_absolute_path($path) {
 		return ($path[0] === '/' || substr($path, 0, 4) === 'http');
 	}
 
 	// returns the path relative to the target css file
-	private function compute_relative_path($path) {
+	private static function compute_relative_path($path) {
 		return $path;
 /*		if (target_css_file = options[:css_filename]) {
 			Pathname.new($path).relative_path_from(Pathname.new(File.dirname(target_css_file))).to_s

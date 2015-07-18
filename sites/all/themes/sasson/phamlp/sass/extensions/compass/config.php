@@ -39,14 +39,14 @@ class SassExtentionsCompassConfig {
 	 * @param mixed array: configuration settings; string: configuration setting to return
 	 * @return string configuration setting. Null if setting does not exist.
 	 */
-	public function config($config) {
+	public static function config($config) {
 		if (is_array($config)) {
 			self::$config = array_merge(self::$defaultConfig, $config);
 			self::setDefaults();
 		}			
 		elseif (is_string($config) && isset(self::$config[$config])) {
 			return self::$config[$config]; 
-		}	
+		}
 	}
 	
 	/**
