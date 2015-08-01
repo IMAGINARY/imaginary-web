@@ -30,7 +30,7 @@ if (!(window.console && console.log)) {
 
 
         if ($("body").hasClass("page-everything")) {
-            $(".views-exposed-widgets select").chosen({width: "200px"});
+            $(".views-exposed-widgets select").chosen({width: "200px", placeholder_text_multiple: Drupal.t('Select some options')});
         }
 
 		if ($("body").hasClass("front")) {
@@ -743,8 +743,8 @@ if (!(window.console && console.log)) {
 
 
         function initChosen() {
-    		$(".view-snapshots-overview select").chosen({width: "290px"});
-    		$(".view-background-materials-overview select").chosen({width: "290px"});
+    		$(".view-snapshots-overview select").chosen({width: "290px", placeholder_text_multiple: Drupal.t('Select some options')});
+    		$(".view-background-materials-overview select").chosen({width: "290px", placeholder_text_multiple: Drupal.t('Select some options')});
         }
 		/*Chosen*/
 
