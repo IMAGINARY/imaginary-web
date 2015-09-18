@@ -80,7 +80,7 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
           'default' => '',
         ),
         'font' => array(
-          'default' => '',
+          'default' => 'default',
         ),
         'debug' => array(
           'default' => '0',
