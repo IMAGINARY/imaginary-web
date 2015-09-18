@@ -47,7 +47,9 @@ function _filter_pubdlcnt($text, $nid) {
   $text = str_replace(array("\r\n", "\r"), "\n", $text);
 
   // 2. convert anchor tag
-  $text = preg_replace('/(<a.*?>)(.*?)(<\/a>)/ise', "_pubdlcnt_replace_anchor_url('$0', '$1', '$2', '$3', $nid)", $text);
+  $text = preg_replace_callback('/(<a.*?>)(.*?)(<\/a>)/is', function($m) use ($nid) {
+      return _pubdlcnt_replace_anchor_url($m[0], $m[1], $m[2], $m[3], $nid);
+  }, $text);
 
   return $text;
 }
