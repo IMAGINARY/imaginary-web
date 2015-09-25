@@ -104,7 +104,7 @@ $size = ' width="400" height="220" ';
     		</div>
     	</a>
 
-        <a href="<?php print url('background-materials')?>">
+        <a href="<?php print url('texts')?>">
     		<div class="big-button texts">
     			<div class="inner">
     				<div class="text">
