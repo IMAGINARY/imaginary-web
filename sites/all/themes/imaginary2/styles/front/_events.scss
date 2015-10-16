@@ -1,4 +1,4 @@
-.front .pane-events-timeline-3 {
+.front .pane-events-timeline-home {
   h2.pane-title {
     border-top: 1px solid #999;
     padding-top: 1em;
@@ -12,6 +12,22 @@
 
   .vco-navigation {
     display: none;
+  }
+
+  .view-header {
+    position: absolute;
+    top: 275px;
+    z-index: 1000;
+    width: 100%;
+    text-align: right;
+    right: 6px;
+
+    a {
+      font-family: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
+      font-size: 0.9em;
+      font-weight: normal;
+      letter-spacing: 2px;
+    }
   }
 }
 
