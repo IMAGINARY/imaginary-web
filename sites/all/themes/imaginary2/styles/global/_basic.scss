@@ -157,3 +157,9 @@ iframe {
 .item-list ul li {
   margin: 0px !important;
 }
+
+.caps .caps {
+  // Fixes nesting of Tipogriphy's .caps
+  // which incrementally reduces the font size
+  font-size: inherit;
+}
