@@ -32,3 +32,87 @@ function imaginary_misc_block_view_system_user_menu_alter(&$data, $block) {
     $block->title = t($block->title);
   }
 }
+
+/**
+ * Implements hook_form_alter().
+ */
+function imaginary_misc_form_alter(&$form, &$form_state, $form_id) {
+
+  // Add a prefix to the form elements if
+  // - The form is for editing an entity
+  // - The entity is translatable
+  // - It's not a new entity
+  // - There are translations stored
+
+  $prefix = ' (' . t('All languages') . ')';
+
+  if ($info = entity_translation_edit_form_info($form, $form_state)) {
+    $handler = entity_translation_get_handler($info['entity type'], $info['entity']);
+    if (entity_translation_enabled($info['entity type'], $info['entity'])) {
+      if (!$handler->isNewEntity()) {
+        $handler->entityForm($form, $form_state);
+        $translations = $handler->getTranslations();
+        $form_langcode = $handler->getFormLanguage();
+        if (!isset($translations->data[$form_langcode]) || count($translations->data) > 1) {
+          _imaginary_misc_add_translatability_clue($form, $prefix);
+        }
+      }
+    }
+  }
+}
+
+function _imaginary_misc_process_entity_forms($element) {
+
+  _imaginary_misc_add_translatability_clue($element, ' (' . t('All languages') . ')');
+
+  return $element;
+}
+
+function _imaginary_misc_add_translatability_clue(&$element, $suffix) {
+
+  static $fapi_title_elements;
+
+  // Elements which can have a #title attribute according to FAPI Reference.
+  if (!isset($fapi_title_elements)) {
+    $fapi_title_elements = array_flip(array('checkbox', 'checkboxes', 'date', 'file', 'managed_file', 'item', 'radio', 'radios', 'select', 'text_format', 'textarea', 'textfield', 'weight'));
+  }
+
+  if(empty($element['#multilingual'])) {
+    if (isset($element['#type']) && isset($fapi_title_elements[$element['#type']]) && isset($element['#title'])) {
+
+      if (empty($element['#multilingual'])) {
+
+        $element['#title'] .= $suffix;
+      }
+
+    }
+    elseif ($children = element_children($element)) {
+
+      // Skip the "additional settings" fields
+      if (!isset($element['#group']) || $element['#group'] != 'additional_settings') {
+        foreach ($children as $delta) {
+          _imaginary_misc_add_translatability_clue($element[$delta], $suffix);
+        }
+      }
+    }
+    else {
+      if (isset($element['#title'])) {
+        $element['#title'] .= $suffix;
+      }
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function imaginary_misc_form_entity_translation_admin_form_alter(&$form, &$form_state, $form_id) {
+
+  $form['entity_translation_shared_labels']['#description'] .= "<br><b>Warning: </b> This functionality is now provided by the imaginary_misc module. <b>Don't enable this setting.</b>";
+  if($form['entity_translation_shared_labels']['#default_value'] !== 1) {
+    $form['entity_translation_shared_labels']['#disabled'] = true;
+    $form['entity_translation_shared_labels']['#title'] .= ' (DISABLED by imaginary_misc)';
+  }
+}

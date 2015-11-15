@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Disable the shared labels functionality from the Entity Translation module
+ * which is overriden by this module
+ */
+function imaginary_misc_update_7100(&$sandbox) {
+
+  variable_set('entity_translation_shared_labels', 0);
+}
