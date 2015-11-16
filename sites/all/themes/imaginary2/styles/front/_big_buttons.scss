@@ -73,10 +73,12 @@
     float: right;
   }
 
-  .register {
+  .register,
+  .big-button-darkbg {
     h2,
     p {
       color: white;
+      -webkit-font-smoothing: antialiased;
     }
   }
 }
