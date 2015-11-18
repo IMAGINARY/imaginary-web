@@ -149,23 +149,22 @@ class Typogrify {
 
   /**
    * widont
-   *
+   * 
    * Replaces the space between the last two words in a string with ``&nbsp;``
-   * Works in these block tags ``(h1-h6, p, li)`` and also accounts for
+   * Works in these block tags ``(h1-h6, p, li)`` and also accounts for 
    * potential closing inline elements ``a, em, strong, span, b, i``
-   *
+   * 
    * Empty HTMLs shouldn't error
    */
   public static function widont($text) {
     // This regex is a beast, tread lightly
-    $widont_finder = "/([^<>\s]+|<\/span>)                    # ensure more than 1 word
-                      (\s+)                                   # the space to replace
+    $widont_finder = "/(\s+)                                  # the space to replace
                       ([^<>\s]+                               # must be flollowed by non-tag non-space characters
                       \s*                                     # optional white space!
                       (<\/(a|em|span|strong|i|b)[^>]*>\s*)*   # optional closing inline tags with optional white space after each
                       ((<\/(p|h[1-6]|li|dt|dd)>)|$))          # end with a closing p, h1-6, li or the end of the string
                       /x";
-    return preg_replace($widont_finder, '$1&nbsp;$3', $text);
+    return preg_replace($widont_finder, '&nbsp;$2', $text);
   }
 
   /**
