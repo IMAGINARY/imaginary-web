@@ -116,3 +116,16 @@ function imaginary_misc_form_entity_translation_admin_form_alter(&$form, &$form_
     $form['entity_translation_shared_labels']['#title'] .= ' (DISABLED by imaginary_misc)';
   }
 }
+
+/**
+ * Implements hook_views_api().
+ */
+/**
+ * Implements hook_views_api().
+ */
+function imaginary_misc_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'imaginary_misc') . '/views',
+  );
+}

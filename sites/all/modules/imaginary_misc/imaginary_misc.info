@@ -3,3 +3,6 @@ description = Miscellaneous functionality and tweaks
 core = 7.x
 version = 7.x-1.1
 package = Imaginary
+
+files[] = views/imaginary_misc_handler_field_unified_licenses.inc
+files[] = views/imaginary_misc_handler_field_image_count.inc
