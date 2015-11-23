@@ -144,3 +144,38 @@ RewriteRule ^ http%{ENV:protossl}://%1%{REQUEST_URI} [L,R=301]
     </FilesMatch>
   </IfModule>
 </IfModule>
+
+### BOOST START ###
+
+# Allow for alt paths to be set via htaccess rules; allows for cached variants (future mobile support)
+RewriteRule .* - [E=boostpath:normal]
+
+# Caching for anonymous users
+# Skip boost IF not get request OR uri has wrong dir OR cookie is set OR request came from this server OR https request
+RewriteCond %{REQUEST_METHOD} !^(GET|HEAD)$ [OR]
+RewriteCond %{REQUEST_URI} (^/(admin|cache|misc|modules|sites|system|openid|themes|node/add|comment/reply))|(/(edit|user|user/(login|password|register))$) [OR]
+RewriteCond %{HTTPS} on [OR]
+RewriteCond %{HTTP_COOKIE} DRUPAL_UID [OR]
+RewriteCond %{ENV:REDIRECT_STATUS} 200
+RewriteRule .* - [S=7]
+
+# GZIP
+RewriteCond %{HTTP:Accept-encoding} !gzip
+RewriteRule .* - [S=3]
+RewriteCond %{DOCUMENT_ROOT}/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html\.gz -s
+RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html\.gz [L,T=text/html,E=no-gzip:1]
+RewriteCond %{DOCUMENT_ROOT}/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.xml\.gz -s
+RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.xml\.gz [L,T=text/xml,E=no-gzip:1]
+RewriteCond %{DOCUMENT_ROOT}/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.json\.gz -s
+RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.json\.gz [L,T=text/javascript,E=no-gzip:1]
+
+# NORMAL
+RewriteCond %{DOCUMENT_ROOT}/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html -s
+RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.html [L,T=text/html]
+RewriteCond %{DOCUMENT_ROOT}/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.xml -s
+RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.xml [L,T=text/xml]
+RewriteCond %{DOCUMENT_ROOT}/cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.json -s
+RewriteRule .* cache/%{ENV:boostpath}/%{HTTP_HOST}%{REQUEST_URI}_%{QUERY_STRING}\.json [L,T=text/javascript]
+
+### BOOST END ###
+
