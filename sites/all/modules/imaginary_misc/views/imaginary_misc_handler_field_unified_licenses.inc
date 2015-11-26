@@ -35,6 +35,31 @@ class imaginary_misc_handler_field_unified_licenses extends views_handler_field 
       $license = $values->field_field_snapshot_licence[0]['rendered'];
     }
 
+    if($values->node_type == 'program' && !empty($values->_field_data['nid']['entity']->field_program_licenses)) {
+      $license_collection = $values->_field_data['nid']['entity']->field_program_licenses[LANGUAGE_NONE];
+      $tids = array();
+      foreach($license_collection as $license_item) {
+        $entities = entity_load('field_collection_item', array($license_item['value']));
+        $license = reset($entities);
+        if(!empty($license) && !empty($license->field_program_part_license)) {
+          $license_tid = $license->field_program_part_license[LANGUAGE_NONE][0]['tid'];
+          if (!in_array($license_tid, $tids)) {
+            $tids[] = $license_tid;
+          }
+        }
+      }
+
+      $links = array();
+      foreach($tids as $tid) {
+        if(!in_array($tid, $term_cache)) {
+          $term = taxonomy_term_load($tid);
+          $term_cache[$tid] = l($term->name, taxonomy_term_uri($term)['path']);
+        }
+        $links[] = $term_cache[$tid];
+      }
+      $license = join(', ', $links);
+    }
+
     // For galleries we merge the licenses of all pictures
     if($values->node_type == 'gallery' && !empty($values->_field_data['nid']['entity']->field_image_collection)) {
       $image_collection = $values->_field_data['nid']['entity']->field_image_collection[LANGUAGE_NONE];
