@@ -120,12 +120,85 @@ function imaginary_misc_form_entity_translation_admin_form_alter(&$form, &$form_
 /**
  * Implements hook_views_api().
  */
-/**
- * Implements hook_views_api().
- */
 function imaginary_misc_views_api() {
   return array(
     'api' => 3,
     'path' => drupal_get_path('module', 'imaginary_misc') . '/views',
   );
+}
+
+/**
+ * Implements hook_field_formatter_info()
+ */
+function imaginary_misc_field_formatter_info() {
+  return array(
+    'imaginary_license_overview_link' => array(
+      'label' => 'License Overview Link',
+      'description' => '(Imaginary) Creates a link to the associated License Overview URL. Use only for License taxonomy references.',
+      'field types' => array('taxonomy_term_reference'),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_field_formatter_prepare_view().
+ *
+ * This preloads all taxonomy terms for multiple loaded objects at once and
+ * unsets values for invalid terms that do not exist.
+ */
+function imaginary_misc_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  return taxonomy_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, $items, $displays);
+}
+
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function imaginary_misc_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  $language = i18n_language_interface();
+
+  switch ($display['type']) {
+    case 'imaginary_license_overview_link':
+      foreach ($items as $delta => $item) {
+        if ($item['tid'] == 'autocreate') {
+          $element[$delta] = array(
+            '#markup' => check_plain($item['name']),
+          );
+        }
+        else {
+          $term = $item['taxonomy_term'];
+
+          if(!empty($term->field_license_overview_url)) {
+            if(!empty($term->field_license_overview_url[$language->language])) {
+              $url = $term->field_license_overview_url[$language->language];
+            } else {
+              $url = $term->field_license_overview_url[LANGUAGE_NONE];
+            }
+            $element[$delta] = array(
+              '#markup' => l(
+                i18n_taxonomy_term_name($term, $language->language),
+                $url[0]['url'],
+                array('absolute' => TRUE)
+              ),
+            );
+          } else {
+            $uri = entity_uri('taxonomy_term', $term);
+            $element[$delta] = array(
+              '#type' => 'link',
+              '#title' => i18n_taxonomy_term_name($term, $language->language),
+              '#href' => $uri['path'],
+              '#options' => $uri['options'],
+            );
+          }
+
+
+        }
+      }
+      break;
+    break;
+  }
+
+  return $element;
 }
