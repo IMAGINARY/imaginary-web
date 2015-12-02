@@ -21,7 +21,7 @@ project = "Imaginary"
 ;   Recompile - to force the file to be recompiled on every page load
 ; styles[styles/filename.scss][options][recompile] = true
 
-styles[styles/main.scss][options][media] = all
+stylesheets[all][] = styles/main.css
 
 ; Theme Script Files ------------------------------------------------------
 
