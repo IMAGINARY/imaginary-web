@@ -1,0 +1,85 @@
+.front .pane-events-timeline-home {
+  h2.pane-title {
+    border-top: 1px solid #999;
+    padding-top: 1em;
+  }
+  margin-top: 60px;
+
+  & > .pane-content {
+    height: 296px !important;
+    overflow: hidden;
+  }
+
+  .vco-navigation {
+    display: none;
+  }
+
+  .view-events-timeline-home {
+    position: relative;
+  }
+
+  .view-header {
+    position: absolute;
+    top: 275px;
+    z-index: 1000;
+    width: 100%;
+    text-align: right;
+    right: 6px;
+
+    a {
+      font-family: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
+      font-size: 0.9em;
+      font-weight: normal;
+      letter-spacing: 2px;
+    }
+  }
+}
+
+.view-landing-page-events {
+
+  .views-row {
+    border-bottom: 1px solid #d3d7d9;
+    margin-bottom: 1em;
+    padding-bottom: 1em;
+  }
+
+  .views-row-last {
+    border-bottom: none;
+  }
+
+  .views-field-title {
+    font-family: $font-stack-futura;
+    text-decoration: none !important;
+    color: black !important;
+    margin-bottom: 0.5em;
+    float: left;
+    width: 180px;
+  }
+
+  .views-field-field-time-place {
+    width: 100px;
+    float: right;
+    font-family: $font-stack-futura;
+    color: #666;
+    font-size: 0.8em;
+    line-height: 1.2em;
+  }
+
+  .views-field-field-image-collection {
+    clear: both;
+    padding: 0.25em 0 0 0;
+    margin: 0 0 1em 0;
+
+    img {
+      margin: 0 auto;
+      display: block;
+    }
+  }
+
+  .views-field-field-time-place-1 {
+    font-family: $font-stack-futura;
+    color: #666;
+    font-size: 1em;
+    line-height: 1.2em;
+  }
+}

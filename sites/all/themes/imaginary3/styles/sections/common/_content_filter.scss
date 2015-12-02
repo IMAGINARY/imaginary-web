@@ -1,0 +1,48 @@
+.exh-user-select-wrapper {
+  font-family: $font-stack-futura;
+  font-size: 14px;
+
+  margin: 0;
+  padding: 20px 0 0px 0;
+
+  float: right;
+  display: inline;
+
+  .padding {
+    padding: 0 10px;
+    float: left;
+  }
+
+  .label {
+    padding-top: 7px;
+  }
+
+  .label, ul {
+    float: left;
+    margin-right: 10px;
+  }
+
+  .exh-user-select {
+
+    margin: 0;
+    padding: 0;
+    display: inline;
+    float: left;
+
+    li {
+      display: inline;
+      float: left;
+      margin-right: 10px;
+
+      padding: 4px 4px;
+    }
+
+    .active {
+      @include cleanfocusbutton;
+    }
+
+    .button a {
+      font-size: 14px !important;
+    }
+  }
+}

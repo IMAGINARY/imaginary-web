@@ -1,0 +1,95 @@
+.node-form input {
+  border: 1px solid #333;
+}
+
+.node-form input.form-submit, .node-form .form-file  {
+  border: none;
+}
+
+.page-node-add ul.tips {
+  margin: 0px;
+  padding: 0px;
+  color: black;
+  list-style-image: image-url('cross.png');
+}
+
+.page-node-add .form-radio {
+  border: 1px solid black;
+}
+
+.tips, .description {
+  font-size: 0.8em;
+  color: #999;
+}
+
+.fieldset-title {
+  font-family: $font-stack-futura;
+  padding-bottom: 1em;
+}
+
+.field-name-field-image-title {
+  margin-bottom: 1em;
+}
+
+.node-form label,
+.node-form .vertical-tabs-list {
+  font-family: $font-stack-futura;
+  font-weight: normal;
+  font-style: normal;
+}
+
+#field-main-image-collection-und-0-field-image-collection-add-more-wrapper .field-add-more-submit {
+  display:none;
+}
+
+/* tips under the wysiwyg editor */
+/* switch to Filtered HTML, text */
+/* word count in tinymce */
+.node-form .tips,
+.node-form .filter-wrapper,
+.node-form .mceStatusbar
+{
+  display: none;
+}
+
+.node-type-program .node-form .filter-wrapper {
+  display: block;
+}
+
+.node-form .fieldset-wrapper>div {
+  margin-bottom: 1em;
+}
+
+.wysiwyg-toggle-wrapper,
+.tabledrag-toggle-weight {
+  display: none;
+}
+
+#edit-preview {
+  display: none;
+}
+
+//more distance for more/fold out button on field collection
+html.js fieldset.collapsed {
+  height: 1.4em;
+
+  .fieldset-title {
+    padding-bottom: 0;
+  }
+}
+
+#edit-field-image-collection-und-0-remove-button {
+  margin-bottom: 1em;
+}
+
+.page-snapshots-admin {
+  .views-field-field-collection-person {
+    div {
+      display: inline-block;
+    }
+
+    .field-name-field-person-first-name {
+      margin-right: 4px;
+    }
+  }
+}

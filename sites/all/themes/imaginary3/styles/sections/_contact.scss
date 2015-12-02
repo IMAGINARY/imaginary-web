@@ -1,0 +1,44 @@
+/* Contact Forms */
+
+.node-webform {
+  header {
+    display: none;
+  }
+
+  label {
+    font-family: $font-stack-futura;
+    color: #666;
+    font-weight: normal;
+  }
+
+  input, textarea {
+    width: 100%;
+    border: 1px solid black;
+  }
+
+  input.form-submit {
+    border: 0px;
+    width: 50%;
+    font-family: $font-stack-futura;
+    font-size: 1em;
+
+    @include cleanbutton;
+  }
+}
+
+
+.page-contact {
+  select {
+    border: 1px solid black;
+    width: 330px;
+  }
+
+  #edit-submitted-name,
+  #edit-submitted-e-mail {
+    width: 330px;
+  }
+
+  .pane-node {
+    font-family: $font-stack-futura;
+  }
+}

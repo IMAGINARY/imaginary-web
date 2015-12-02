@@ -1,0 +1,20 @@
+.pane-menu-menu-footer-menu {
+
+  text-align: right;
+  font-family: $font-stack-futura;
+  color: #666;
+
+  ul {
+    margin: 1em 0 0 0;
+    padding: 0;
+  }
+
+  li.leaf {
+    float: right;
+    list-style: none;
+    list-style-image: none;
+    margin: 0 0.5em 0 0;
+    padding: 0;
+  }
+
+}

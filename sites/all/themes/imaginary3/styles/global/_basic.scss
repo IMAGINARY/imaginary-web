@@ -1,0 +1,165 @@
+#page {
+  font-family: $font-stack-times;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+h1 {
+  font-family: $font-stack-times;
+  font-size: 1.4em;
+  line-height: 2em;
+}
+
+.red {
+  color: red;
+}
+
+.field-name-body h2 {
+  font-family: $font-stack-futura;
+  font-size: 1.2em;
+  font-weight: normal;
+  letter-spacing: 1px;
+  margin-top: 2em;
+  margin-bottom: 0px;
+  text-align: center;
+  border-top: 1px solid #d3d7d9;
+  padding-top: 1em;
+}
+
+h2.block-title {
+  font-family: $font-stack-futura;
+  font-size: 1em;
+  font-weight: normal;
+  letter-spacing: 1px;
+}
+
+
+h2.node-title {
+  font-family: $font-stack-times;
+  font-size: 1.4em;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+h2.pane-title {
+  font-family: $font-stack-futura;
+  font-size: 0.9em;
+  font-weight: normal;
+  letter-spacing: 2px;
+  text-align: center;
+  color: #666;
+  margin: 1em 0px 1em 0px;
+}
+
+h3 {
+  font-family: $font-stack-futura;
+  font-size: 1.0em;
+  font-weight: normal;
+  letter-spacing: 1px;
+}
+
+.showlinks .links-change a {
+  color: #007818 !important;
+  transition: color 0.5s linear;
+}
+
+.links-change a:hover {
+  color: #00bc26 !important;
+}
+
+.big-text .pane-content {
+  font-size: 20px;
+  line-height: 26px;
+  margin: 0;
+}
+
+#page {
+  a:link { text-decoration:none; color:#007818; transition: color 0.5s linear;}
+  a:visited { text-decoration:none; color:#007818; }
+  a:hover { text-decoration:none; color:#007818; }
+
+  a:active { text-decoration:underline; color:#007818; }
+  a:focus { text-decoration:underline; color:#007818; }
+}
+
+.field-name-body ul {
+  margin: 0px;
+  padding: 0px 0 0 22px;
+}
+
+.field-name-body ul li {
+  list-style-image: image-url('cross.png');
+  margin: 0px;
+  padding: 0px;
+}
+
+input[type=text] {
+  border:1px solid black;
+  font-family: $font-stack-futura;
+}
+
+input[type=password] {
+  border:1px solid black;
+}
+
+.page-node-add-gallery .field-name-field-main-image,
+.page-node-edit .field-name-field-main-image-collection,
+.page-node-add-gallery .field-name-field-main-image-collection {
+  display: none;
+}
+
+.block-relation-add-block { width:50%; }
+
+.region-content {
+  margin-top: 20px;
+}
+
+//visually hidden
+#page-title,
+#site-name,
+#site-slogan {
+  @include visuallyhidden;
+}
+
+.node-links ul li a, .comment-links ul li a {
+  text-transform: lowercase;
+  display: block;
+  float: left;
+  text-decoration: none;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding;
+  background-clip: padding-box;
+  margin: 0 0.5em 0.5em 0;
+  vertical-align: middle;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: black;
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 1.2em;
+  font-family: $font-stack-arial;
+  outline: 0;
+  overflow: visible;
+  padding: 4px 10px 3px 0;
+  width: auto;
+}
+
+iframe {
+  border: 3px solid #D3D7D9 !important;
+}
+
+.item-list ul {
+  margin: 0 0 0 0 !important;
+  padding: 0;
+}
+
+.item-list ul li {
+  margin: 0px !important;
+}
+
+.caps .caps {
+  // Fixes nesting of Tipogriphy's .caps
+  // which incrementally reduces the font size
+  font-size: inherit;
+}

@@ -1,0 +1,29 @@
+
+div.vertical-tabs {
+  border: 1px solid black;
+}
+
+.vertical-tabs ul.vertical-tabs-list {
+  border-top: 1px solid black;
+}
+
+.vertical-tabs ul.vertical-tabs-list li {
+  background-color: #999;
+  color: white;
+  letter-spacing: 1px;
+  border-left: 1px solid #999 !important;
+  border-top: 1px solid white !important;
+  border-bottom: 1px solid white !important;
+}
+
+.vertical-tabs ul.vertical-tabs-list li a:link,
+.vertical-tabs ul.vertical-tabs-list li a:focus,
+.vertical-tabs ul.vertical-tabs-list li a:visited {
+  color: white !important;
+}
+
+.vertical-tabs ul.vertical-tabs-list li.selected {
+  border-left: 1px solid black !important;
+  border-bottom: 1px solid black !important;
+  border-top: 1px solid black !important;
+}

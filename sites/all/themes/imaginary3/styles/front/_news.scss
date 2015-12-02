@@ -1,0 +1,125 @@
+.pane-landing-page-first-news,
+.pane-news-sidebar {
+
+  border-top: 3px solid black;
+
+  .field-content {
+    font-size: 20px;
+    line-height: 26px;
+  }
+
+  .more-link {
+    float: right;
+    font-family: $font-stack-futura;
+  }
+
+  .views-row {
+    border-bottom: 1px solid #d3d7d9;
+    margin-bottom: 1em;
+  }
+
+  .views-row-last {
+    border-bottom: none;
+
+  }
+
+  .views-field-title {
+    font-family: $font-stack-futura;
+    font-size: 22px;
+    text-align: center;
+    line-height: 1.1em;
+  }
+
+  .views-field-created {
+    margin: 0px 0px 1em 0px;
+    font-family: $font-stack-futura;
+    color: #666;
+    font-size: 0.8em;
+    padding: 2px;
+    text-align: center;
+  }
+
+  .field-name-field-image-title {
+    font-family: $font-stack-futura;
+    font-size: 0.7em;
+    color: #999;
+  }
+
+  img {
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+.pane-landing-page-more-news {
+
+  border-top: 1px solid #999;
+  padding-top: 1em;
+
+  .views-row  {
+    width: 47.5%;
+    float: left;
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      text-align: center;
+    }
+
+    .views-field-created {
+      font-family: $font-stack-futura;
+      text-align: center;
+      color: #999;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .field-name-field-image-title {
+      padding-top: 0.25em;
+      font-family: $font-stack-futura;
+      color: #666666;
+      font-size: 0.8em;
+      letter-spacing: 1px;
+      line-height: 1em;
+    }
+
+    .more-link {
+      float: right;
+      font-family: $font-stack-futura;
+    }
+  }
+
+  .views-row-last {
+    float: right;
+  }
+}
+
+.node-type-news {
+  .pane-node-title {
+    font-family: $font-stack-futura;
+    font-size: 22px;
+    width: 60%;
+    float: left;
+    line-height: 1.2em;
+  }
+
+  .pane-node-created {
+    width: 30%;
+    float: right;
+    font-family: $font-stack-futura;
+    text-align: right;
+  }
+
+  .field-collection-container {
+    border-bottom: 0px solid #D3D7D9;
+    margin-bottom: 0em;
+  }
+  .gallery-two-columns img {
+    margin: 0 auto 0 auto;
+  }
+
+}

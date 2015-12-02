@@ -1,0 +1,19 @@
+.pane-user-online {
+  ul {
+    li {
+
+      list-style: none;
+      margin: 0;
+      border-bottom: 1px solid #d3d7d9;
+      font-family: $font-stack-futura;
+      padding: 2px 0;
+    }
+
+    li.last {
+      border-bottom: 3px solid black;
+      padding-bottom: 1em !important;
+
+    }
+  }
+}
+

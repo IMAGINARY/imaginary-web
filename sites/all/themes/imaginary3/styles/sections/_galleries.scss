@@ -1,0 +1,592 @@
+.pane-gallery-first-row {
+  border-bottom: 3px solid black;
+}
+
+.pane-gallery-second-row {
+  border-bottom: 3px solid black;
+}
+
+.gallery-two-columns {
+
+  .field-collection-view {
+    border-bottom: none;
+  }
+
+  .field-collection-container {
+    margin: 0;
+  }
+
+  h2.pane-title {
+    border-top: 1px solid #999;
+    padding-top: 1em;
+  }
+
+  .views-field-title {
+    font-family: $font-stack-futura;
+    letter-spacing: 2px;
+    margin-bottom: 0.5em;
+    font-size: 22px;
+    line-height: 1.1em;
+    text-align: center;
+  }
+
+
+  ul li {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+    text-align: center;
+    width: 100%;
+  }
+
+  img {
+    margin: 0 auto 1em auto;
+  }
+
+
+  .field-name-field-image-title {
+    float: left;
+    font-family: $font-stack-futura;
+    color: #666;
+    font-size: 0.8em;
+    letter-spacing: 1px;
+
+    position: relative;
+
+    height: 2em;
+    margin-top: -2em;
+    top: 2em;
+
+  }
+
+  .field-name-field-image-licence .field-label {
+    font-family: $font-stack-futura;
+    color: #666;
+    font-weight: normal;
+    font-size: 0.9em;
+    letter-spacing: 1px;
+    float: left;
+  }
+
+
+  .field-name-field-formula, .formula {
+    font-size: 0.8em;
+    color: #666 !important;
+
+    background-color: white;
+
+    border-bottom: 2px solid black;
+
+    overflow: auto;
+    clear: both;
+  }
+
+  .field-name-field-formula, .page-programs .formula {
+    height: 50px;
+    border-bottom: 2px solid black;
+    overflow: hidden;
+  }
+
+
+  .field-label {
+    text-align: center;
+    font-family: $font-stack-futura !important;
+    letter-spacing: 1px;
+
+  }
+
+  .forumula-original {
+    cursor: pointer;
+  }
+
+  .forumula-copy {
+    background-color: white;
+    border-bottom: 100px solid black;
+    padding-bottom: 1em;
+    cursor: pointer;
+  }
+}
+
+.gallery-two-columns-next-previous {
+  display: block;
+
+  position: relative;
+  left: 100%;
+  width: 200px;
+  margin: auto 0 auto -200px;
+  z-index: 99;
+
+  text-align: right;
+  font-family: $font-stack-futura;
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  .left-arrow {
+    margin-right: 0.5em;
+    font-family: $font-stack-arial !important;
+  }
+
+  .right-arrow {
+    margin-left: 0.5em;
+    font-family: $font-stack-arial !important;
+  }
+
+  .previous:hover {
+    color: #007818;
+  }
+
+  .next:hover {
+    color: #007818;
+  }
+}
+
+.gallery-one-column {
+
+  .views-row {
+  }
+
+
+  ul li {
+    list-style: none;
+    padding: 0px;
+    width: 270px;
+    margin: 0px 0px 2em;
+  }
+
+  .views-field-field-image-collection {
+    float: left;
+  }
+
+  .views-field-title {
+    font-family: $font-stack-futura;
+    margin-bottom: 0.25em;
+    width: 90%;
+    float: left;
+  }
+
+
+  .related-gallery-next-previous {
+    z-index: 1000;
+    cursor: pointer;
+    text-align: right;
+    padding-bottom: 0.25em;
+    width: 10%;
+    float: right;
+  }
+
+  .next:hover {
+    color: #007818;
+  }
+
+  .previous:hover {
+    color: #007818;
+  }
+
+
+  .field-item {
+    text-align: center;
+  }
+}
+
+/*galleries overview */
+
+.page-galleries {
+
+  #views-exposed-form-galleries-filter-exhib-user-panel-pane-1 {
+    display: none;
+  }
+
+  .views-row {
+    border-bottom: 1px solid #d3d7d9;
+    padding-bottom: 1em;
+  }
+
+  .views-row-last {
+    border-bottom: none;
+  }
+
+  h1 {
+    margin-bottom: 2px;
+  }
+  //subtitle part of
+  .views-field {
+    margin: 2px auto 8px;
+    width: 100%;
+
+    .part-of, .exhibition {
+      font-family: $font-stack-futura;
+      font-size: 0.7em;
+    }
+  }
+
+  .pane-galleries-filter-exhib-user-panel-pane-1 .field-item {
+    text-align: center;
+  }
+
+  img {
+    margin: 0 auto;
+  }
+
+}
+
+
+/* BETTER CSS STARTS HERE */
+
+/* GALLERY COMPLETE */
+
+
+.node-type-gallery {
+
+  .panel-separator {
+    margin: 0 0 6px 0;
+    padding: 0;
+  }
+
+  .pane-custom {
+    font-family: $font-stack-futura;
+    font-size: 0.9em;
+    text-align: center;
+    color: #666;
+    letter-spacing: 2px;
+
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+  }
+
+  #block-system-main {
+    margin-top: 3em;
+  }
+
+  .panel-2col {
+    width: 100%;
+  }
+
+  .panel-col-last {
+    top: 0;
+    right: 0;
+  }
+
+  .introduction p {
+    font-size: 1.3em;
+    line-height: 1.2em;
+  }
+
+  .pane-gallery-part-of {
+    .views-field-title {
+      font-family: $font-stack-futura;
+    }
+  }
+
+
+  h2 {
+    font-family: $font-stack-futura;
+    text-align: center;
+
+    font-size: 0.9em;
+    font-weight: normal;
+    letter-spacing: 2px;
+    color: #666;
+    margin: 0em 0px 1em 0px;
+    border-right: none !important;
+  }
+
+
+  .spacer {
+    margin: 20px 0;
+  }
+
+  .line {
+    border-bottom: 1px solid black;
+  }
+
+  .pane-node-author {
+    text-align: center;
+    border-bottom: 1px solid #d3d7d9;
+    margin-bottom: 1em;
+    font-family: $font-stack-futura;
+    padding: 0.8em 0 0.8em 0;
+  }
+
+  a.username {
+    font-family: $font-stack-futura;
+    color: #666;
+    text-align: center !important;
+  }
+
+
+  .pane-related-gallery-exhibition {
+
+    background-color: #f9f9f9;
+    padding: 1em 3px 1em 3px;
+
+    .view-header {
+      font-family: $font-stack-futura;
+      font-size: 0.9em;
+      font-weight: normal;
+      letter-spacing: 2px;
+      text-align: center;
+      color: #666666;
+      margin: 0em 0 0 0;
+      padding: 0;
+
+      p {
+        margin: 0 !important;
+      }
+    }
+
+    .view-content {
+      margin: 0;
+      padding: 0;
+      font-family: $font-stack-futura;
+      text-align: center;
+    }
+
+  }
+
+
+  .pane-related-events {
+    border-top: 1px solid #d3d7d9;
+    padding-top: 1em;
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      margin-bottom: 0.25em;
+    }
+  }
+
+
+  .pane-gallery-complete {
+    padding-bottom: 1em;
+  }
+}
+
+.gallery-full-width {
+
+  .panel-col-first {
+    width: $big-column;
+
+    .views-field-field-image img {
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
+  }
+
+  .panel-col-last .views-label {
+    font-family: $font-stack-futura;
+
+    margin-right: 0.5em;
+    padding-right: 0.5em;
+    border-right: 1px solid black;
+
+    margin-bottom:  0.5em;
+  }
+
+  .panel-col-last h2.views-label {
+    margin: 1em;
+  }
+
+  .next-previous {
+    display: block;
+    text-align: right;
+    z-index: 1000;
+    cursor: pointer;
+    padding-bottom: 1em;
+
+    .arrow-next, .arrow-previous {
+      font-family: "arrows";
+      color: white;
+      background-color: black;
+      padding: 4px 4px 2px 4px;
+      border-radius: 1px;
+      margin-top: 28px;
+    }
+
+    .current {
+      border: 4px solid #999;
+      background-color: #999;
+
+      img {
+        margin: 0 auto;
+      }
+    }
+
+    .previous,
+    .next {
+      border: 4px white solid;
+      width: 68px;
+    }
+
+    .previous {
+      padding-right: 10px;
+      padding-left: 15px;
+    }
+
+    .previous:hover {
+      color: #007818;
+    }
+
+    .next {
+      padding-left: 10px;
+      padding-right: 15px;
+    }
+
+    .next:hover {
+      color: #007818;
+    }
+
+    .previous img,
+    .next img {
+      opacity:0.5;
+      /* filter:alpha(opacity=50); For IE8 and earlier */
+    }
+
+    .previous img:hover,
+    .next img:hover {
+      opacity:0.7;
+      /* filter:alpha(opacity=70); /* For IE8 and earlier */
+    }
+  }
+
+  h2 {
+    font-family: $font-stack-futura;
+    font-size: 24px;
+    line-height: 1.3em;
+    margin: 0 0 1em 0;
+    color: black;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .view-grouping-content {
+    margin-top: 70px;
+  }
+
+  .panel-col-first {
+    padding-top: 0;
+  }
+
+
+  .views-field-field-image-description {
+    border-bottom: 1px solid #d3d7d9;
+
+    p{
+      word-wrap: break-word;
+      overflow: hidden;
+    }
+  }
+
+  .views-field-field-image-authors,
+  .views-field-field-image-licence,
+  .views-field-field-image-1 {
+    border-bottom: 1px solid #d3d7d9;
+    padding: 3px 0 4px 0;
+  }
+
+  .views-field-field-program-file-title {
+    font-family: $font-stack-futura;
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: normal;
+    letter-spacing: 2px;
+    margin: 1em 0 1em 0;
+  }
+
+  .view-subview-image-collection-file {
+
+    margin-top: 10px;
+
+
+    tbody {
+      border: none;
+    }
+
+    td {
+      text-align: left !important;
+      letter-spacing: 0;
+    }
+
+    .views-field-field-program-file {
+
+      img {
+        width: 25px !important;
+        padding: 0 5px 5px 0;
+        height: auto;
+      }
+    }
+
+    .view-footer {
+      display: none;
+    }
+  }
+
+  .image-file {
+    font-family: $font-stack-futura;
+    letter-spacing: 0px;
+    margin-top: 1em;
+
+
+
+    tbody {
+      border: 0px solid white !important;
+    }
+
+    .views-row {
+      width: 45%;
+      margin-bottom: 1em;
+      float: left;
+    }
+
+    .views-row-odd {
+      margin-right: 5%;
+    }
+
+
+    img {
+      width: 30px !important;
+      padding-right: 5px;
+      height: auto;
+    }
+  }
+
+  .views-field-field-formula {
+    .views-label {
+      font-family: $font-stack-futura;
+      text-align: center;
+      font-size: 0.9em;
+      font-weight: normal;
+      letter-spacing: 2px;
+      color: #666666;
+      margin: 1em 0 1em 0;
+    }
+
+    li {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+.view-galleries-4- .views-row {
+  width: 45%;
+  float: left;
+}
+
+.view-galleries-4- .views-row-odd {
+  margin-right: 5%;
+}
+
+.view-id-gallery_complete {
+
+  .views-field-field-program-collection {
+    font-family: $font-stack-futura;
+  }
+}
+
+

@@ -1,0 +1,108 @@
+.page-everything {
+  .views-exposed-form {
+    font-family: $font-stack-futura;
+    border-bottom: 1px solid black;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+
+    .views-exposed-widget {
+      padding: 0;
+      margin: 0;
+
+      .form-item {
+        width: 100%;
+        height: 100% !important;
+      }
+    }
+
+    .views-submit-button {
+      float: right;
+
+      #edit-submit-everything {
+        background-color: black;
+        color: white;
+        -webkit-appearance: none;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        -ms-border-radius: 4px;
+        -o-border-radius: 4px;
+        border-radius: 4px;
+        -webkit-background-clip: padding;
+        -moz-background-clip: padding;
+        -ms-background-clip: padding-box;
+        -o-background-clip: padding-box;
+        background-clip: padding-box;
+        background: none;
+        background-color: black;
+        border: 1px solid black;
+        cursor: pointer;
+        font-family: $font-stack-futura;
+        outline: 0;
+        overflow: visible;
+        padding: 3px 10px;
+        text-shadow: none;
+        vertical-align: top;
+        width: auto;
+        font-size: 18px;
+        margin: 1em 0 0;
+      }
+      #edit-submit-everything:hover {
+        background-color: #666;
+      }
+    }
+  }
+
+  .masonry-item {
+    margin: 2px !important;
+  }
+
+  .views-row {
+    margin-bottom: 1em;
+    padding: 0.5em;
+
+    .views-field-title {
+      font-family: $font-stack-futura;
+      text-align: center;
+    }
+
+    .views-field-type {
+      font-family: $font-stack-futura;
+      text-align: center;
+      color: #999;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  }
+
+  .taxonomy170 {
+  }
+
+  .taxonomy169 {
+    background-image: -webkit-gradient(
+                    linear,
+                    left top,
+                    left bottom,
+                    color-stop(0, #eeeeee),
+                    color-stop(1, #FFFFFF)
+    );
+    background-image: -o-linear-gradient(bottom, #eeeeee 0%, #FFFFFF 100%);
+    background-image: -moz-linear-gradient(bottom, #eeeeee 0%, #FFFFFF 100%);
+    background-image: -webkit-linear-gradient(bottom, #eeeeee 0%, #FFFFFF 100%);
+    background-image: -ms-linear-gradient(bottom, #eeeeee 0%, #FFFFFF 100%);
+    background-image: linear-gradient(to bottom, #eeeeee 0%, #FFFFFF 100%);
+  }
+
+  .view-footer {
+    text-align: center;
+    font-family: $font-stack-times;
+    font-size: 40px;
+
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    line-height: 48px;
+  }
+}

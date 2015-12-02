@@ -1,0 +1,61 @@
+#header #block-user-login {
+
+  font-family: $font-stack-futura;
+  position: absolute;
+  z-index: 100000000;
+  top:12px;
+  right: 0;
+  width: 210px;
+
+  margin: 0;
+  padding: 0;
+
+  .get-access {
+    text-align: right;
+  }
+
+  ul, #edit-name, #edit-name--1, #edit-name--2 {
+    width: 210px;
+  }
+
+  .form-type-textfield {
+    margin-top: 10px;
+  }
+
+  #edit-pass, #edit-pass--1, #edit-pass--2 {
+    width: 140px;
+    float: left;
+    margin: 0;
+    padding: 0;
+  }
+
+  #edit-actions, #edit-actions--1, #edit-actions--2, #edit-submit, #edit-submit--1, #edit-submit--2 {
+    width: 60px;
+    float: right;
+    margin: 0;
+    padding: 0;
+  }
+
+  #edit-submit, #edit-submit--1, #edit-submit--2 {
+    @include cleanbutton;
+  }
+
+  label {
+    @include visuallyhidden;
+  }
+
+  .item-list {
+    clear: both;
+    margin-top: 10px;
+
+    //more mouse freedom at the bottom:
+    padding-bottom: 30px;
+
+    li {
+      float: left;
+      font-size: 0.7em;
+      list-style: none;
+      padding-right: 10px;
+    }
+  }
+}
