@@ -11,8 +11,7 @@ function imaginary3_preprocess_html(&$variables) {
         'content' => 'width=device-width, initial-scale=1, maximum-scale=1',
       ),
     );
-    //drupal_add_html_head($viewport, 'viewport');
-
+    drupal_add_html_head($viewport, 'mobile_viewport');
 }
 
 
