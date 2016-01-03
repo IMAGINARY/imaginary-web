@@ -202,3 +202,10 @@ function imaginary_misc_field_formatter_view($entity_type, $entity, $field, $ins
 
   return $element;
 }
+
+function imaginary_misc_ctools_plugin_directory($owner, $plugin_type) {
+
+  if ($owner == 'panels') {
+    return "plugins/$plugin_type";
+  }
+}

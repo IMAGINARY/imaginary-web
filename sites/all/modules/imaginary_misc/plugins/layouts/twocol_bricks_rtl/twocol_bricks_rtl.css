@@ -1,0 +1,46 @@
+
+.panel-2col-bricks-rtl {
+/*  overflow: hidden;  */
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.panel-2col-bricks-rtl .panel-col-top,
+.panel-2col-bricks-rtl .panel-col-middle,
+.panel-2col-bricks-rtl .panel-col-bottom {
+  width: 99.9%; 
+  clear: both;
+}
+
+.panel-2col-bricks-rtl .panel-col-top .inside,
+.panel-2col-bricks-rtl .panel-col-middle .inside {
+  margin-bottom: .5em;
+}
+
+.panel-2col-bricks-rtl .panel-col-first {
+  float: right;
+  width: 50%; 
+}
+* html .panel-2col-bricks-rtl .panel-col-first {
+  width: 49.9%;
+}
+
+.panel-2col-bricks-rtl .panel-col-first .inside {
+  margin: 0 0 .5em .5em;
+}
+
+.panel-2col-bricks-rtl .panel-col-last {
+  float: right;
+  width: 50%; 
+}
+* html .panel-2col-bricks-rtl .panel-col-last {
+  width: 49.9%;
+}
+
+.panel-2col-bricks-rtl .panel-col-last .inside {
+  margin: 0 .5em .5em 0;
+}
+
+.panel-2col-bricks-rtl .panel-separator {
+  margin: 0 0 1em 0;
+}

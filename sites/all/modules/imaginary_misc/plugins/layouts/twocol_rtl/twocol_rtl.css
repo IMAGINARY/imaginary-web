@@ -1,0 +1,37 @@
+
+.panel-2col-rtl { 
+/*  overflow: hidden;  */
+}
+
+.panel-2col-rtl .panel-col-first { 
+  float: right;
+  width: 50%; 
+}
+* html .panel-2col-rtl .panel-col-first {
+  width: 49.9%;
+}
+
+.panel-2col-rtl .panel-col-first .inside { 
+  margin: 0 0 1em .5em;
+}
+
+.panel-2col-rtl .panel-col-last { 
+  float: right;
+  width: 50%; 
+}
+* html .panel-2col-rtl .panel-col-last {
+  width: 49.9%;
+}
+
+.panel-2col-rtl .panel-col-last .inside { 
+  margin: 0 .5em 1em 0;
+}
+
+#panels-edit-display .panel-pane,
+#panels-edit-display .helperclass {
+  margin: .5em;
+}
+
+.panel-2col-rtl .panel-separator {
+  margin: 0 0 1em 0;
+}
