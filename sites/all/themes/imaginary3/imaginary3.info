@@ -26,6 +26,7 @@ stylesheets[all][] = styles/main.css
 ; Theme Script Files ------------------------------------------------------
 
 scripts[] = scripts/plugins.js
+scripts[] = scripts/responsive.js
 scripts[] = scripts/main.js
 
 
