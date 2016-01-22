@@ -2,7 +2,11 @@
 
 function imaginary3_preprocess_html(&$variables) {
 
+    // Mathjax
     drupal_add_js('https://cdn.mathjax.org/mathjax/2.1-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', 'external');
+
+    // Font Awesome
+    drupal_add_css('https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', 'external');
 
     $viewport = array(
       '#tag' => 'meta',
