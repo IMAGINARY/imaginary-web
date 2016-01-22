@@ -16,6 +16,14 @@
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
   }
+
+  @include responsive($xs-sm) {
+    padding: 0 0 1em 0;
+
+    &:first-child {
+      padding-top: 1em;
+    }
+  }
 }
 
 .view-programs,
@@ -38,6 +46,10 @@
     font-weight: normal;
     text-transform: uppercase;
     margin: 0 0 1em 0;
+
+    @include responsive($xs) {
+      font-size: 20px;
+    }
   }
 
   img{

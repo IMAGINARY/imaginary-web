@@ -1,0 +1,18 @@
+.pane-partner-main-funder,
+.pane-partner-project-partner,
+.pane-partner-funder {
+
+  .views-field-field-main-image {
+    @include responsive($xs) {
+
+      a {
+        display: block;
+        margin-bottom: 1em;
+        img {
+          display: block;
+          margin: 0 auto;
+        }
+      }
+    }
+  }
+}

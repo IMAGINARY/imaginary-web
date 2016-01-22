@@ -2,3 +2,17 @@
   padding-bottom: 1em;
   border-bottom: 3px solid black;
 }
+
+
+@include responsive($xs-sm) {
+  .slider-wrapper {
+    width: 100%;
+    height: auto;
+    margin-bottom: 25px;
+
+    .sb-slider {
+      width: 100%;
+      height: auto;
+    }
+  }
+}

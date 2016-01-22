@@ -27,19 +27,19 @@
 
 @font-face {
   font-family: 'arrows';
-  src: font-url('arrows.eot?45124474');
-  src: font-url('arrows.eot?45124474#iefix') format('embedded-opentype'),
-  font-url('arrows.woff?45124474') format('woff'),
-  font-url('arrows.ttf?45124474') format('truetype'),
-  font-url('arrows.svg?45124474#arrows') format('svg');
+  src: url('../webfonts/arrows.eot?45124474');
+  src: url('../webfonts/arrows.eot?45124474#iefix') format('embedded-opentype'),
+  url('../webfonts/arrows.woff?45124474') format('woff'),
+  url('../webfonts/arrows.ttf?45124474') format('truetype'),
+  url('../webfonts/arrows.svg?45124474#arrows') format('svg');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'FuturaPTMedium-Reg';
-  src: font-url('2323A5_0_0.eot');
-  src: font-url('2323A5_0_0.eot?#iefix') format('embedded-opentype'),
-  font-url('2323A5_0_0.woff') format('woff'),
-  font-url('2323A5_0_0.ttf') format('truetype');
+  src: url('../webfonts/2323A5_0_0.eot');
+  src: url('../webfonts/2323A5_0_0.eot?#iefix') format('embedded-opentype'),
+  url('../webfonts/2323A5_0_0.woff') format('woff'),
+  url('../webfonts/2323A5_0_0.ttf') format('truetype');
 }

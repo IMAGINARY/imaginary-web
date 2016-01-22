@@ -1,0 +1,288 @@
+@include responsive($xs-sm) {
+
+  $xs-header-height: 50px;
+
+  @mixin headerDropdown {
+    display: none;
+    width: 100%;
+    height: auto;
+    position: absolute;
+    top: $xs-header-height;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: white;
+    @include shadow-low;
+    h2 {
+      display: none;
+    }
+    .content {
+      display: block;
+    }
+
+    &.headerDropdown-active {
+      display: block;
+    }
+  }
+
+  @mixin headerDropdownMenu {
+
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    width: 100%;
+    li {
+      display: block;
+      position: relative;
+      margin: 0;
+      padding: 0;
+      height: auto;
+      width: 100%;
+      &.first,
+      &.last {
+        position: relative;
+      }
+
+      a {
+        display: block;
+        height: 30px;
+        width: 100%;
+        font-size: 18px;
+        line-height: 30px;
+        color: $color-black;
+        text-align: center;
+        border: none;
+        &:hover {
+          border: none;
+        }
+      }
+    }
+  }
+
+  #header {
+
+    // Language switcher
+    #block-locale-language-content {
+      @include headerDropdown;
+      ul.language-switcher-locale-url {
+        @include headerDropdownMenu;
+      }
+    }
+
+    // Main menu
+    #block-menu-menu-main-menu-2 {
+
+      @include headerDropdown;
+      ul.menu {
+        @include headerDropdownMenu;
+
+        li.meta-trigger {
+          display: block;
+        }
+      }
+    }
+
+    // Meta menu
+    #block-menu-menu-meta-menu {
+      @include headerDropdown;
+      ul.menu {
+        @include headerDropdownMenu;
+      }
+    }
+
+    // Search
+    #block-search-form {
+      @include headerDropdown;
+
+      .content {
+        padding: 10px;
+      }
+
+      input {
+        width: 100%;
+        font-size: 16px;
+      }
+    }
+
+    // Login
+    #block-user-login {
+      @include headerDropdown;
+      .get-access {
+        display: none;
+      }
+      .user-login {
+        display: block !important;
+        background-color: white;
+      }
+
+      .content {
+        padding: 10px;
+      }
+
+      .form-item {
+        margin-bottom: 0.5em;
+        margin-top: 0;
+      }
+
+      #edit-name,
+      #edit-pass {
+        width: 100%;
+        font-size: 16px;
+        float: none;
+      }
+
+      #edit-actions {
+        float: none;
+      }
+
+      #edit-submit {
+        font-size: 16px;
+      }
+
+      .item-list {
+        ul {
+          @include headerDropdownMenu;
+          li {
+            a {
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+
+    // User menu (Logged in)
+    #block-system-user-menu {
+      @include headerDropdown;
+
+      ul.menu {
+        @include headerDropdownMenu;
+      }
+    }
+
+    $dropDownTriggerMargin: 5px;
+    $dropDownTriggerWidth: 40px;
+    $dropDownTriggerHeight: 40px;
+    $dropDownTriggerSpacing: 0px;
+    $dropDownTriggerIconSize: 22px;
+
+    .dropDownTrigger {
+      display: block;
+      width: $dropDownTriggerWidth;
+      height: $dropDownTriggerHeight;
+      position: absolute;
+      //background-color: lightgrey;
+      font-size: $dropDownTriggerIconSize;
+      line-height: $dropDownTriggerHeight;
+      text-align: center;
+      z-index: 1000;
+
+      &.active {
+        border-bottom: 4px solid $color-black;
+      }
+    }
+
+    .dropDownTrigger-mainMenu {
+      top: $dropDownTriggerMargin;
+      left: $dropDownTriggerMargin;
+    }
+
+    .dropDownTrigger-search {
+      top: $dropDownTriggerMargin;
+      left: $dropDownTriggerMargin + $dropDownTriggerWidth + $dropDownTriggerSpacing;
+    }
+
+    .dropDownTrigger-languageMenu {
+      top: $dropDownTriggerMargin;
+      right: $dropDownTriggerMargin + $dropDownTriggerWidth + $dropDownTriggerSpacing;
+    }
+
+    .dropDownTrigger-login {
+      top: $dropDownTriggerMargin;
+      right: $dropDownTriggerMargin;
+    }
+
+    .dropDownTrigger-userMenu {
+      top: $dropDownTriggerMargin;
+      right: $dropDownTriggerMargin;
+    }
+  }
+
+  // Responsive header
+  #header {
+    top: 0;
+    z-index: 2000;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: white;
+
+    #logo {
+      padding: 18px 0 0;
+      margin: 0 auto;
+      img {
+        display: block;
+        width: 100%;
+      }
+    }
+  }
+
+  // Remove Drupal's Admin Menu
+  #admin-menu {
+    display: none;
+  }
+
+  // In the front page the header starts as non-sticky
+  .front {
+
+    #page {
+      margin-top: 120px !important;
+    }
+
+    #header {
+      position: absolute;
+      top: ($xs-header-height + 10px) !important;
+      margin-top: -1 * ($xs-header-height + 10px) !important;
+      box-shadow: none;
+      height: 126px;
+      transition: height 0.5s 0.3s, box-shadow 0.3s 0s;
+
+      #logo {
+        width: 240px;
+        margin-top: 53px;
+        transition: width 0.5s 0.3s, margin-top 0.5s 0.3s;
+      }
+    }
+  }
+
+  .not-front {
+    #page {
+      margin-top: $xs-header-height + 10px !important;
+    }
+
+    #logo {
+
+    }
+  }
+
+  // Sticky
+  .not-front, .front.sticky-header {
+
+    #header {
+      top: 0 !important;
+      margin-top: 0 !important;
+      position: fixed;
+      height: $xs-header-height;
+      @include shadow-low;
+      transition: margin-top 0.5s 0s;
+
+      #logo {
+        width: 120px;
+        margin-top: 0;
+        transition: width 0s 0s, margin-top 0s 0s;
+      }
+    }
+  }
+}

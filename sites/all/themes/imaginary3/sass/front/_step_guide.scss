@@ -22,3 +22,14 @@
     }
   }
 }
+
+@include responsive($xs-sm) {
+  .front #node-300 {
+    ul {
+      li {
+        padding: 0;
+        line-height: 35px;
+      }
+    }
+  }
+}

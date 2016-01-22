@@ -17,16 +17,31 @@
       font-family: $font-stack-futura;
       font-size: 22px;
       line-height: 1.1em;
+
+      @include responsive($xs) {
+        margin-bottom: 5px;
+      }
     }
 
     .views-field-field-event-date {
       font-family: $font-stack-futura;
       color: #666;
+
+      @include responsive($xs) {
+        margin-bottom: 5px;
+      }
     }
   }
 
   .pane-events-past .masonry-item {
     margin-bottom: 2em;
+  }
+
+  @include responsive($xs) {
+    .view.view-display-id-default .masonry-item {
+      float: none;
+      width: 100%;
+    }
   }
 }
 
@@ -36,10 +51,17 @@
     float: left;
     margin-right: 1em;
     margin-bottom: 0.25em;
+
+    @include responsive($xs) {
+      float: none;
+    }
   }
 
   .views-row {
     clear: both;
+    @include responsive($xs) {
+      margin-bottom: 1em;
+    }
   }
 }
 
@@ -283,5 +305,60 @@
   .dot {
     background-color: black !important;
     box-shadow: 0px 0px 1px 1px #000000;
+  }
+}
+
+.pane-gallery-full-width-light {
+  .panel-2col {
+    .panel-col-first {
+      margin-left: 0;
+      width: 63%;
+      float: left;
+    }
+    .panel-col-last {
+      margin-left: 3%;
+      width: 34%;
+      float: left;
+    }
+
+    @include responsive($xs-sm) {
+      .panel-col-first,
+      .panel-col-last {
+        width: 100%;
+        float: none;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+}
+
+@include responsive($xs-sm) {
+
+  .vco-slider .slider-item .content {
+
+    .content-container {
+      padding-bottom: 30px;
+    }
+
+    .pad-top .text .container {
+      padding-top: 10px;
+    }
+
+    .content-container .text .container h2.date {
+      margin-bottom: 8px;
+    }
+  }
+
+  .vco-storyjs .vco-feature {
+    h3 {
+      margin-bottom: 10px !important;
+      font-size: 24px;
+      line-height: 26px;
+    }
+
+    p {
+      margin-bottom: 10px;
+    }
   }
 }

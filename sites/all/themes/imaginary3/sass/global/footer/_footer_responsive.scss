@@ -1,0 +1,47 @@
+@include responsive($xs-sm) {
+
+  #footer {
+    width: initial;
+    padding: 1.5em 10px 0;
+    margin: 1.5em 0 0 0;
+    box-shadow: inset 0px 10px 10px -5px rgba(0,0,0,0.2);
+  }
+
+  .main-funders {
+    @include clearfix;
+  }
+
+  .main-funders-text {
+    margin-bottom: 15px;
+  }
+
+  .main-funder-logo {
+    max-width: 50%;
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  .pane-menu-menu-footer-menu {
+    ul.menu {
+      li {
+        float: none;
+        margin: 0;
+        a {
+          font-size: 1em;
+          display: block;
+          padding: 7px 0;
+        }
+      }
+    }
+  }
+
+  #social-media .social {
+    float: left;
+    margin-left: 0;
+    margin-right: 1em;
+    margin-bottom: 1em;
+  }
+}

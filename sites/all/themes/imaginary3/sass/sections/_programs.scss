@@ -78,6 +78,12 @@
   font-weight: normal;
   border-bottom: 1px solid #d3d7d9;
   padding-bottom: 1em;
+
+  @include responsive($xs-sm) {
+    font-size: 20px;
+    line-height: 1.1em;
+    border-bottom: none;
+  }
 }
 
 .program-icon {

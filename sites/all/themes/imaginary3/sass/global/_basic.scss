@@ -49,6 +49,10 @@ h2.pane-title {
   text-align: center;
   color: #666;
   margin: 1em 0px 1em 0px;
+
+  @include responsive($xs-sm) {
+    font-size: 1em;
+  }
 }
 
 h3 {
@@ -71,6 +75,11 @@ h3 {
   font-size: 20px;
   line-height: 26px;
   margin: 0;
+
+  @include responsive($xs) {
+    font-size: 18px;
+    line-height: 22px;
+  }
 }
 
 #page {
@@ -88,7 +97,7 @@ h3 {
 }
 
 .field-name-body ul li {
-  list-style-image: image-url('cross.png');
+  list-style-image: url('../images/cross.png');
   margin: 0px;
   padding: 0px;
 }
@@ -112,6 +121,10 @@ input[type=password] {
 
 .region-content {
   margin-top: 20px;
+
+  @include responsive($xs-sm) {
+    margin-top: 15px;
+  }
 }
 
 //visually hidden

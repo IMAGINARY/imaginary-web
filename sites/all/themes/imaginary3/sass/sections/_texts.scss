@@ -4,6 +4,11 @@
     p {
       font-size: 20px;
       line-height: 24px;
+
+      @include responsive($xs-sm) {
+        font-size: 18px;
+        line-height: 22px;
+      }
     }
   }
 
@@ -15,18 +20,27 @@
     margin-bottom: 3em;
     font-family: $font-stack-futura;
 
+    @include responsive($xs-sm) {
+      width: initial;
+      margin-bottom: 1em;
+      margin-left: 0;
+    }
+  }
+
+  .center-wrapper {
+    @include clearfix;
   }
 
   h1 {
     width: 75%;
     margin: 0 auto 0 auto;
     padding: 0.5em !important;
-  }
 
-  .panel-col-last {
-    background-color: #eaeaea !important;
+    @include responsive($xs-sm) {
+      width: initial;
+      padding: 0.5em 0 !important;
+    }
   }
-
 
   .view-texts-bg-materials-counter,
   .view-texts-snapshot-counter {
@@ -74,9 +88,13 @@
     }
 
     img {
-      width: 28%;
+      width: 92px;
       height: auto;
       padding: 4px;
+
+      @include responsive($xs-sm) {
+        width: 40px;
+      }
     }
   }
 
@@ -84,6 +102,8 @@
     background-color: #eaeaea !important;
   }
 }
+
+
 
 .pane-mathematical-subjects-2,
 .pane-connections-to-other-fields {
@@ -105,6 +125,19 @@
     .views-field-field-connection-to-other-fields {
       float: left;
       margin: 0 1em 1em 0;
+    }
+
+    @include responsive($xs-sm) {
+      width: 100%;
+      float: none;
+      clear: both;
+    }
+  }
+
+  .pane-title {
+    @include responsive($xs-sm) {
+      font-size: 1em;
+      margin-bottom: 24px;
     }
   }
 }
@@ -143,6 +176,12 @@
       text-align: center;
       font-family: $font-stack-futura;
       font-weight: normal;
+
+      @include responsive($xs-sm) {
+        font-size: 24px;
+        line-height: 26px;
+        width: initial;
+      }
     }
   }
 
@@ -158,6 +197,7 @@
     margin-top: 3em;
   }
 
+  .panel-2col-bricks-rtl,
   .panel-2col-stacked {
 
     .panel-col-top {
@@ -239,6 +279,27 @@
         background: #f4f4f4 !important;
       }
     }
+
+    @include responsive($xs) {
+      select, input {
+        width: 100%;
+        float: none;
+      }
+
+      .views-exposed-widget {
+        float: none;
+      }
+
+      #edit-combine-wrapper {
+        width: initial;
+      }
+
+      .views-submit-button {
+        input {
+          margin: 10px 0;
+        }
+      }
+    }
   }
 
   .view-content {
@@ -273,9 +334,13 @@
     }
 
     img {
-      width: 28%;
+      width: 92px;
       height: auto;
       padding: 4px;
+
+      @include responsive($xs-sm) {
+        width: 40px;
+      }
     }
   }
 
@@ -313,6 +378,12 @@
       margin: 0 auto 1em auto;
       font-family: $font-stack-futura;
       text-align: center;
+
+      @include responsive($xs-sm) {
+        font-size: 24px;
+        line-height: 26px;
+        width: initial;
+      }
     }
 
     h2.pane-title {
@@ -695,4 +766,22 @@
 .form-item input.error[type="checkbox"] + label,
 .form-item input.error[type="radio"] + label {
   border: 2px solid red;
+}
+
+.node-type-snapshot,
+.node-type-background-material {
+
+  .region-content {
+    .pane-node-field-pdf {
+      @include responsive($xs) {
+        display: none;
+      }
+    }
+
+    .pane-background-materials-pdf {
+      @include responsive($xs) {
+        display: none;
+      }
+    }
+  }
 }

@@ -129,10 +129,38 @@ function addResponsiveMetaMenuTrigger() {
   });
 }
 
+function stickyHeaderHandler() {
+
+  // Use handler only on the front page
+  if($('body').hasClass('front')) {
+    var $body = $('body');
+    var didScroll = false;
+    var isSticky = false;
+
+    window.setInterval(function() {
+      if(didScroll) {
+        var scrollTop = $body.scrollTop();
+        if(isSticky && scrollTop <= 200) {
+          $body.removeClass('sticky-header');
+          isSticky = false;
+        } else if(!isSticky && scrollTop > 200) {
+          $body.addClass('sticky-header');
+          isSticky = true;
+        }
+      }
+    }, 250);
+
+    $(window).on('scroll', function() {
+      didScroll = true;
+    });
+  }
+}
+
 // Document ready
 $(function(){
   createHeaderTriggers();
   addResponsiveMetaMenuTrigger();
+  stickyHeaderHandler();
 });
 
 })(jQuery);

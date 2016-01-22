@@ -9,5 +9,9 @@
 
   .region-content {
     width: 66%;
+
+    @include responsive($xs-sm) {
+      width: 100%;
+    }
   }
 }

@@ -41,6 +41,11 @@
 
   img {
     margin: 0 auto 1em auto;
+
+    @include responsive($xs-sm) {
+      width: 100%;
+      height: auto;
+    }
   }
 
 
@@ -420,6 +425,10 @@
     .next {
       border: 4px white solid;
       width: 68px;
+
+      @include responsive($xs-sm) {
+        width: 50px;
+      }
     }
 
     .previous {
@@ -589,4 +598,54 @@
   }
 }
 
+@include responsive($xs-sm) {
 
+  $gallery-thumb-size: 60px;
+
+  .gallery-full-width {
+    .next-previous {
+      text-align: center;
+
+      .arrow-previous, .arrow-next {
+        width: 40px;
+        height: 40px;
+        font-size: 30px;
+        line-height: 40px;
+        margin: 10px 0 0;
+        padding: 0;
+        vertical-align: top;
+      }
+
+      .previous,
+      .current,
+      .next {
+        width: $gallery-thumb-size !important;
+        height: $gallery-thumb-size !important;
+        line-height: $gallery-thumb-size;
+        padding: 0;
+        border: none !important;
+        background-color: transparent !important;
+        span {
+          display: block !important;
+          width: $gallery-thumb-size !important;
+          height: $gallery-thumb-size !important;
+          img {
+            display: inline !important;
+            max-width: $gallery-thumb-size !important;
+            max-height: $gallery-thumb-size !important;
+            width: initial !important;
+            height: initial !important;
+            margin: auto;
+          }
+        }
+      }
+
+      .arrow-previous,
+      .previous,
+      .current,
+      .next {
+        margin-right: 5px;
+      }
+    }
+  }
+}

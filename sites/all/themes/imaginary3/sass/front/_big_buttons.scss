@@ -83,3 +83,54 @@
     }
   }
 }
+
+@include responsive($xs-sm) {
+  #big-buttons {
+    .big-button {
+      display: block;
+      width: 100%;
+      height: 65px;
+      float: none;
+      overflow: hidden;
+      margin-bottom: 6px;
+
+      .background-image {
+        top: 0;
+        z-index: 99;
+        width: 60px;
+        height: 60px;
+        overflow: hidden;
+
+        img {
+          width: auto;
+          height: 60px;
+          display: block;
+          margin-top: 0px;
+          margin-left: -13px;
+        }
+      }
+
+      .text {
+        width: auto;
+        text-align: left;
+        z-index: 100;
+        padding-left: 66px;
+        top: -5px;
+
+        h2, p {
+          text-align: left;
+          color: #232323;
+        }
+      }
+    }
+
+    .row {
+      @include clearfix;
+    }
+
+    .galleries, .entdeckerbox {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}

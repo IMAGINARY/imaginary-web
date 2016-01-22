@@ -41,4 +41,21 @@
   .pane-node {
     font-family: $font-stack-futura;
   }
+
+  @include responsive($xs) {
+    select,
+    #edit-submitted-name,
+    #edit-submitted-e-mail {
+      width: 100%;
+    }
+
+    #main .panel-col-last {
+      margin-top: 2em;
+      border-top: 1px solid #DADADA;
+
+      .inside {
+        margin: 0;
+      }
+    }
+  }
 }

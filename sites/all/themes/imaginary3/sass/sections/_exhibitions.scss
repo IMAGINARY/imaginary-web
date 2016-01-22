@@ -164,3 +164,12 @@
   border-top: 1px solid #999;
   padding: 1px 0 1px 0;
 }
+
+@include responsive($xs) {
+  .view-exhibitions-view .views-row {
+    width: initial;
+    float: none;
+    margin-right: 0;
+  }
+
+}

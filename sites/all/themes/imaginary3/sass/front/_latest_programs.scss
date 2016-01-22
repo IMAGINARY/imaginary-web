@@ -36,3 +36,20 @@
 .view-landing-page-latest-programs .views-field-body {
   clear: both;
 }
+
+@include responsive($xs-sm) {
+
+  .view-landing-page-latest-programs {
+    .views-field-title {
+      margin-bottom: 0em;
+      float: none;
+      width: 100%;
+    }
+    .views-field-name {
+      float: none;
+      width: 100%;
+      font-size: 0.9em;
+      margin-bottom: 0.5em;
+    }
+  }
+}

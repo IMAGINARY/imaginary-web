@@ -1,3 +1,14 @@
 .front .pane-exhibitions-view {
   border-top: 3px solid black;
 }
+
+@include responsive($xs-sm) {
+  .front .pane-exhibitions-view .views-field-field-main-image {
+    width: 50%;
+    margin: auto;
+
+    img {
+      margin-bottom: 1em;
+    }
+  }
+}

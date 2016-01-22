@@ -10,7 +10,12 @@ $font-stack-arial: Arial, Helvetica, sans-serif;
 $font-stack-times:  Times, TimesNewRoman, 'Times New Roman', Baskerville, Georgia, serif;;
 $font-stack-futura: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
 
+// z-indexes
+
+
+
 // External libraries, frameworks, etc.
+@import 'lib/colors';
 @import 'lib/fonts';
 @import 'lib/boilerplate';
 @import 'lib/boilerplate_utils';
@@ -18,6 +23,7 @@ $font-stack-futura: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande',
 @import 'lib/chosen';
 @import 'lib/slicebox';
 @import 'lib/arrow_icons';
+@import 'lib/responsive_utils';
 
 /* ==========================================================================
    Imaginary theme styles
@@ -37,12 +43,14 @@ $font-stack-futura: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande',
 @import 'global/header/language_switcher';
 @import 'global/header/search';
 @import 'global/header/main_menu';
+@import 'global/header/header_responsive';
 
 // Global : Footer
 @import 'global/footer/footer';
 @import 'global/footer/funders';
 @import 'global/footer/menu';
 @import 'global/footer/social_media';
+@import 'global/footer/footer_responsive';
 
 // Front page
 @import 'front/layout';
@@ -87,6 +95,7 @@ $font-stack-futura: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande',
 @import 'sections/hands_on';
 @import 'sections/projects';
 @import 'sections/newsletters';
+@import 'sections/about';
 @import 'sections/contact';
 @import 'sections/entdeckerbox';
 @import 'sections/search';

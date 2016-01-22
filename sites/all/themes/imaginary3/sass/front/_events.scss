@@ -1,9 +1,11 @@
 .front .pane-events-timeline-home {
+
+  margin-top: 60px;
+
   h2.pane-title {
     border-top: 1px solid #999;
     padding-top: 1em;
   }
-  margin-top: 60px;
 
   & > .pane-content {
     height: 296px !important;
@@ -81,5 +83,47 @@
     color: #666;
     font-size: 1em;
     line-height: 1.2em;
+  }
+}
+
+@include responsive($xs-sm) {
+
+  .front .pane-events-timeline-home {
+    margin-top: 20px;
+
+    & > .pane-content {
+      padding-bottom: 30px;
+    }
+
+    h2.pane-title {
+      margin-bottom: 0;
+    }
+
+    .view-events-timeline-home {
+      .view-header {
+        top: 302px;
+      }
+    }
+  }
+
+  .view-landing-page-events {
+    .views-field-title {
+      margin-bottom: 0;
+      float: none;
+      width: 100%;
+    }
+
+    .views-field-field-time-place {
+      float: none;
+      width: 100%;
+      margin-bottom: 0.5em;
+      font-size: 0.9em;
+    }
+  }
+
+  .view-events-geofield-map {
+    .view-content > div {
+      height: 300px !important;
+    }
   }
 }

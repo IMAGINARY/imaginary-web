@@ -42,14 +42,38 @@
   .field-name-field-image-title {
     font-family: $font-stack-futura;
     font-size: 0.7em;
-    color: #999;
   }
 
   img {
     margin: 0 auto;
     display: block;
+
   }
 }
+
+@include responsive($xs-sm) {
+  .pane-landing-page-first-news,
+  .pane-news-sidebar {
+    .field-name-field-image-title {
+      font-size: 0.9em;
+      line-height: 1.3em;
+      margin-bottom: 0;
+      color: #999;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      margin-bottom: 6px;
+    }
+
+    .field-content {
+      font-size: 16px;
+      line-height: 22px;
+    }
+  }
+}
+
 
 .pane-landing-page-more-news {
 
@@ -105,6 +129,12 @@
     width: 60%;
     float: left;
     line-height: 1.2em;
+
+    @include responsive($xs) {
+      width: 100%;
+      float: none;
+      font-size: 20px;
+    }
   }
 
   .pane-node-created {
@@ -112,6 +142,12 @@
     float: right;
     font-family: $font-stack-futura;
     text-align: right;
+
+    @include responsive($xs) {
+      width: 100%;
+      float: none;
+      text-align: left;
+    }
   }
 
   .field-collection-container {
@@ -120,6 +156,46 @@
   }
   .gallery-two-columns img {
     margin: 0 auto 0 auto;
+
+    @include responsive($xs-sm) {
+      max-width: 100%;
+      height: auto;
+    }
   }
 
+}
+
+@include responsive($xs-sm) {
+  .pane-landing-page-more-news {
+    .views-row {
+      width: 100%;
+      float: none;
+      border-bottom: 1px solid #999;
+      padding-bottom: 1em;
+      margin-bottom: 1em;
+
+      &.views-row-last {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+    }
+
+    .views-field-title-field {
+      font-size: 16px;
+      line-height: 22px;
+    }
+
+    .views-field-created {
+      margin: 0px 0px 1em 0px;
+      color: #666;
+      font-size: 16px;
+      line-height: 22px;
+      padding: 2px;
+    }
+
+    .views-field-body {
+      font-size: 16px;
+      line-height: 22px;
+    }
+  }
 }
