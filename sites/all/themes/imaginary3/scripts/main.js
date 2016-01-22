@@ -288,16 +288,15 @@ if (!(window.console && console.log)) {
 
                  //set height of gallery
                  var gallery = $(this);
-                 $(this).find('img:first').imagesLoaded(function(gallery){
-                    setHeight(this);
-                 });
-
-
-
+                gallery.children().each(function(){
+                  $(this).imagesLoaded(function(){
+                    if($(this).is(":visible")) {
+                      gallery.height($(this).height());
+                    }
+                  });
+                });
             }
         });
-
-
     }
 
         if (!$("body").hasClass("node-type-gallery")){
