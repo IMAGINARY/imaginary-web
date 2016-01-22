@@ -19,7 +19,8 @@
 
 .panel-2col-bricks-rtl .panel-col-first {
   float: right;
-  width: 50%; 
+  width: 50%;
+  margin: 0;
 }
 * html .panel-2col-bricks-rtl .panel-col-first {
   width: 49.9%;
