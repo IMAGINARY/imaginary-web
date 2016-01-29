@@ -4569,8 +4569,8 @@ img.file-icon {
   border: 2px solid red; }
 
 @media screen and (max-width: 767px) {
-  .node-type-snapshot .region-content .pane-node-field-pdf,
-  .node-type-background-material .region-content .pane-node-field-pdf {
+  .node-type-snapshot .region-content .panel-col-middle .pane-node-field-pdf,
+  .node-type-background-material .region-content .panel-col-middle .pane-node-field-pdf {
     display: none; } }
 
 @media screen and (max-width: 767px) {

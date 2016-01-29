@@ -772,9 +772,11 @@
 .node-type-background-material {
 
   .region-content {
-    .pane-node-field-pdf {
-      @include responsive($xs) {
-        display: none;
+    .panel-col-middle {
+      .pane-node-field-pdf {
+        @include responsive($xs) {
+          display: none;
+        }
       }
     }
 
