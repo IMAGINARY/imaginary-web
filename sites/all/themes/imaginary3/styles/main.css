@@ -3372,8 +3372,7 @@ img.file-icon {
   text-align: center;
   color: #666;
   border-bottom: 1px solid #D3D7D9;
-  padding: 1em 0 1em 0;
-  margin-bottom: 1em; }
+  padding: 1em 0 1em 0; }
   .node-type-event .view-event-if-permanent-since-else-from-start-to-end-date p {
     margin: 0 !important; }
 
@@ -4579,6 +4578,20 @@ img.file-icon {
   .node-type-background-material .region-content .pane-background-materials-pdf {
     display: none; } }
 
+@media screen and (max-width: 959px) {
+  .node-type-background-material .region-content .pane-files-for-background-materials,
+  .node-type-snapshot .region-content .pane-files-for-background-materials {
+    margin-top: 0; }
+  .node-type-background-material .region-content .panel-col-last,
+  .node-type-snapshot .region-content .panel-col-last {
+    padding-bottom: 0; }
+  .node-type-background-material .region-content .field-collection-container,
+  .node-type-snapshot .region-content .field-collection-container {
+    margin-bottom: 0; }
+  .node-type-background-material .region-content .panel-2col-bricks .panel-separator,
+  .node-type-snapshot .region-content .panel-2col-bricks .panel-separator {
+    margin: 0; } }
+
 .pane-gallery-first-row {
   border-bottom: 3px solid black; }
 
@@ -4989,6 +5002,8 @@ img.file-icon {
   font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
 
 @media screen and (max-width: 959px) {
+  .node-type-gallery #block-system-main {
+    margin-top: 1em; }
   .gallery-full-width .next-previous {
     text-align: center; }
     .gallery-full-width .next-previous .arrow-previous, .gallery-full-width .next-previous .arrow-next {
@@ -4998,7 +5013,9 @@ img.file-icon {
       line-height: 40px;
       margin: 10px 0 0;
       padding: 0;
-      vertical-align: top; }
+      vertical-align: top;
+      background-color: white;
+      color: #222; }
     .gallery-full-width .next-previous .previous,
     .gallery-full-width .next-previous .current,
     .gallery-full-width .next-previous .next {

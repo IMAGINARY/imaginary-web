@@ -785,3 +785,26 @@
     }
   }
 }
+
+@include responsive($xs-sm) {
+  .node-type-background-material,
+  .node-type-snapshot {
+    .region-content {
+      .pane-files-for-background-materials {
+        margin-top: 0;
+      }
+
+      .panel-col-last {
+        padding-bottom: 0;
+      }
+
+      .field-collection-container {
+        margin-bottom: 0;
+      }
+
+      .panel-2col-bricks .panel-separator {
+        margin: 0;
+      }
+    }
+  }
+}

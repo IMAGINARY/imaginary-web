@@ -600,6 +600,10 @@
 
 @include responsive($xs-sm) {
 
+  .node-type-gallery #block-system-main {
+    margin-top: 1em;
+  }
+
   $gallery-thumb-size: 60px;
 
   .gallery-full-width {
@@ -614,6 +618,8 @@
         margin: 10px 0 0;
         padding: 0;
         vertical-align: top;
+        background-color: white;
+        color: $color-black;
       }
 
       .previous,
