@@ -1465,9 +1465,10 @@ iframe {
 
 @media screen and (max-width: 959px) {
   #header #block-locale-language-content {
-    display: none;
+    display: block;
     width: 100%;
     height: auto;
+    max-height: 0;
     position: absolute;
     top: 50px;
     left: 0;
@@ -1475,13 +1476,16 @@ iframe {
     padding: 0;
     border: none;
     background-color: white;
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2); }
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2);
+    transition: max-height 0.2s;
+    overflow: hidden; }
     #header #block-locale-language-content h2 {
       display: none; }
     #header #block-locale-language-content .content {
       display: block; }
     #header #block-locale-language-content.headerDropdown-active {
-      display: block; }
+      max-height: 1000px;
+      transition: max-height 0.3s; }
     #header #block-locale-language-content ul.language-switcher-locale-url {
       background-color: white;
       margin: 0;
@@ -1509,9 +1513,10 @@ iframe {
           #header #block-locale-language-content ul.language-switcher-locale-url li a:hover {
             border: none; }
   #header #block-menu-menu-main-menu-2 {
-    display: none;
+    display: block;
     width: 100%;
     height: auto;
+    max-height: 0;
     position: absolute;
     top: 50px;
     left: 0;
@@ -1519,13 +1524,16 @@ iframe {
     padding: 0;
     border: none;
     background-color: white;
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2); }
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2);
+    transition: max-height 0.2s;
+    overflow: hidden; }
     #header #block-menu-menu-main-menu-2 h2 {
       display: none; }
     #header #block-menu-menu-main-menu-2 .content {
       display: block; }
     #header #block-menu-menu-main-menu-2.headerDropdown-active {
-      display: block; }
+      max-height: 1000px;
+      transition: max-height 0.3s; }
     #header #block-menu-menu-main-menu-2 ul.menu {
       background-color: white;
       margin: 0;
@@ -1555,9 +1563,10 @@ iframe {
       #header #block-menu-menu-main-menu-2 ul.menu li.meta-trigger {
         display: block; }
   #header #block-menu-menu-meta-menu {
-    display: none;
+    display: block;
     width: 100%;
     height: auto;
+    max-height: 0;
     position: absolute;
     top: 50px;
     left: 0;
@@ -1565,13 +1574,16 @@ iframe {
     padding: 0;
     border: none;
     background-color: white;
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2); }
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2);
+    transition: max-height 0.2s;
+    overflow: hidden; }
     #header #block-menu-menu-meta-menu h2 {
       display: none; }
     #header #block-menu-menu-meta-menu .content {
       display: block; }
     #header #block-menu-menu-meta-menu.headerDropdown-active {
-      display: block; }
+      max-height: 1000px;
+      transition: max-height 0.3s; }
     #header #block-menu-menu-meta-menu ul.menu {
       background-color: white;
       margin: 0;
@@ -1599,9 +1611,10 @@ iframe {
           #header #block-menu-menu-meta-menu ul.menu li a:hover {
             border: none; }
   #header #block-search-form {
-    display: none;
+    display: block;
     width: 100%;
     height: auto;
+    max-height: 0;
     position: absolute;
     top: 50px;
     left: 0;
@@ -1609,22 +1622,26 @@ iframe {
     padding: 0;
     border: none;
     background-color: white;
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2); }
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2);
+    transition: max-height 0.2s;
+    overflow: hidden; }
     #header #block-search-form h2 {
       display: none; }
     #header #block-search-form .content {
       display: block; }
     #header #block-search-form.headerDropdown-active {
-      display: block; }
+      max-height: 1000px;
+      transition: max-height 0.3s; }
     #header #block-search-form .content {
       padding: 10px; }
     #header #block-search-form input {
       width: 100%;
       font-size: 16px; }
   #header #block-user-login {
-    display: none;
+    display: block;
     width: 100%;
     height: auto;
+    max-height: 0;
     position: absolute;
     top: 50px;
     left: 0;
@@ -1632,13 +1649,16 @@ iframe {
     padding: 0;
     border: none;
     background-color: white;
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2); }
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2);
+    transition: max-height 0.2s;
+    overflow: hidden; }
     #header #block-user-login h2 {
       display: none; }
     #header #block-user-login .content {
       display: block; }
     #header #block-user-login.headerDropdown-active {
-      display: block; }
+      max-height: 1000px;
+      transition: max-height 0.3s; }
     #header #block-user-login .get-access {
       display: none; }
     #header #block-user-login .user-login {
@@ -1687,9 +1707,10 @@ iframe {
       #header #block-user-login .item-list ul li a {
         font-size: 14px; }
   #header #block-system-user-menu {
-    display: none;
+    display: block;
     width: 100%;
     height: auto;
+    max-height: 0;
     position: absolute;
     top: 50px;
     left: 0;
@@ -1697,13 +1718,16 @@ iframe {
     padding: 0;
     border: none;
     background-color: white;
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2); }
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2);
+    transition: max-height 0.2s;
+    overflow: hidden; }
     #header #block-system-user-menu h2 {
       display: none; }
     #header #block-system-user-menu .content {
       display: block; }
     #header #block-system-user-menu.headerDropdown-active {
-      display: block; }
+      max-height: 1000px;
+      transition: max-height 0.3s; }
     #header #block-system-user-menu ul.menu {
       background-color: white;
       margin: 0;

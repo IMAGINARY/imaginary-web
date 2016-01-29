@@ -3,9 +3,10 @@
   $xs-header-height: 50px;
 
   @mixin headerDropdown {
-    display: none;
+    display: block;
     width: 100%;
     height: auto;
+    max-height: 0;
     position: absolute;
     top: $xs-header-height;
     left: 0;
@@ -14,6 +15,8 @@
     border: none;
     background-color: white;
     @include shadow-low;
+    transition: max-height 0.2s;
+    overflow: hidden;
     h2 {
       display: none;
     }
@@ -22,7 +25,8 @@
     }
 
     &.headerDropdown-active {
-      display: block;
+      max-height: 1000px;
+      transition: max-height 0.3s;
     }
   }
 
