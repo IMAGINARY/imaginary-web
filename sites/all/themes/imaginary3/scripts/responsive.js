@@ -22,7 +22,7 @@ var headerTriggers = [
   {
     id: 'languageMenu',
     description: 'Language',
-    icon: 'fa-globe',
+    icon: 'fa-language',
     itemSelector: '#block-locale-language-content'
   },
   // Login
