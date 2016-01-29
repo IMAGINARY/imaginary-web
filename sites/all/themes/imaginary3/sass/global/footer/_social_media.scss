@@ -1,10 +1,15 @@
 #social-media {
+
+  i.fa {
+    color: $color-black;
+    font-size: 35px;
+  }
+
   .social {
     float: right;
     margin-left: 1em;
-  }
-
-  .twitter {
-    padding-top: 5px;
+    a {
+      display: block;
+    }
   }
 }
