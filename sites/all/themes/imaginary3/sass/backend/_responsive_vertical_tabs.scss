@@ -1,0 +1,40 @@
+.accordion-tab-button {
+  display: none;
+}
+
+@include responsive($xs-sm) {
+
+  div.vertical-tabs {
+    margin: 1em 0;
+  }
+
+  ul.vertical-tabs-list {
+    display: none;
+  }
+
+  .accordion-tab-button {
+    display: block;
+    padding: 14px 38px 14px 16px;
+    margin: 0;
+    font-family: $font-stack-futura;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 15px;
+    letter-spacing: 1px;
+    background-color: #E4E4E4;
+    border-bottom: 1px solid #949494;
+    position: relative;
+
+    .summary {
+      display: block;
+    }
+    
+    .caret {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      font-size: 20px;
+      color: #4A4A4A;
+    }
+  }
+}

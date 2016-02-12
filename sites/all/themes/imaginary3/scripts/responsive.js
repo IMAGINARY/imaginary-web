@@ -156,11 +156,52 @@ function stickyHeaderHandler() {
   }
 }
 
+function verticalTabsToAccordion() {
+
+  // Each vertical tab collection
+  $('.vertical-tabs').each(function() {
+    var $buttons = $(this).find('.vertical-tab-button');
+    var $panes = $(this).find('.vertical-tabs-panes .vertical-tabs-pane');
+
+    var $activePane = $($panes.filter(':visible').first());
+
+    $panes.each(function(i){
+      if($buttons[i] !== undefined) {
+        var $associatedPane = $(this);
+        var $newButton = $('<h2 class="accordion-tab-button"></h2>')
+          .append($($buttons[i]).find('a').children().clone())
+          .append('<i class="caret fa fa-caret-down"></i>')
+          .insertBefore($associatedPane);
+
+        if($associatedPane[0] == $activePane[0]) {
+          $newButton.find('.caret').removeClass('fa-caret-down').addClass('fa-caret-up');
+        }
+
+        $newButton.click(function(){
+          if($activePane) {
+            $activePane.slideUp();
+            $newButton.parent().find('.fa-caret-up').removeClass('fa-caret-up').addClass('fa-caret-down');
+          }
+
+          if(!$activePane || ($activePane[0] !== $associatedPane[0])) {
+            $associatedPane.slideDown();
+            $newButton.find('.caret').removeClass('fa-caret-down').addClass('fa-caret-up');
+            $activePane = $associatedPane;
+          } else {
+            $activePane = null;
+          }
+        });
+      }
+    });
+  });
+}
+
 // Document ready
 $(function(){
   createHeaderTriggers();
   addResponsiveMetaMenuTrigger();
   stickyHeaderHandler();
+  verticalTabsToAccordion();
 });
 
 })(jQuery);
