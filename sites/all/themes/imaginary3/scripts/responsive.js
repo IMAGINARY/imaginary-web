@@ -168,7 +168,7 @@ function verticalTabsToAccordion() {
     $panes.each(function(i){
       if($buttons[i] !== undefined) {
         var $associatedPane = $(this);
-        var $newButton = $('<h2 class="accordion-tab-button"></h2>')
+        var $newButton = $('<div class="accordion-tab-button"></div>')
           .append($($buttons[i]).find('a').children().clone())
           .append('<i class="caret fa fa-caret-down"></i>')
           .insertBefore($associatedPane);
