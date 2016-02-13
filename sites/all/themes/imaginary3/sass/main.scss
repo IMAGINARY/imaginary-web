@@ -33,6 +33,7 @@ $font-stack-futura: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande',
 // Global styles
 @import 'global/utilities';
 @import 'global/basic';
+@import 'global/responsive_forms';
 @import 'global/layout';
 
 // Global : Header
@@ -110,5 +111,6 @@ $font-stack-futura: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande',
 @import 'backend/galleries';
 @import 'backend/dashboard';
 @import 'backend/filter_page';
+@import 'backend/responsive';
 @import 'backend/responsive_vertical_tabs';
 

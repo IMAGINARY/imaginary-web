@@ -101,12 +101,15 @@
 
     .view-events-timeline-home {
       .view-header {
-        top: 302px;
+        top: 310px;
+        text-align: left;
+        right: initial;
       }
     }
   }
 
   .view-landing-page-events {
+
     .views-field-title {
       margin-bottom: 0;
       float: none;
@@ -122,8 +125,13 @@
   }
 
   .view-events-geofield-map {
+    margin-bottom: 15px;
     .view-content > div {
       height: 300px !important;
     }
+  }
+
+  .pane-landing-page-events {
+    display: none;
   }
 }

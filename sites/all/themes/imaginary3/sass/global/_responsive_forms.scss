@@ -1,0 +1,7 @@
+@include responsive($xs-sm) {
+  form {
+    input, select {
+      max-width: 100%;
+    }
+  }
+}

@@ -1,0 +1,180 @@
+@include responsive($xs-sm) {
+
+  .form-item input.form-text,
+  .form-item select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .filter-help {
+    padding: 0;
+    margin: 0;
+    float: none;
+
+    a {
+      padding: 0;
+    }
+  }
+
+  .filter-wrapper .form-item {
+    padding: 0;
+    label {
+      line-height: 40px;
+      margin-right: 10px;
+    }
+  }
+
+  .page-node-edit .node-form .filter-wrapper {
+    padding: 1em 0 0;
+  }
+
+  .filter-guidelines {
+    margin: 0;
+  }
+
+  .link-field-column {
+    float: none;
+    width: 100%;
+  }
+
+  .image-widget {
+    .image-preview,
+    .image-widget-data {
+      float: none;
+    }
+  }
+
+  .node-form input.form-submit,
+  .node-form .form-file {
+
+    float: none;
+    display: block;
+    clear: both;
+    margin-bottom: 15px;
+  }
+
+  tr.odd .form-item,
+  tr.even .form-item {
+    white-space: initial;
+  }
+
+  html.js fieldset.collapsed {
+    height: auto;
+    margin-bottom: 15px;
+  }
+
+  .horizontal-tabs ul.horizontal-tabs-list {
+    border-bottom: 1px solid #CCC;
+    margin-bottom: 12px;
+  }
+
+  .horizontal-tabs ul.horizontal-tabs-list li {
+    float: none;
+  }
+
+  .vertical-tabs .form-type-textfield input {
+    width: 100%;
+  }
+
+  .node-form .form-file {
+    width: 100%;
+  }
+
+  .redirect-list {
+    margin-bottom: 20px;
+
+    th {
+      display: block;
+    }
+    td {
+      display: block;
+      padding-left: 20px;
+      &:first-child {
+        padding-left: 0;
+      }
+    }
+  }
+
+  div.field-group-tabs-wrapper div.field-type-datetime fieldset {
+    padding: 0;
+  }
+
+  div.field-type-datetime legend {
+    margin: 0;
+  }
+
+  .date-no-float {
+    margin: 0 !important;
+  }
+
+  .date-float .form-type-checkbox {
+    margin-bottom: 0;
+  }
+
+  .form-actions {
+    input.form-submit {
+      clear: none;
+      float: left;
+      margin: 0 4px 0 0;
+    }
+  }
+
+  .logged-in.node-type-snapshot .field-name-field-snapshot-number {
+    float: none;
+    width: initial;
+  }
+
+  .logged-in.node-type-snapshot .field-name-field-year .form-wrapper {
+    padding-left: 0;
+  }
+
+  .logged-in.node-type-snapshot .field-name-field-year .description,
+  .logged-in.page-node-add-snapshot .field-name-field-year .description {
+    left: initial;
+  }
+
+  .tabs ul.secondary {
+    background-color: #E4E4E4;
+    padding: 0;
+    margin: 0;
+    border-bottom: 3px solid #000;
+    padding-top: 6px;
+    li {
+      border: none;
+      padding: 0;
+      display: inline-block;
+      a {
+        display: block;
+        font-family: $font-stack-futura;
+        font-weight: normal;
+        font-style: normal;
+        padding: 10px;
+        color: #000 !important;
+      }
+
+      &.active {
+        a {
+          text-decoration: underline !important;
+          border-bottom: none;
+        }
+      }
+    }
+  }
+  .confirm-parent, .password-parent {
+    width: 100%;
+  }
+
+  div.form-item div.password-suggestions {
+    width: 100%;
+  }
+
+  .password-strength {
+    float: none;
+    width: 100%;
+  }
+
+  .filter-guidelines {
+    padding: 10px 0 0;
+  }
+}

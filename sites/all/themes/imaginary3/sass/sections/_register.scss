@@ -153,3 +153,73 @@
   }
 }
 
+@include responsive($xs-sm) {
+
+  .page-user-register {
+    .vertical-tabs {
+
+      margin-bottom: 1.5em;
+
+      input {
+        width: 100%;
+      }
+      .description {
+        width: 100%;
+      }
+    }
+
+    #edit-simplenews {
+
+      margin-bottom: 1.5em;
+
+      .fieldset-description {
+        width: auto;
+      }
+    }
+
+    #edit-terms-of-use {
+
+      margin-bottom: 1.5em;
+      padding: 1em;
+
+      .fieldset-wrapper {
+        width: auto;
+        p, h2, ul {
+          width: auto;
+          padding: 0 5px;
+        }
+        ul {
+          padding-left: 2em;
+        }
+      }
+
+      .jspScrollable {
+        padding: 0 !important;
+      }
+    }
+
+    .captcha {
+      width: auto;
+      display: block;
+
+      #edit-captcha-form {
+        width: auto;
+        margin: 0 -1.5em;
+        text-align: center;
+
+        #recaptcha_widget_div {
+          display: inline-block;
+        }
+      }
+    }
+
+    #edit-actions {
+
+      float: none;
+      #edit-submit {
+        width: 100%;
+      }
+    }
+  }
+}
+

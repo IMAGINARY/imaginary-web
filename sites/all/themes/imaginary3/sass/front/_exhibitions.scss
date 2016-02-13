@@ -3,12 +3,21 @@
 }
 
 @include responsive($xs-sm) {
+  .front .pane-exhibitions-view {
+    border-top: 1px solid #999;
+  }
   .front .pane-exhibitions-view .views-field-field-main-image {
     width: 50%;
     margin: auto;
+    border-bottom: none;
 
     img {
       margin-bottom: 1em;
     }
+  }
+
+  .front .view-exhibitions-view .views-row {
+    border-bottom: none;
+    margin-bottom: 20px;
   }
 }

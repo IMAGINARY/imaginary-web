@@ -48,7 +48,7 @@ h2.pane-title {
   letter-spacing: 2px;
   text-align: center;
   color: #666;
-  margin: 1em 0px 1em 0px;
+  margin: 1.5em 0px 1em 0px;
 
   @include responsive($xs-sm) {
     font-size: 1em;
@@ -175,4 +175,11 @@ iframe {
   // Fixes nesting of Tipogriphy's .caps
   // which incrementally reduces the font size
   font-size: inherit;
+}
+
+@include responsive($xs-sm) {
+  input, select {
+    min-height: 35px;
+    font-size: 14px;
+  }
 }

@@ -5,4 +5,9 @@
   padding-top: 1em;
   padding-bottom: 2em;
   border-bottom: 1px solid #999;
+
+  @include responsive($xs-sm) {
+    border-bottom: none;
+    padding-bottom: 1.1em;
+  }
 }

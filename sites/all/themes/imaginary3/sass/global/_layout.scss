@@ -138,7 +138,11 @@
     display: block;
   }
 
-  .panel-2col, .panel-2col-rtl, .panel-2col-bricks, .panel-2col-bricks-rtl {
+  .panel-2col,
+  .panel-2col-rtl,
+  .panel-2col-bricks,
+  .panel-2col-bricks-rtl,
+  .panel-2col-stacked {
     .panel-col-first,
     .panel-col-last {
       width: 100%;

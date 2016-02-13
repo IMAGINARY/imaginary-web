@@ -54,6 +54,9 @@
 @include responsive($xs-sm) {
   .pane-landing-page-first-news,
   .pane-news-sidebar {
+
+    border-top: 1px solid #999;
+
     .field-name-field-image-title {
       font-size: 0.9em;
       line-height: 1.3em;
@@ -70,6 +73,13 @@
     .field-content {
       font-size: 16px;
       line-height: 22px;
+    }
+
+    .more-link {
+      float: none;
+      display: block;
+      text-align: left;
+      margin-top: 12px;
     }
   }
 }
@@ -167,6 +177,9 @@
 
 @include responsive($xs-sm) {
   .pane-landing-page-more-news {
+
+    display: none;
+
     .views-row {
       width: 100%;
       float: none;

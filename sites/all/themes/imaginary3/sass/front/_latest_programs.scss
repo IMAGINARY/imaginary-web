@@ -39,17 +39,34 @@
 
 @include responsive($xs-sm) {
 
+  .front .pane-landing-page-latest-programs {
+    border-top: 1px solid #999;
+  }
+
+
   .view-landing-page-latest-programs {
+
+    .views-row {
+      border-bottom: none;
+    }
+
+    .views-row-last {
+      padding-bottom: 2.5em;
+      border-bottom: 1px solid #999;
+    }
+
     .views-field-title {
       margin-bottom: 0em;
       float: none;
       width: 100%;
+      text-align: center;
     }
     .views-field-name {
       float: none;
       width: 100%;
       font-size: 0.9em;
       margin-bottom: 0.5em;
+      text-align: center;
     }
   }
 }
