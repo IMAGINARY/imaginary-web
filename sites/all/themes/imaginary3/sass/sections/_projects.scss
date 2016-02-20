@@ -38,6 +38,11 @@
     height: auto;
     display: block;
     margin: 0 auto;
+
+    @include responsive($xs-sm) {
+      width: 100px;
+      height: auto;
+    }
   }
 
   @include responsive($xs) {

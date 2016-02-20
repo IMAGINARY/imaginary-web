@@ -327,7 +327,7 @@
       float: left;
     }
 
-    @include responsive($xs-sm) {
+    @include responsive($xs) {
       .panel-col-first,
       .panel-col-last {
         width: 100%;

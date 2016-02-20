@@ -3,10 +3,11 @@
   font-family: $font-stack-futura;
   margin-top: 20px;
   margin-bottom: 20px;
+  @include clearfix;
 
   .join-create {
     width: 28%;
-    height: 150px;
+    height: auto;
     margin-bottom: 1.5%;
     float: left;
     padding: 1em;
@@ -59,7 +60,7 @@
   }
 }
 
-@include responsive($xs-sm) {
+@include responsive($xs) {
   #join-create,
   .view-frontpage-join-create-organize {
     margin: 0 0 50px;

@@ -124,7 +124,7 @@
   }
 }
 
-@include responsive($xs-sm) {
+@include responsive($xs) {
 
   #page {
     width: 100%;

@@ -11,7 +11,7 @@
   }
 }
 
-@include responsive($xs-sm) {
+@include responsive($xs) {
   .front #node-130 {
     .field-name-body {
       font-size: 20px;
@@ -20,6 +20,20 @@
 
     p {
       margin-bottom: 2.5em;
+    }
+  }
+}
+
+@include responsive($sm-only) {
+  .front #node-130 {
+    .field-name-body {
+      font-size: 32px;
+      line-height: 38px;
+    }
+
+    p {
+      margin-top: 2em;
+      margin-bottom: 2em;
     }
   }
 }

@@ -1,69 +1,80 @@
-@include responsive($xs-sm) {
+$xs-header-height: 50px;
+$sm-header-height: 65px;
 
-  $xs-header-height: 50px;
-
-  @mixin headerDropdown {
+@mixin headerDropdown {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 0;
+  position: absolute;
+  top: $xs-header-height;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: white;
+  @include shadow-low;
+  transition: max-height 0.2s;
+  overflow: hidden;
+  h2 {
+    display: none;
+  }
+  .content {
     display: block;
-    width: 100%;
-    height: auto;
-    max-height: 0;
-    position: absolute;
-    top: $xs-header-height;
-    left: 0;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background-color: white;
-    @include shadow-low;
-    transition: max-height 0.2s;
-    overflow: hidden;
-    h2 {
-      display: none;
-    }
-    .content {
-      display: block;
-    }
-
-    &.headerDropdown-active {
-      max-height: 1000px;
-      transition: max-height 0.3s;
-    }
   }
 
-  @mixin headerDropdownMenu {
+  &.headerDropdown-active {
+    max-height: 1000px;
+    transition: max-height 0.3s;
+  }
 
-    background-color: white;
+  @include responsive($sm-only) {
+    top: $sm-header-height;
+  }
+}
+
+@mixin headerDropdownMenu {
+
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  width: 100%;
+  li {
+    display: block;
+    position: relative;
     margin: 0;
     padding: 0;
     height: auto;
     width: 100%;
-    li {
-      display: block;
+    &.first,
+    &.last {
       position: relative;
-      margin: 0;
-      padding: 0;
-      height: auto;
+    }
+
+    a {
+      display: block;
+      height: 30px;
       width: 100%;
-      &.first,
-      &.last {
-        position: relative;
+      font-size: 18px;
+      line-height: 30px;
+      color: $color-black;
+      text-align: center;
+      border: none;
+      &:hover {
+        border: none;
       }
 
-      a {
-        display: block;
-        height: 30px;
-        width: 100%;
-        font-size: 18px;
-        line-height: 30px;
-        color: $color-black;
-        text-align: center;
-        border: none;
-        &:hover {
-          border: none;
-        }
+      @include responsive($sm-only) {
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
       }
     }
   }
+}
+
+@include responsive($xs-sm) {
 
   #header {
 
@@ -166,51 +177,86 @@
       }
     }
 
-    $dropDownTriggerMargin: 5px;
-    $dropDownTriggerWidth: 40px;
-    $dropDownTriggerHeight: 40px;
-    $dropDownTriggerSpacing: 0px;
-    $dropDownTriggerIconSize: 22px;
+    $xs-dropDownTriggerMargin: 5px;
+    $xs-dropDownTriggerWidth: 40px;
+    $xs-dropDownTriggerHeight: 40px;
+    $xs-dropDownTriggerSpacing: 0px;
+    $xs-dropDownTriggerIconSize: 22px;
+
+    $sm-dropDownTriggerMargin: 5px;
+    $sm-dropDownTriggerWidth: 60px;
+    $sm-dropDownTriggerHeight: 60px;
+    $sm-dropDownTriggerSpacing: 0px;
+    $sm-dropDownTriggerIconSize: 26px;
 
     .dropDownTrigger {
       display: block;
-      width: $dropDownTriggerWidth;
-      height: $dropDownTriggerHeight;
+      width: $xs-dropDownTriggerWidth;
+      height: $xs-dropDownTriggerHeight;
       position: absolute;
       //background-color: lightgrey;
-      font-size: $dropDownTriggerIconSize;
-      line-height: $dropDownTriggerHeight;
+      font-size: $xs-dropDownTriggerIconSize;
+      line-height: $xs-dropDownTriggerHeight;
       text-align: center;
       z-index: 1000;
 
       &.active {
         border-bottom: 4px solid $color-black;
       }
+
+      @include responsive($sm-only) {
+        width: $sm-dropDownTriggerWidth;
+        height: $sm-dropDownTriggerHeight;
+        font-size: $sm-dropDownTriggerIconSize;
+        line-height: $sm-dropDownTriggerHeight;
+      }
     }
 
     .dropDownTrigger-mainMenu {
-      top: $dropDownTriggerMargin;
-      left: $dropDownTriggerMargin;
+      top: $xs-dropDownTriggerMargin;
+      left: $xs-dropDownTriggerMargin;
+      @include responsive($sm-only) {
+        top: $sm-dropDownTriggerMargin;
+        left: $sm-dropDownTriggerMargin;
+      }
     }
 
     .dropDownTrigger-search {
-      top: $dropDownTriggerMargin;
-      left: $dropDownTriggerMargin + $dropDownTriggerWidth + $dropDownTriggerSpacing;
+      top: $xs-dropDownTriggerMargin;
+      left: $xs-dropDownTriggerMargin + $xs-dropDownTriggerWidth + $xs-dropDownTriggerSpacing;
+
+      @include responsive($sm-only) {
+        top: $sm-dropDownTriggerMargin;
+        left: $sm-dropDownTriggerMargin + $sm-dropDownTriggerWidth + $sm-dropDownTriggerSpacing;
+      }
     }
 
     .dropDownTrigger-languageMenu {
-      top: $dropDownTriggerMargin;
-      right: $dropDownTriggerMargin + $dropDownTriggerWidth + $dropDownTriggerSpacing;
+      top: $xs-dropDownTriggerMargin;
+      right: $xs-dropDownTriggerMargin + $xs-dropDownTriggerWidth + $xs-dropDownTriggerSpacing;
+
+      @include responsive($sm-only) {
+        top: $sm-dropDownTriggerMargin;
+        right: $sm-dropDownTriggerMargin + $sm-dropDownTriggerWidth + $sm-dropDownTriggerSpacing;
+      }
     }
 
     .dropDownTrigger-login {
-      top: $dropDownTriggerMargin;
-      right: $dropDownTriggerMargin;
+      top: $xs-dropDownTriggerMargin;
+      right: $xs-dropDownTriggerMargin;
+      @include responsive($sm-only) {
+        top: $sm-dropDownTriggerMargin;
+        right: $sm-dropDownTriggerMargin;
+      }
     }
 
     .dropDownTrigger-userMenu {
-      top: $dropDownTriggerMargin;
-      right: $dropDownTriggerMargin;
+      top: $xs-dropDownTriggerMargin;
+      right: $xs-dropDownTriggerMargin;
+      @include responsive($sm-only) {
+        top: $sm-dropDownTriggerMargin;
+        right: $sm-dropDownTriggerMargin;
+      }
     }
   }
 
@@ -243,20 +289,36 @@
 
     #page {
       margin-top: 120px !important;
+
+      @include responsive($sm-only) {
+        margin-top: 180px !important;
+      }
     }
 
     #header {
       position: absolute;
-      top: ($xs-header-height + 10px) !important;
-      margin-top: -1 * ($xs-header-height + 10px) !important;
       box-shadow: none;
-      height: 126px;
       transition: height 0.5s 0.3s, box-shadow 0.3s 0s;
 
+      height: 126px;
+      top: ($xs-header-height + 10px) !important;
+      margin-top: -1 * ($xs-header-height + 10px) !important;
+
+      @include responsive($sm-only) {
+        height: 150px;
+        top: ($sm-header-height + 10px) !important;
+        margin-top: -1 * ($sm-header-height + 10px) !important;
+      }
+
       #logo {
-        width: 240px;
         margin-top: 53px;
         transition: width 0.5s 0.3s, margin-top 0.5s 0.3s;
+
+        width: 240px;
+
+        @include responsive($sm-only) {
+          width: 350px;
+        }
       }
     }
   }
@@ -264,10 +326,9 @@
   .not-front {
     #page {
       margin-top: $xs-header-height + 10px !important;
-    }
-
-    #logo {
-
+      @include responsive($sm-only) {
+        margin-top: $sm-header-height + 10px !important;
+      }
     }
   }
 
@@ -281,11 +342,17 @@
       height: $xs-header-height;
       @include shadow-low;
       transition: margin-top 0.5s 0s;
+      @include responsive($sm-only) {
+        height: $sm-header-height;
+      }
 
       #logo {
         width: 120px;
         margin-top: 0;
         transition: width 0s 0s, margin-top 0s 0s;
+        @include responsive($sm-only) {
+          width: 170px;
+        }
       }
     }
   }

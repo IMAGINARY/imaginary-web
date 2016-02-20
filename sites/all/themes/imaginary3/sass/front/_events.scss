@@ -97,6 +97,9 @@
 
     h2.pane-title {
       margin-bottom: 0;
+      @include responsive($sm-only) {
+        margin-bottom: 1em;
+      }
     }
 
     .view-events-timeline-home {
@@ -111,9 +114,9 @@
   .view-landing-page-events {
 
     .views-field-title {
-      margin-bottom: 0;
       float: none;
       width: 100%;
+      margin-bottom: 0;
     }
 
     .views-field-field-time-place {

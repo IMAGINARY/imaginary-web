@@ -84,7 +84,7 @@
   }
 }
 
-@include responsive($xs-sm) {
+@include responsive($xs) {
   #big-buttons {
     .big-button {
       display: block;
@@ -131,6 +131,21 @@
     .galleries, .entdeckerbox {
       margin-left: 0;
       margin-right: 0;
+    }
+  }
+}
+
+@include responsive($sm-only) {
+  #big-buttons {
+    .row {
+      width: 100%;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .big-button {
+      width: 32%;
+      height: 132px;
+      float: left;
     }
   }
 }

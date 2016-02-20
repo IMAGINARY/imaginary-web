@@ -29,6 +29,9 @@
       li {
         float: none;
         margin: 0;
+        @include responsive($sm-only) {
+          text-align: right;
+        }
         a {
           font-size: 1em;
           display: block;
@@ -43,5 +46,10 @@
     margin-left: 0;
     margin-right: 1em;
     margin-bottom: 1em;
+    @include responsive($sm-only) {
+      float: right;
+      margin-left: 1em;
+      margin-right: 0;
+    }
   }
 }

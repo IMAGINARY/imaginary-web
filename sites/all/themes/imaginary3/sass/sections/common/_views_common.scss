@@ -17,8 +17,13 @@
     -webkit-margin-end: 0px;
   }
 
-  @include responsive($xs-sm) {
+  @include responsive($xs) {
     padding: 0 0 1em 0;
+    width: initial !important;
+    float: none !important;
+    position: static !important;
+    left: initial !important;
+    top: initial !important;
 
     &:first-child {
       padding-top: 1em;
@@ -31,6 +36,12 @@
 .view-exhibitions-view,
 .view-physical-exhibits,
 .view-films {
+
+  .view-content {
+    @include responsive($xs) {
+      height: auto !important;
+    }
+  }
 
   .views-row-odd {
     margin-right: 10%;
@@ -47,8 +58,12 @@
     text-transform: uppercase;
     margin: 0 0 1em 0;
 
-    @include responsive($xs) {
+    @include responsive($xs-sm) {
       font-size: 20px;
+      a {
+        display: block;
+        width: 100%;
+      }
     }
   }
 
@@ -58,7 +73,7 @@
     display: block;
     margin: 0 auto 1.6em;
 
-    @include responsive($xs-sm) {
+    @include responsive($xs) {
       width: 100px;
     }
   }
