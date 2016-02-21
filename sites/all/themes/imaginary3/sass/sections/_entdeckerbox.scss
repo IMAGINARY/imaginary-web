@@ -31,6 +31,19 @@
     color: #555555;
     text-decoration: none !important;
 
+    @include responsive($xs-sm) {
+
+      font-size: 18px;
+      line-height: 20px;
+
+      header {
+        display: none;
+      }
+
+      p {
+        margin: 10px 0;
+      }
+    }
   }
 
   #node-534 {
@@ -40,6 +53,11 @@
     font-weight: normal;
     line-height: 23px;
     text-align: center;
+
+    @include responsive($xs-sm) {
+      font-size: 18px;
+      line-height: 20px;
+    }
   }
 
   .highlights {
@@ -50,6 +68,24 @@
       font-size: 20px;
       line-height: 23px;
       font-weight: normal;
+
+      @include responsive($xs-sm) {
+        font-size: 16px;
+        line-height: 20px;
+      }
+    }
+  }
+
+  @include responsive($xs-sm) {
+    .field-name-body {
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      ul {
+        padding: 0;
+      }
     }
   }
 
@@ -68,6 +104,10 @@
         margin-bottom: 5px;
         font-size: 20px;
         line-height: 23px;
+        @include responsive($xs-sm) {
+          font-size: 16px;
+          line-height: 20px;
+        }
       }
     }
   }

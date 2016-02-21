@@ -33,23 +33,32 @@
     }
   }
 
-  .pane-projects img {
-    width: 80%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
+  .pane-projects {
+    .view-content {
+      @include responsive($xs) {
+        width: 100% !important;
+      }
+    }
 
-    @include responsive($xs-sm) {
-      width: 100px;
+    img {
+      width: 80%;
       height: auto;
+      display: block;
+      margin: 0 auto;
+
+      @include responsive($xs-sm) {
+        width: 100px;
+        height: auto;
+      }
     }
   }
 
   @include responsive($xs) {
     .view.view-display-id-default .masonry-item {
-      float: none;
-      width: 100%;
-      margin: 1em 0;
+      padding: 0 0 1em 0;
+      width: initial !important;
+      float: none !important;
+      position: static !important;
 
       .views-field-body {
         font-size: 16px;
@@ -60,7 +69,6 @@
 }
 
 .node-type-project {
-
 
   .pane-node-title {
     h2.pane-title {

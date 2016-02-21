@@ -139,7 +139,7 @@ function stickyHeaderHandler() {
 
     window.setInterval(function() {
       if(didScroll) {
-        var scrollTop = $body.scrollTop();
+        var scrollTop = $(window).scrollTop();
         if(isSticky && scrollTop == 0) {
           $body.removeClass('sticky-header');
           isSticky = false;

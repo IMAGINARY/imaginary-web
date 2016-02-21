@@ -1904,6 +1904,7 @@ iframe {
 @media screen and (max-width: 959px) {
   #header {
     top: 0;
+    left: 0;
     z-index: 2000;
     width: 100%;
     padding: 0;
@@ -2043,7 +2044,7 @@ iframe {
     max-width: 50%; }
     .main-funder-logo img {
       display: block;
-      max-width: 100%;
+      width: 100%;
       height: auto; }
   .pane-menu-menu-footer-menu ul.menu li {
     float: none;
@@ -2164,10 +2165,10 @@ iframe {
   #big-buttons .big-button {
     display: block;
     width: 100%;
-    height: 65px;
+    height: auto;
     float: none;
-    overflow: hidden;
-    margin-bottom: 6px; }
+    overflow: visible;
+    margin-bottom: 10px; }
     #big-buttons .big-button .background-image {
       top: 0;
       z-index: 99;
@@ -2181,11 +2182,13 @@ iframe {
         margin-top: 0px;
         margin-left: -13px; }
     #big-buttons .big-button .text {
+      position: relative;
       width: auto;
       text-align: left;
       z-index: 100;
       padding-left: 70px;
-      top: -5px; }
+      top: -5px;
+      min-height: 65px; }
       #big-buttons .big-button .text h2, #big-buttons .big-button .text p {
         text-align: left;
         color: #232323; }
@@ -2228,7 +2231,7 @@ iframe {
     text-align: right;
     right: 6px; }
     .front .pane-events-timeline-home .view-header a {
-      font-family: FuturaPTMedium-Reg, Futura, 'Trebuchet MS', 'Lucida Grande', Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
       font-size: 0.9em;
       font-weight: normal;
       letter-spacing: 2px; }
@@ -6181,6 +6184,10 @@ img.file-icon {
   .page-projects .views-field-field-open-closed .field-content {
     display: inline-block; }
 
+@media screen and (max-width: 767px) {
+  .page-projects .pane-projects .view-content {
+    width: 100% !important; } }
+
 .page-projects .pane-projects img {
   width: 80%;
   height: auto;
@@ -6193,9 +6200,10 @@ img.file-icon {
 
 @media screen and (max-width: 767px) {
   .page-projects .view.view-display-id-default .masonry-item {
-    float: none;
-    width: 100%;
-    margin: 1em 0; }
+    padding: 0 0 1em 0;
+    width: initial !important;
+    float: none !important;
+    position: static !important; }
     .page-projects .view.view-display-id-default .masonry-item .views-field-body {
       font-size: 16px;
       line-height: 20px; } }
@@ -6373,6 +6381,17 @@ img.file-icon {
   line-height: 23px;
   color: #555555;
   text-decoration: none !important; }
+  @media screen and (max-width: 959px) {
+    .page-imaginary-entdeckerbox #node-532,
+    .page-imaginary-entdeckerbox #node-533 {
+      font-size: 18px;
+      line-height: 20px; }
+      .page-imaginary-entdeckerbox #node-532 header,
+      .page-imaginary-entdeckerbox #node-533 header {
+        display: none; }
+      .page-imaginary-entdeckerbox #node-532 p,
+      .page-imaginary-entdeckerbox #node-533 p {
+        margin: 10px 0; } }
 
 .page-imaginary-entdeckerbox #node-534 {
   font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
@@ -6381,6 +6400,10 @@ img.file-icon {
   font-weight: normal;
   line-height: 23px;
   text-align: center; }
+  @media screen and (max-width: 959px) {
+    .page-imaginary-entdeckerbox #node-534 {
+      font-size: 18px;
+      line-height: 20px; } }
 
 .page-imaginary-entdeckerbox .highlights {
   border-top: 1px solid #d3d7d9; }
@@ -6389,6 +6412,17 @@ img.file-icon {
     font-size: 20px;
     line-height: 23px;
     font-weight: normal; }
+    @media screen and (max-width: 959px) {
+      .page-imaginary-entdeckerbox .highlights p {
+        font-size: 16px;
+        line-height: 20px; } }
+
+@media screen and (max-width: 959px) {
+  .page-imaginary-entdeckerbox .field-name-body img {
+    max-width: 100%;
+    height: auto; }
+  .page-imaginary-entdeckerbox .field-name-body ul {
+    padding: 0; } }
 
 .page-imaginary-entdeckerbox .transparence,
 .page-imaginary-entdeckerbox .comments {
@@ -6402,6 +6436,10 @@ img.file-icon {
     margin-bottom: 5px;
     font-size: 20px;
     line-height: 23px; }
+    @media screen and (max-width: 959px) {
+      .page-imaginary-entdeckerbox .content-list ul li {
+        font-size: 16px;
+        line-height: 20px; } }
 
 .page-search #block-system-main ul, .page-search #block-system-main ol {
   margin: 0;
@@ -6613,7 +6651,8 @@ img.file-icon {
   margin-right: 10px;
   background-color: transparent;
   border: none;
-  white-space: initial; }
+  white-space: initial;
+  float: left; }
 
 .tabs ul.primary li a {
   color: white !important;
@@ -6727,6 +6766,12 @@ html.js fieldset.collapsed {
 
 .page-snapshots-admin .views-field-field-collection-person .field-name-field-person-first-name {
   margin-right: 4px; }
+
+@media screen and (max-width: 767px) {
+  .form-managed-file .file a {
+    max-width: 70%;
+    overflow: hidden;
+    display: block; } }
 
 .page-node-add-gallery .fieldset-description {
   font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;

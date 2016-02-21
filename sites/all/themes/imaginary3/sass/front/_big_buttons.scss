@@ -89,10 +89,10 @@
     .big-button {
       display: block;
       width: 100%;
-      height: 65px;
+      height: auto;
       float: none;
-      overflow: hidden;
-      margin-bottom: 6px;
+      overflow: visible;
+      margin-bottom: 10px;
 
       .background-image {
         top: 0;
@@ -111,11 +111,13 @@
       }
 
       .text {
+        position: relative;
         width: auto;
         text-align: left;
         z-index: 100;
         padding-left: 70px;
         top: -5px;
+        min-height: 65px;
 
         h2, p {
           text-align: left;

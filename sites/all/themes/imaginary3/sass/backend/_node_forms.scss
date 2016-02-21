@@ -93,3 +93,15 @@ html.js fieldset.collapsed {
     }
   }
 }
+
+@include responsive($xs) {
+  .form-managed-file {
+    .file {
+      a {
+        max-width: 70%;
+        overflow: hidden;
+        display: block;
+      }
+    }
+  }
+}
