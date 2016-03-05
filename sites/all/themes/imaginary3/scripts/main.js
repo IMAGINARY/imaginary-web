@@ -15,6 +15,17 @@ if (!(window.console && console.log)) {
 (function($){
     $(function(){
 
+      // Checks if the page was loaded in test mode. Test mode makes random content
+      // deterministic.
+      function inTestMode() {
+        // Not a well done test, but it should cause no dangerous or noticeable side effects
+        if(window.location.search.search('testmode=1') !== -1) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
         //hack for height of events slider
         if ($("body").hasClass("front")) {
             var eventsJsTimer;
@@ -38,11 +49,14 @@ if (!(window.console && console.log)) {
 		    //show hide random
 
 		    var E = $(".big-button.random");
-            var m = E.length;
-            var n = parseInt(Math.random()*m);
+        var m = E.length;
+        var n = parseInt(Math.random()*m);
+        if(inTestMode()) {
+          n = 0; // Non-random
+        }
 
-            E.addClass("hidden");
-            E.eq(n).removeClass("hidden");
+        E.addClass("hidden");
+        E.eq(n).removeClass("hidden");
 
 		    function isIE() { return ((navigator.appName == 'Microsoft Internet Explorer') || ((navigator.appName == 'Netscape') && (new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})").exec(navigator.userAgent) != null))); }
 
@@ -54,7 +68,11 @@ if (!(window.console && console.log)) {
                 var shouldWeSlice = true;
 
                 var slicebox = $( '#sb-slider' ).slicebox( {
-    				onReady : function() {slicebox.next();},
+    				onReady : function() {
+              if(!inTestMode()) {
+                slicebox.next();
+              }
+            },
     				orientation : 'v',
                     perspective : 1000,
                     cuboidsCount : 1,
@@ -71,7 +89,7 @@ if (!(window.console && console.log)) {
                 });
 
                 setInterval(function(){
-                    if (shouldWeSlice) {
+                    if (shouldWeSlice && !inTestMode()) {
                         slicebox.next();
                     }
                 }, 4000);
