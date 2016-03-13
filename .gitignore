@@ -16,3 +16,4 @@ sites/all/drush/*aliases.drushrc.php
 /.idea
 sites/all/modules/devel
 build/node_modules
+sites/all/libraries/myfontswebfonts

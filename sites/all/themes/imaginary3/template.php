@@ -1,6 +1,33 @@
 <?php
 
+/**
+ * Implements hook_library_info()
+ */
+function imaginary3_libraries_info() {
+
+  $libraries['myfontswebfonts'] = array(
+    'name' => 'MyFonts webfonts',
+    'vendor url' => 'http://www.myfonts.com',
+    'version arguments' => array(
+      'file' => 'MyFontsWebfontsKit.css',
+      'pattern' => '@\s*\*\s*MyFonts Webfont Build ID\s*(\d+)@',
+      'lines' => 5,
+      'cols' => 80,
+    ),
+    'files' => array(
+      'css' => array(
+        'MyFontsWebfontsKit.css',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
 function imaginary3_preprocess_html(&$variables) {
+
+  // MyFonts webfonts
+  libraries_load('myfontswebfonts');
 
   // Mathjax
   drupal_add_js('https://cdn.mathjax.org/mathjax/2.1-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', 'external');
