@@ -16,7 +16,8 @@ function imaginary3_libraries_info() {
     ),
     'files' => array(
       'css' => array(
-        'MyFontsWebfontsKit.css',
+        // don't preprocess to include full license text in sources
+        'MyFontsWebfontsKit.css' => array('preprocess' => FALSE),
       ),
     ),
   );
