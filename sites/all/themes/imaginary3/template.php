@@ -143,17 +143,6 @@ function imaginary3_form_node_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
-
-/**
- * UPDATE JQUERY FOR FRONTEND ONLY
- */
-function imaginary3_js_alter(&$javascript) {
-  // Swap out jQuery to use an updated version of the library.
-//  if (!path_is_admin(current_path())) {
-    $javascript['misc/jquery.js']['data'] = drupal_get_path('theme', 'imaginary3') . '/scripts/jquery-1.8.3.min.js';
-//  }
-}
-
 /**
  * Overrides theme_links__locale_block
  */
