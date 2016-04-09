@@ -1,6 +1,6 @@
 @charset "UTF-8";
 .FuturaPTMedium-Reg {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal;
   font-style: normal; }
 
@@ -847,7 +847,7 @@ h1 {
   color: red; }
 
 .field-name-body h2 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 1.2em;
   font-weight: normal;
   letter-spacing: 1px;
@@ -858,7 +858,7 @@ h1 {
   padding-top: 1em; }
 
 h2.block-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 1em;
   font-weight: normal;
   letter-spacing: 1px; }
@@ -870,7 +870,7 @@ h2.node-title {
   letter-spacing: 1px; }
 
 h2.pane-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   font-weight: normal;
   letter-spacing: 2px;
@@ -882,7 +882,7 @@ h2.pane-title {
       font-size: 1em; } }
 
 h3 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 1.0em;
   font-weight: normal;
   letter-spacing: 1px; }
@@ -935,7 +935,7 @@ h3 {
 
 input[type=text] {
   border: 1px solid black;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 input[type=password] {
   border: 1px solid black; }
@@ -1152,7 +1152,7 @@ iframe {
   position: relative; }
   #header #block-block-1 {
     background-color: yellow;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center;
     padding: 10px 0 10px 0;
     margin-top: 10px; }
@@ -1182,7 +1182,7 @@ iframe {
     display: none; }
 
 #header #block-user-login {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   position: absolute;
   z-index: 100000000;
   top: 12px;
@@ -1243,7 +1243,7 @@ iframe {
   right: 0px;
   z-index: 1000;
   width: 180px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: right; }
   #header #block-system-user-menu ul {
     margin: 0px;
@@ -1280,7 +1280,7 @@ iframe {
   margin: 0 25%;
   left: 0px;
   z-index: 1000;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   #header #block-menu-menu-meta-menu .content {
     text-align: center;
     margin: 0 auto; }
@@ -1322,7 +1322,7 @@ iframe {
   top: 12px;
   left: 0;
   width: 70px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   color: #666; }
   #header #block-locale-language-content h2 {
@@ -1364,7 +1364,7 @@ iframe {
   width: 200px; }
   #block-search-form input {
     border: 1px solid #d3d7d9;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
   #block-search-form .form-submit {
     border: 0;
     clip: rect(0 0 0 0);
@@ -1384,7 +1384,7 @@ iframe {
   padding: 20px 0 10px 0;
   z-index: 100;
   background-color: white;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 26px;
   font-weight: normal;
   letter-spacing: 1px;
@@ -1967,7 +1967,7 @@ iframe {
   margin-right: 20px; }
 
 .main-funders-text {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   color: #666; }
 
@@ -1981,7 +1981,7 @@ iframe {
 
 .pane-menu-menu-footer-menu {
   text-align: right;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666; }
   .pane-menu-menu-footer-menu ul {
     margin: 1em 0 0 0;
@@ -2078,7 +2078,7 @@ iframe {
     margin-bottom: 2em; } }
 
 #big-buttons {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   #big-buttons .big-button {
     width: 305px;
     height: 180px;
@@ -2207,7 +2207,7 @@ iframe {
     text-align: right;
     right: 6px; }
     .front .pane-events-timeline-home .view-header a {
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       font-size: 0.9em;
       font-weight: normal;
       letter-spacing: 2px; }
@@ -2221,7 +2221,7 @@ iframe {
   border-bottom: none; }
 
 .view-landing-page-events .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-decoration: none !important;
   color: black !important;
   margin-bottom: 0.5em;
@@ -2231,7 +2231,7 @@ iframe {
 .view-landing-page-events .views-field-field-time-place {
   width: 100px;
   float: right;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-size: 0.8em;
   line-height: 1.2em; }
@@ -2245,7 +2245,7 @@ iframe {
     display: block; }
 
 .view-landing-page-events .views-field-field-time-place-1 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-size: 1em;
   line-height: 1.2em; }
@@ -2292,7 +2292,7 @@ iframe {
   .pane-landing-page-first-news .more-link,
   .pane-news-sidebar .more-link {
     float: right;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
   .pane-landing-page-first-news .views-row,
   .pane-news-sidebar .views-row {
     border-bottom: 1px solid #d3d7d9;
@@ -2302,21 +2302,21 @@ iframe {
     border-bottom: none; }
   .pane-landing-page-first-news .views-field-title,
   .pane-news-sidebar .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 22px;
     text-align: center;
     line-height: 1.1em; }
   .pane-landing-page-first-news .views-field-created,
   .pane-news-sidebar .views-field-created {
     margin: 0px 0px 1em 0px;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666;
     font-size: 0.8em;
     padding: 2px;
     text-align: center; }
   .pane-landing-page-first-news .field-name-field-image-title,
   .pane-news-sidebar .field-name-field-image-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.7em; }
   .pane-landing-page-first-news img,
   .pane-news-sidebar img {
@@ -2356,10 +2356,10 @@ iframe {
     width: 47.5%;
     float: left; }
     .pane-landing-page-more-news .views-row .views-field-title {
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       text-align: center; }
     .pane-landing-page-more-news .views-row .views-field-created {
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       text-align: center;
       color: #999; }
     .pane-landing-page-more-news .views-row img {
@@ -2369,19 +2369,19 @@ iframe {
       display: block; }
     .pane-landing-page-more-news .views-row .field-name-field-image-title {
       padding-top: 0.25em;
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       color: #666666;
       font-size: 0.8em;
       letter-spacing: 1px;
       line-height: 1em; }
     .pane-landing-page-more-news .views-row .more-link {
       float: right;
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+      font-family: FuturaPTMedium-Reg, sans-serif; }
   .pane-landing-page-more-news .views-row-last {
     float: right; }
 
 .node-type-news .pane-node-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   width: 60%;
   float: left;
@@ -2395,7 +2395,7 @@ iframe {
 .node-type-news .pane-node-created {
   width: 30%;
   float: right;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: right; }
   @media screen and (max-width: 767px) {
     .node-type-news .pane-node-created {
@@ -2468,7 +2468,7 @@ iframe {
   .front #node-300 ul {
     list-style: none;
     text-align: center;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     border-top: 1px solid #999;
     margin: 0;
     padding: 0; }
@@ -2486,7 +2486,7 @@ iframe {
     line-height: 35px; } }
 
 .pane-landing-page-recent-newsletter {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   font-size: 22px;
   padding-top: 1em;
@@ -2499,7 +2499,7 @@ iframe {
 
 #join-create,
 .view-frontpage-join-create-organize {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin-top: 20px;
   margin-bottom: 20px; }
   #join-create:before, #join-create:after,
@@ -2596,7 +2596,7 @@ iframe {
   border-bottom: 3px solid black; }
 
 .view-landing-page-latest-programs .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-decoration: none !important;
   color: black !important;
   margin-bottom: 0.5em;
@@ -2604,7 +2604,7 @@ iframe {
   width: 145px; }
 
 .view-landing-page-latest-programs .views-field-name {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.7em;
   float: right; }
 
@@ -2641,7 +2641,7 @@ iframe {
   margin-bottom: 3em; }
 
 .pane-landing-page-user-blog .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   line-height: 1.1em;
   width: 60%;
@@ -2651,7 +2651,7 @@ iframe {
 .pane-landing-page-user-blog .views-field-name {
   width: 40%;
   float: right;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666666;
   font-size: 0.8em;
   line-height: 1.2em; }
@@ -2664,7 +2664,7 @@ iframe {
   list-style: none;
   margin: 0;
   border-bottom: 1px solid #d3d7d9;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   padding: 2px 0; }
 
 .pane-user-online ul li.last {
@@ -2685,7 +2685,7 @@ iframe {
       height: auto; } }
 
 .item-list .pager {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   background: white !important;
   border: 1px solid black;
   padding: 4px 4px 4px 3px; }
@@ -2777,7 +2777,7 @@ iframe {
 .view-physical-exhibits .views-field-title-field,
 .view-films .views-field-title,
 .view-films .views-field-title-field {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   line-height: 1.1em;
   text-align: center;
@@ -2831,7 +2831,7 @@ iframe {
   border-bottom: 0px solid white !important; }
 
 .exh-user-select-wrapper {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 14px;
   margin: 0;
   padding: 20px 0 0px 0;
@@ -2870,7 +2870,7 @@ iframe {
 .pane-main-file,
 .pane-files-films,
 .pane-files-hands-on {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   clear: both; }
   .pane-files tbody,
   .pane-main-file tbody,
@@ -2915,7 +2915,7 @@ img {
   display: block; }
 
 .pane-node-field-program-collection .file {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   width: 45%;
   float: left;
   margin-right: 5%;
@@ -2962,7 +2962,7 @@ img.file-icon {
 .view-contributors {
   color: #666; }
   .view-contributors .contribution {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin-right: 0.25em; }
 
 .pane-node-field-contributor .field-collection-view {
@@ -2972,7 +2972,7 @@ img.file-icon {
 
 .node-type-simple-node em,
 .node-type-page em {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-style: normal;
   color: #666; }
 
@@ -2992,7 +2992,7 @@ img.file-icon {
   margin: 0;
   padding: 0;
   border-top: 1px solid #d3d7d9;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-discussions .pane-comment-recent ul li {
   border-bottom: 1px solid #d3d7d9;
@@ -3003,7 +3003,7 @@ img.file-icon {
 .page-discussions .pane-create {
   background-color: #f6f6f6;
   padding: 10px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   text-align: center;
   width: 80%;
@@ -3019,7 +3019,7 @@ img.file-icon {
     background-color: white; }
   .page-discussions .pane-discussions-latest table th {
     text-align: center;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666;
     font-size: 0.9em; }
   .page-discussions .pane-discussions-latest table td.views-field-php {
@@ -3031,11 +3031,11 @@ img.file-icon {
       float: left;
       margin-right: 2%; }
     .page-discussions .pane-discussions-latest table td.views-field-php .discussion-title {
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       font-size: 22px;
       line-height: 1.2em; }
     .page-discussions .pane-discussions-latest table td.views-field-php .discussion-meta {
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       color: #CCC; }
     .page-discussions .pane-discussions-latest table td.views-field-php .discussion-body {
       float: left;
@@ -3046,7 +3046,7 @@ img.file-icon {
   .page-discussions .pane-discussions-latest table .views-field-comments-link {
     padding: 1em 0 1em 1em; }
   .page-discussions .pane-discussions-latest table .answer-meta {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666;
     width: 60%;
     float: left; }
@@ -3055,7 +3055,7 @@ img.file-icon {
     float: right;
     background-color: #f6f6f6;
     padding: 10px;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
 
 /* Discussion */
@@ -3065,7 +3065,7 @@ img.file-icon {
 .node-type-question-answer .pane-create {
   background-color: #f6f6f6;
   padding: 10px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   text-align: center;
   width: 80%;
@@ -3079,7 +3079,7 @@ img.file-icon {
   margin-bottom: 1em; }
 
 .node-type-question-answer .pane-node-title .pane-content {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   text-align: center;
   margin: 0;
@@ -3094,7 +3094,7 @@ img.file-icon {
     margin: 0 !important; }
   .node-type-question-answer .pane-node-author .pane-content {
     float: left;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     line-height: 1em; }
 
 .node-type-question-answer article {
@@ -3103,7 +3103,7 @@ img.file-icon {
 .node-type-question-answer .pane-node-created {
   width: 60%;
   float: right;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   text-align: right; }
 
@@ -3120,7 +3120,7 @@ img.file-icon {
   position: relative; }
   .node-type-question-answer .ajax-comment-wrapper .forum-posted-on {
     font-size: 1em;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666;
     float: right;
     width: 40%;
@@ -3132,7 +3132,7 @@ img.file-icon {
     display: none; }
   .node-type-question-answer .ajax-comment-wrapper .forum-post-title {
     text-align: center;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin-top: 2em; }
   .node-type-question-answer .ajax-comment-wrapper .forum-post-panel-sub .author-pane {
     padding: 0 !important;
@@ -3141,12 +3141,12 @@ img.file-icon {
     position: absolute;
     top: 0;
     left: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-question-answer .ajax-comment-wrapper .forum-jump-links {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     display: none; }
   .node-type-question-answer .ajax-comment-wrapper .forum-post-links {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
     .node-type-question-answer .ajax-comment-wrapper .forum-post-links ul li {
       border: 2px solid black;
       margin: 0 0.25em 0 0.25em; }
@@ -3155,10 +3155,10 @@ img.file-icon {
   background-color: #fcfcfc;
   padding: 10px; }
   .node-type-question-answer .pane-node-comment-form label {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666; }
   .node-type-question-answer .pane-node-comment-form .username {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-question-answer .pane-node-comment-form .form-item-subject {
     width: 400px;
     margin: 0 auto; }
@@ -3176,7 +3176,7 @@ img.file-icon {
   border-bottom: 1px solid #d3d7d9; }
 
 .node-type-question-answer .pane-discussions-lates-small .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   margin: 0;
   padding: 0; }
@@ -3191,18 +3191,18 @@ img.file-icon {
 .node-type-question-answer .new {
   background-color: #f6f6f6;
   padding: 5px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   letter-spacing: 1px; }
 
 .node-type-question-answer .comment h3 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   text-align: center;
   margin-bottom: 0.25em; }
 
 .node-type-question-answer .comment .submitted {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666666;
   text-align: center; }
   .node-type-question-answer .comment .submitted .permalink {
@@ -3210,7 +3210,7 @@ img.file-icon {
 
 .node-type-question-answer .comment footer {
   margin: 1em 0 0 0;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666666;
   text-align: center; }
   .node-type-question-answer .comment footer .comment-reply,
@@ -3225,7 +3225,7 @@ img.file-icon {
       font-size: 18px; } }
 
 .node-type-blog .panel-col-first .pane-node-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   width: 60%;
   float: left;
@@ -3240,7 +3240,7 @@ img.file-icon {
   padding: 0; }
 
 .node-type-blog .panel-col-first .pane-node-created {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   text-align: right;
   width: 30%;
@@ -3265,14 +3265,14 @@ img.file-icon {
     height: auto; } }
 
 .page-user-content .pane-user-recent-content {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center; }
   .page-user-content .pane-user-recent-content .views-row {
     margin-bottom: 3em;
     border-bottom: 1px solid #d3d7d9;
     padding-bottom: 1em; }
   .page-user-content .pane-user-recent-content .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
   .page-user-content .pane-user-recent-content .views-field-type {
     color: #acacac;
     text-align: center;
@@ -3294,7 +3294,7 @@ img.file-icon {
   margin-bottom: 3em; }
 
 .page-user-content .pane-landing-page-user-blog .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   line-height: 1.1em;
   text-align: left;
@@ -3304,13 +3304,13 @@ img.file-icon {
 
 .page-user-content .pane-landing-page-user-blog .views-field-created {
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #acacac;
   font-size: 1em; }
 
 .page-user-content .pane-landing-page-user-blog .views-field-name {
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   .page-user-content .pane-landing-page-user-blog .views-field-name .username {
     font-family: Times, TimesNewRoman, "Times New Roman", Baskerville, Georgia, serif; }
 
@@ -3326,29 +3326,29 @@ img.file-icon {
       margin-left: 1em; }
 
 .page-users .pane-user-list .views-field-realname {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   width: 200px; }
 
 .page-users .pane-user-list th.views-field-access {
   width: 120px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-users .pane-user-list th.views-field-created {
   width: 120px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-users .pane-user-list th.views-field-field-user-country {
   width: 120px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-users .pane-user-list th.views-field-view {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-users .pane-user-list .title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-users .pane-user-list .type {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-size: 0.7em;
   letter-spacing: 1px; }
@@ -3362,7 +3362,7 @@ img.file-icon {
     list-style: none;
     margin: 0;
     border-bottom: 1px solid #d3d7d9;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     padding: 2px 0; }
 
 @media screen and (max-width: 767px) {
@@ -3435,7 +3435,7 @@ img.file-icon {
   margin: 0 0 1em 0; }
 
 .page-user .pane-user-name {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 24px;
   letter-spacing: 3px;
   color: #666;
@@ -3509,7 +3509,7 @@ img.file-icon {
     border-bottom: 0px solid #d3d7d9;
     margin-bottom: 3em; }
   .page-user .pane-user-blog-entry .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 22px;
     line-height: 1.1em;
     width: 60%;
@@ -3517,7 +3517,7 @@ img.file-icon {
   .page-user .pane-user-blog-entry .views-field-created {
     width: 40%;
     color: #666;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     float: right;
     text-align: right; }
   .page-user .pane-user-blog-entry .views-field-body {
@@ -3525,7 +3525,7 @@ img.file-icon {
     padding-top: 1em; }
 
 .page-user .pane-user-latest-gallery .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   line-height: 1.1em;
   text-align: center;
@@ -3535,18 +3535,18 @@ img.file-icon {
   border-top: 1px solid #d3d7d9;
   padding-top: 1em; }
   .page-user .pane-user-recent-content-for-user-page .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
   .page-user .pane-user-recent-content-for-user-page .views-field-type {
     color: #666;
     text-align: center;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.7em; }
 
 .page-user .pane-user-contact {
   clear: both; }
   .page-user .pane-user-contact label {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
   .page-user .pane-user-contact input {
     width: 100%;
     border: 1px solid black; }
@@ -3564,14 +3564,14 @@ img.file-icon {
   margin: 0 0 2em 0 !important;
   text-align: center; }
   .page-events .masonry-item .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 22px;
     line-height: 1.1em; }
     @media screen and (max-width: 767px) {
       .page-events .masonry-item .views-field-title {
         margin-bottom: 5px; } }
   .page-events .masonry-item .views-field-field-event-date {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666; }
     @media screen and (max-width: 767px) {
       .page-events .masonry-item .views-field-field-event-date {
@@ -3590,7 +3590,7 @@ img.file-icon {
     width: 100%; } }
 
 .pane-events-all .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   float: left;
   margin-right: 1em;
   margin-bottom: 0.25em; }
@@ -3605,7 +3605,7 @@ img.file-icon {
       margin-bottom: 1em; } }
 
 .node-type-event .pane-custom {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   color: #666;
   letter-spacing: 2px;
@@ -3621,7 +3621,7 @@ img.file-icon {
   padding: 0; }
 
 .node-type-event .view-event-if-permanent-since-else-from-start-to-end-date {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   color: #666;
   border-bottom: 1px solid #D3D7D9;
@@ -3630,7 +3630,7 @@ img.file-icon {
     margin: 0 !important; }
 
 .node-type-event .location {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   color: #666;
   border-bottom: 1px solid #D3D7D9;
@@ -3649,7 +3649,7 @@ img.file-icon {
   .node-type-event .pane-node-field-credits-collection ul {
     list-style: none;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin: 0.5em 0 0; }
 
 .node-type-event .field-name-field-contribution {
@@ -3663,7 +3663,7 @@ img.file-icon {
   padding: 0.5em 1em 1em 1em;
   margin-top: 1em; }
   .node-type-event .pane-related-event-exhibition .view-header {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.9em;
     font-weight: normal;
     letter-spacing: 2px;
@@ -3676,7 +3676,7 @@ img.file-icon {
   .node-type-event .pane-related-event-exhibition .view-content {
     margin: 0;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
 
 .node-type-event .panel-col-middle {
@@ -3689,11 +3689,11 @@ img.file-icon {
   border: 0px !important; }
 
 .node-type-event .field-name-field-event-auth-orga-function {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal; }
 
 .node-type-event .field-label {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal; }
 
 .node-type-event .pane-node-field-website,
@@ -3702,7 +3702,7 @@ img.file-icon {
   padding-bottom: 1em;
   text-align: center;
   color: #666;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-event .pane-node-field-website h2.pane-title,
   .node-type-event .pane-node-author h2.pane-title {
     font-size: 0.9em;
@@ -3719,7 +3719,7 @@ img.file-icon {
 .node-type-event .pane-related-exhibits {
   margin-top: 1em;
   border-top: 1px solid #D3D7D9;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-event .pane-related-exhibits .views-field-title {
     text-align: center; }
   .node-type-event .pane-related-exhibits .views-field-type {
@@ -3736,7 +3736,7 @@ img.file-icon {
   text-align: right;
   padding-top: 0.5em;
   padding-bottom: 1em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   font-weight: normal; }
 
@@ -3763,7 +3763,7 @@ img.file-icon {
   background-color: black !important; }
 
 .vco-storyjs .vco-feature h3 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif !important;
+  font-family: FuturaPTMedium-Reg, sans-serif !important;
   color: black !important; }
 
 .vco-storyjs h3 {
@@ -3821,7 +3821,7 @@ img.file-icon {
 .related-events .views-field-title .field-content a:link,
 .related-events .views-field-title .field-content a:visited,
 .related-events .views-field-title .field-content a:focus {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-decoration: none !important;
   color: black !important;
   padding-bottom: 0.5em !important;
@@ -3841,7 +3841,7 @@ img.file-icon {
   margin: 0px 0px 1em 0px; }
 
 .related-events .field-type-datetime {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-size: 0.8em;
   border: 1px solid #d3d7d9;
@@ -3872,7 +3872,7 @@ img.file-icon {
   padding: 10px;
   width: 45%;
   margin-bottom: 3em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   @media screen and (max-width: 767px) {
     .page-texts .panel-2col-stacked .panel-col-first,
     .page-texts .panel-2col-stacked .panel-col-last {
@@ -3916,14 +3916,14 @@ img.file-icon {
   margin-bottom: 1em;
   background-color: #f5f5f5; }
   .page-texts .masonry-item .views-field-type {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666; }
   .page-texts .masonry-item .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 22px;
     line-height: 1.1em; }
   .page-texts .masonry-item .views-field-field-event-date {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666; }
   .page-texts .masonry-item .views-field-field-collection-person .field-item {
     float: left; }
@@ -3955,7 +3955,7 @@ img.file-icon {
   .pane-connections-to-other-fields .views-row {
     width: 32%;
     float: left;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666; }
     .pane-mathematical-subjects-2 .views-row img,
     .pane-connections-to-other-fields .views-row img {
@@ -3985,7 +3985,7 @@ img.file-icon {
 
 #node-891,
 #node-915 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666; }
 
 .form-item-field-person-last-name-value input {
@@ -4005,7 +4005,7 @@ img.file-icon {
     font-size: 42px;
     line-height: 46px;
     text-align: center;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-weight: normal; }
     @media screen and (max-width: 959px) {
       .page-snapshots .pane-1 p,
@@ -4074,7 +4074,7 @@ img.file-icon {
 .pane-snapshots-overview-panel-pane-1 #node-917,
 .pane-background-materials-overview #node-889,
 .pane-background-materials-overview #node-917 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center; }
 
 .page-snapshots #edit-combine-wrapper,
@@ -4099,7 +4099,7 @@ img.file-icon {
   .pane-snapshots-overview-panel-pane-1 .view-filters label,
   .pane-background-materials-overview .view-filters label {
     font-weight: normal;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666; }
   .page-snapshots .view-filters .views-submit-button input,
   .page-background-materials .view-filters .views-submit-button input,
@@ -4114,7 +4114,7 @@ img.file-icon {
     -khtml-border-radius: 4px;
     border-radius: 4px;
     text-align: center;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #555555;
     text-decoration: none !important;
     font-size: 16px;
@@ -4183,7 +4183,7 @@ img.file-icon {
   .page-background-materials .masonry-item .views-field-title,
   .pane-snapshots-overview-panel-pane-1 .masonry-item .views-field-title,
   .pane-background-materials-overview .masonry-item .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 22px;
     line-height: 1.1em;
     padding-bottom: 10px; }
@@ -4191,7 +4191,7 @@ img.file-icon {
   .page-background-materials .masonry-item .views-field-field-event-date,
   .pane-snapshots-overview-panel-pane-1 .masonry-item .views-field-field-event-date,
   .pane-background-materials-overview .masonry-item .views-field-field-event-date {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     color: #666; }
   .page-snapshots .masonry-item .views-field-field-collection-person .field-item,
   .page-background-materials .masonry-item .views-field-field-collection-person .field-item,
@@ -4242,7 +4242,7 @@ img.file-icon {
     line-height: 44px;
     width: 75%;
     margin: 0 auto 1em auto;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
     @media screen and (max-width: 959px) {
       .node-type-snapshot .pane-node-title .pane-content,
@@ -4267,7 +4267,7 @@ img.file-icon {
 .node-type-snapshot .region-content .panel-col-last,
 .node-type-background-material .region-content .panel-col-last {
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-snapshot .region-content .panel-col-last h2.pane-title,
   .node-type-background-material .region-content .panel-col-last h2.pane-title {
     margin-bottom: 0;
@@ -4461,13 +4461,13 @@ img.file-icon {
 .node-type-background-material .region-content .pane-snapshot-additional-files {
   border-bottom: 1px solid #d3d7d9;
   padding-bottom: 1em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .node-type-snapshot .region-content .pane-files-for-background-materials,
 .node-type-background-material .region-content .pane-files-for-background-materials {
   margin-top: 3em;
   border-top: 1px solid #d3d7d9;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-snapshot .region-content .pane-files-for-background-materials .views-row,
   .node-type-background-material .region-content .pane-files-for-background-materials .views-row {
     clear: both;
@@ -4826,7 +4826,7 @@ img.file-icon {
 
 .logged-in.node-type-snapshot .field-name-field-source-file-s- .fieldset-legend,
 .logged-in.page-node-add-snapshot .field-name-field-source-file-s- .fieldset-legend {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal; }
 
 .logged-in.node-type-snapshot .field-name-field-source-file-s- .fieldset-description,
@@ -4891,7 +4891,7 @@ img.file-icon {
   padding-top: 1em; }
 
 .gallery-two-columns .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   letter-spacing: 2px;
   margin-bottom: 0.5em;
   font-size: 22px;
@@ -4914,7 +4914,7 @@ img.file-icon {
 
 .gallery-two-columns .field-name-field-image-title {
   float: left;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-size: 0.8em;
   letter-spacing: 1px;
@@ -4924,7 +4924,7 @@ img.file-icon {
   top: 2em; }
 
 .gallery-two-columns .field-name-field-image-licence .field-label {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-weight: normal;
   font-size: 0.9em;
@@ -4946,7 +4946,7 @@ img.file-icon {
 
 .gallery-two-columns .field-label {
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif !important;
+  font-family: FuturaPTMedium-Reg, sans-serif !important;
   letter-spacing: 1px; }
 
 .gallery-two-columns .forumula-original {
@@ -4966,7 +4966,7 @@ img.file-icon {
   margin: auto 0 auto -200px;
   z-index: 99;
   text-align: right;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   letter-spacing: 1px;
   cursor: pointer; }
   .gallery-two-columns-next-previous .left-arrow {
@@ -4996,7 +4996,7 @@ img.file-icon {
   float: left; }
 
 .gallery-one-column .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin-bottom: 0.25em;
   width: 90%;
   float: left; }
@@ -5052,7 +5052,7 @@ img.file-icon {
   margin: 2px auto 8px;
   width: 100%; }
   .page-galleries .views-field .part-of, .page-galleries .views-field .exhibition {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.7em; }
 
 .page-galleries .pane-galleries-filter-exhib-user-panel-pane-1 .field-item {
@@ -5072,7 +5072,7 @@ img.file-icon {
   padding: 0; }
 
 .node-type-gallery .pane-custom {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   text-align: center;
   color: #666;
@@ -5096,10 +5096,10 @@ img.file-icon {
   line-height: 1.2em; }
 
 .node-type-gallery .pane-gallery-part-of .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .node-type-gallery h2 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   font-size: 0.9em;
   font-weight: normal;
@@ -5118,11 +5118,11 @@ img.file-icon {
   text-align: center;
   border-bottom: 1px solid #d3d7d9;
   margin-bottom: 1em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   padding: 0.8em 0 0.8em 0; }
 
 .node-type-gallery a.username {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   text-align: center !important; }
 
@@ -5130,7 +5130,7 @@ img.file-icon {
   background-color: #f9f9f9;
   padding: 1em 3px 1em 3px; }
   .node-type-gallery .pane-related-gallery-exhibition .view-header {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.9em;
     font-weight: normal;
     letter-spacing: 2px;
@@ -5143,14 +5143,14 @@ img.file-icon {
   .node-type-gallery .pane-related-gallery-exhibition .view-content {
     margin: 0;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
 
 .node-type-gallery .pane-related-events {
   border-top: 1px solid #d3d7d9;
   padding-top: 1em; }
   .node-type-gallery .pane-related-events .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin-bottom: 0.25em; }
 
 .node-type-gallery .pane-gallery-complete {
@@ -5165,7 +5165,7 @@ img.file-icon {
     display: block; }
 
 .gallery-full-width .panel-col-last .views-label {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin-right: 0.5em;
   padding-right: 0.5em;
   border-right: 1px solid black;
@@ -5220,7 +5220,7 @@ img.file-icon {
     /* filter:alpha(opacity=70); /* For IE8 and earlier */ }
 
 .gallery-full-width h2 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 24px;
   line-height: 1.3em;
   margin: 0 0 1em 0;
@@ -5247,7 +5247,7 @@ img.file-icon {
   padding: 3px 0 4px 0; }
 
 .gallery-full-width .views-field-field-program-file-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   font-size: 0.9em;
   font-weight: normal;
@@ -5269,7 +5269,7 @@ img.file-icon {
     display: none; }
 
 .gallery-full-width .image-file {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   letter-spacing: 0px;
   margin-top: 1em; }
   .gallery-full-width .image-file tbody {
@@ -5286,7 +5286,7 @@ img.file-icon {
     height: auto; }
 
 .gallery-full-width .views-field-field-formula .views-label {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   font-size: 0.9em;
   font-weight: normal;
@@ -5307,7 +5307,7 @@ img.file-icon {
   margin-right: 5%; }
 
 .view-id-gallery_complete .views-field-field-program-collection {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 @media screen and (max-width: 959px) {
   .node-type-gallery #block-system-main {
@@ -5392,7 +5392,7 @@ img.file-icon {
   display: none; }
 
 .node-type-program .pane-custom {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   text-align: center;
   color: #666;
@@ -5402,7 +5402,7 @@ img.file-icon {
     padding: 0; }
 
 .node-type-program .pane-node-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 24px;
   line-height: 1.2em;
   text-align: center; }
@@ -5413,7 +5413,7 @@ img.file-icon {
   border-bottom: 1px solid #d3d7d9;
   line-height: 1em;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .node-type-program .pane-main-file {
   border-top: 3px solid black;
@@ -5427,7 +5427,7 @@ img.file-icon {
     clear: both; }
 
 .node-type-program .pane-programs-small {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   line-height: 1.2em;
   border-top: 3px solid black; }
@@ -5442,7 +5442,7 @@ img.file-icon {
 .program-title, h1,
 .events .pane-node-title,
 .exhibition-title, .gallery-title, .view-gallery-complete .view-grouping-content h3 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 24px;
   line-height: 26px;
   letter-spacing: 3px;
@@ -5471,7 +5471,7 @@ img.file-icon {
   background-color: #f4f4f4;
   border-radius: 4px;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 20px;
   color: #555;
   text-decoration: none !important; }
@@ -5542,13 +5542,13 @@ img.file-icon {
           content: ""; }
 
 .pane-node-field-program-licence {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .pane-node-field-embed-external-video {
   padding: 0em 0em 0em 0em; }
 
 .all-downloads {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-size: 0.8em;
   line-height: 1em;
@@ -5585,7 +5585,7 @@ img.file-icon {
 
 .view-related-programs .views-row {
   width: 45%;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 20px;
   color: #555;
   letter-spacing: 3px;
@@ -5626,7 +5626,7 @@ img.file-icon {
   background-color: #f9f9f9;
   padding: 0.5em 1em 1em 1em; }
   .pane-related-program-exhibition .view-header {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.9em;
     font-weight: normal;
     letter-spacing: 2px;
@@ -5639,7 +5639,7 @@ img.file-icon {
   .pane-related-program-exhibition .view-content {
     margin: 0;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
 
 .pane-node-field-repository {
@@ -5653,7 +5653,7 @@ img.file-icon {
     .pane-node-field-repository .pane-content a:link {
       display: block;
       text-align: center;
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       font-size: 16px;
       color: #555555 !important;
       text-decoration: none !important;
@@ -5678,7 +5678,7 @@ img.file-icon {
   padding: 0px; }
 
 .program-files .file {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   width: 45%;
   float: left;
   margin-right: 5%;
@@ -5710,7 +5710,7 @@ img.file-icon {
   color: red; }
 
 .view-programs .views-field-field-program-licence {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666; }
 
 .view-programs .views-field-field-program-licence .views-label {
@@ -5728,7 +5728,7 @@ img.file-icon {
 /* hide "submit draggable views" button*/
 .related-programs .views-row {
   width: 45%;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 20px;
   color: #555;
   letter-spacing: 3px;
@@ -5737,7 +5737,7 @@ img.file-icon {
   height: 120px; }
 
 .view-related-programs-is-a-gallery-of- .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   float: left;
   padding-top: 10px;
   margin-right: 20px; }
@@ -5748,7 +5748,7 @@ img.file-icon {
 .view-related-news .views-field-title .field-content a:link,
 .view-related-news .views-field-title .field-content a:visited,
 .view-related-news .views-field-title .field-content a:focus {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-decoration: none !important;
   color: black !important;
   margin-bottom: 0.5em;
@@ -5760,7 +5760,7 @@ img.file-icon {
   border-bottom: 1px solid #999; }
 
 .view-related-news .views-field-created {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.7em;
   float: right; }
 
@@ -5772,7 +5772,7 @@ img.file-icon {
   border-bottom: 0px; }
 
 .exhibition .exhibition-title h2.pane-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   font-weight: normal;
   letter-spacing: 2px;
@@ -5799,10 +5799,10 @@ img.file-icon {
   border-bottom: 1px solid  #D3D7D9;
   padding-bottom: 1em;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666; }
   .node-type-exhbition .pane-node-author h2.pane-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.9em;
     font-weight: normal; }
 
@@ -5816,7 +5816,7 @@ img.file-icon {
     margin: 0px;
     padding: 0px; }
   .node-type-exhbition .exhibition-files .file {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     width: 45%;
     float: left;
     margin-right: 5%;
@@ -5842,7 +5842,7 @@ img.file-icon {
 
 .node-type-exhbition .pane-related-exhibits {
   border-top: 3px solid black;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-exhbition .pane-related-exhibits .views-field-title {
     text-align: center; }
   .node-type-exhbition .pane-related-exhibits .views-field-type {
@@ -5862,7 +5862,7 @@ img.file-icon {
   .node-type-exhbition .pane-node-field-contributor ul li {
     margin: 0;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-node-132 .mpe-call-for-entries,
 .page-node-135 .mpe-call-for-entries {
@@ -5871,7 +5871,7 @@ img.file-icon {
 .node-type-exhbition .mpe-call-for-entries {
   background-color: #f7f7f7;
   padding: 8px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .node-type-exhbition .mpe-call-for-entries p {
   margin: 0px !important; }
@@ -5892,7 +5892,7 @@ img.file-icon {
     margin-right: 0; } }
 
 .node-type-film .pane-custom {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   text-align: center;
   color: #666;
@@ -5909,7 +5909,7 @@ img.file-icon {
   margin: 0 auto;
   display: block;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 20px;
   color: #555 !important;
   text-decoration: none !important;
@@ -5921,7 +5921,7 @@ img.file-icon {
 
 .node-type-film .field-collection-view .field-label {
   width: 100%;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal; }
 
 .node-type-film .field-collection-container {
@@ -5941,7 +5941,7 @@ img.file-icon {
   .node-type-film .pane-node-field-credits-collection ul {
     list-style: none;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin: 0.5em 0 0; }
   .node-type-film .pane-node-field-credits-collection .field-name-field-contribution {
     margin-right: 0.25em; }
@@ -5954,7 +5954,7 @@ img.file-icon {
   line-height: 1em;
   text-align: center; }
   .node-type-film .pane-node-field-program-licence h2.pane-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin: 0px;
     padding: 0px; }
   .node-type-film .pane-node-field-program-licence ul {
@@ -5972,7 +5972,7 @@ img.file-icon {
   font-size: 0.9em;
   line-height: 1em;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .node-type-film .pane-related-film-exhibition {
   background-color: #f9f9f9;
@@ -5980,7 +5980,7 @@ img.file-icon {
   .node-type-film .pane-related-film-exhibition h2.pane-title {
     margin: 0; }
   .node-type-film .pane-related-film-exhibition .view-header {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.9em;
     font-weight: normal;
     letter-spacing: 2px;
@@ -5993,11 +5993,11 @@ img.file-icon {
   .node-type-film .pane-related-film-exhibition .view-content {
     margin: 0;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
 
 .node-type-film .pane-films-small {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   line-height: 1.2em; }
   .node-type-film .pane-films-small img {
@@ -6011,7 +6011,7 @@ img.file-icon {
   max-width: 100%; }
 
 .node-type-physical-ex .pane-custom {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 0.9em;
   text-align: center;
   color: #666;
@@ -6028,7 +6028,7 @@ img.file-icon {
   margin: 0 auto;
   display: block;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 20px;
   color: #555 !important;
   text-decoration: none !important;
@@ -6056,13 +6056,13 @@ img.file-icon {
     list-style: none;
     margin: 0;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
   .node-type-physical-ex .pane-node-field-credits-collection .field-name-field-contribution {
     margin-right: 0.25em; }
 
 .node-type-physical-ex .field-collection-view .field-label {
   width: 100%;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal; }
 
 .node-type-physical-ex .pane-node-field-physical-ex-licence {
@@ -6073,7 +6073,7 @@ img.file-icon {
   line-height: 1em;
   text-align: center; }
   .node-type-physical-ex .pane-node-field-physical-ex-licence h2.pane-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin: 0px;
     padding: 0px; }
   .node-type-physical-ex .pane-node-field-physical-ex-licence ul {
@@ -6087,7 +6087,7 @@ img.file-icon {
   border-bottom: 1px solid #d3d7d9;
   line-height: 1em;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .node-type-physical-ex .pane-node-field-website-link {
   color: #666;
@@ -6109,7 +6109,7 @@ img.file-icon {
   .node-type-physical-ex .pane-related-hands-on-exhibition h2.pane-title {
     margin: 0; }
   .node-type-physical-ex .pane-related-hands-on-exhibition .view-header {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 0.9em;
     font-weight: normal;
     letter-spacing: 2px;
@@ -6122,11 +6122,11 @@ img.file-icon {
   .node-type-physical-ex .pane-related-hands-on-exhibition .view-content {
     margin: 0;
     padding: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
 
 .node-type-physical-ex .pane-physical-exhibits-small {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   line-height: 1.2em;
   border-top: 3px solid black; }
@@ -6139,7 +6139,7 @@ img.file-icon {
   border-bottom: 1px solid #d3d7d9; }
 
 .page-projects .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   line-height: 1.1em;
   text-align: center;
@@ -6151,7 +6151,7 @@ img.file-icon {
   display: table;
   background-color: #f6f6f6;
   padding: 10px;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin: 0.25em auto 0.5em auto; }
   .page-projects .views-field-field-open-closed .views-label {
     color: #666;
@@ -6185,7 +6185,7 @@ img.file-icon {
       line-height: 20px; } }
 
 .node-type-project .pane-node-title h2.pane-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 14px;
   font-weight: normal;
   letter-spacing: 2px;
@@ -6199,7 +6199,7 @@ img.file-icon {
 
 .node-type-project .field-name-field-open-closed .field-items {
   background-color: #f4f4f4;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center;
   width: 80%;
   margin: 0 auto;
@@ -6216,26 +6216,26 @@ img.file-icon {
 
 .node-type-project .pane-node-field-credits-collection li {
   list-style: none;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   float: left;
   margin: 0 0.5em 0 0;
   padding: 0 0.5em 0 0; }
 
 .node-type-project .field-name-field-partners-sponsors-links .field-label {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .node-type-project .view-mode-gallery-630 img {
   margin: 0 auto; }
 
 /*Newsletter Archive */
 .page-imaginary-newsletter .views-field-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   line-height: 1.2em;
   text-align: center; }
 
 .page-imaginary-newsletter .views-field-created {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center; }
 
 .page-imaginary-newsletter blockquote {
@@ -6247,18 +6247,18 @@ img.file-icon {
 
 .page-imaginary-newsletter h2 {
   font-size: 1.2em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal; }
 
 /*Newsletter Single */
 .node-type-simplenews .pane-node-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 22px;
   line-height: 1.2em;
   text-align: center; }
 
 .node-type-simplenews .pane-node-created {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   text-align: center; }
 
 .node-type-simplenews blockquote {
@@ -6282,7 +6282,7 @@ img.file-icon {
   display: none; }
 
 .node-webform label {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-weight: normal; }
 
@@ -6293,7 +6293,7 @@ img.file-icon {
 .node-webform input.form-submit {
   border: 0px;
   width: 50%;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 1em;
   background-clip: border-box;
   border: none;
@@ -6316,7 +6316,7 @@ img.file-icon {
   width: 330px; }
 
 .page-contact .pane-node {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 @media screen and (max-width: 767px) {
   .page-contact select,
@@ -6332,7 +6332,7 @@ img.file-icon {
 .entdeckerbox-landing-page {
   text-align: center;
   background-color: #f7f7f7;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   padding: 5px; }
   .entdeckerbox-landing-page h1 {
     margin: 0 0 1em 0;
@@ -6352,7 +6352,7 @@ img.file-icon {
   -khtml-border-radius: 4px;
   border-radius: 4px;
   text-align: center;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-size: 20px;
   line-height: 23px;
   color: #555555;
@@ -6370,7 +6370,7 @@ img.file-icon {
         margin: 10px 0; } }
 
 .page-imaginary-entdeckerbox #node-534 {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   color: #666;
   font-size: 20px;
   font-weight: normal;
@@ -6384,7 +6384,7 @@ img.file-icon {
 .page-imaginary-entdeckerbox .highlights {
   border-top: 1px solid #d3d7d9; }
   .page-imaginary-entdeckerbox .highlights p {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-size: 20px;
     line-height: 23px;
     font-weight: normal; }
@@ -6405,7 +6405,7 @@ img.file-icon {
   border-top: 1px solid #d3d7d9; }
 
 .page-imaginary-entdeckerbox .content-list {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
   .page-imaginary-entdeckerbox .content-list ul li {
     border-bottom: 1px solid #d3d7d9;
     list-style: none;
@@ -6448,7 +6448,7 @@ img.file-icon {
   display: none; }
 
 .page-search #block-system-main .search-info {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-search #block-system-main strong {
   font-weight: normal;
@@ -6469,14 +6469,14 @@ img.file-icon {
   border: none;
   margin: 0 0 3em; }
   .page-user-register .vertical-tabs label {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-weight: normal;
     display: inline-block;
     width: 100px;
     vertical-align: bottom; }
   .page-user-register .vertical-tabs .description {
     width: 75%;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     margin-top: 0.25em; }
   .page-user-register .vertical-tabs input {
     width: 75%;
@@ -6485,7 +6485,7 @@ img.file-icon {
 .page-user-register #edit-simplenews {
   background-color: #ededed;
   padding: 1em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin-bottom: 3em; }
   .page-user-register #edit-simplenews .fieldset-description {
     display: inline-block;
@@ -6506,26 +6506,26 @@ img.file-icon {
 .page-user-register #edit-terms-of-use {
   background-color: #ededed;
   padding: 1em 0 1em 1em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin-bottom: 3em; }
   .page-user-register #edit-terms-of-use .jspScrollable {
     border: none !important;
     background-color: white !important;
     padding: 0em 0 0em 1em !important; }
   .page-user-register #edit-terms-of-use h2 {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-style: normal;
     color: #666;
     font-weight: normal;
     font-size: 1em; }
   .page-user-register #edit-terms-of-use p {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif; }
+    font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-user-register .captcha {
   width: 50%;
   background-color: #ededed;
   padding: 1em;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   display: inline; }
   .page-user-register .captcha tbody {
     background-color: white;
@@ -6543,7 +6543,7 @@ img.file-icon {
     color: #333333;
     font-weight: normal;
     line-height: 1.3em;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     background: #ededed none;
     border: none;
     font-size: 2em;
@@ -6632,7 +6632,7 @@ img.file-icon {
 
 .tabs ul.primary li a {
   color: white !important;
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal;
   font-style: normal;
   background-color: transparent;
@@ -6693,7 +6693,7 @@ div.vertical-tabs {
   color: #999; }
 
 .fieldset-title {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   padding-bottom: 1em; }
 
 .field-name-field-image-title {
@@ -6701,7 +6701,7 @@ div.vertical-tabs {
 
 .node-form label,
 .node-form .vertical-tabs-list {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   font-weight: normal;
   font-style: normal; }
 
@@ -6750,14 +6750,14 @@ html.js fieldset.collapsed {
     display: block; } }
 
 .page-node-add-gallery .fieldset-description {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin: 1em 0 1em 0; }
 
 .page-node-add-gallery .field-name-field-image-collection #field-image-collection-values--2 {
   width: 100% !important; }
 
 .page-node-add-gallery .field-name-field-image-collection .description {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   margin: 1em 0 1em 0;
   font-size: 1em !important;
   color: black; }
@@ -6774,7 +6774,7 @@ html.js fieldset.collapsed {
   margin-top: 2em; }
 
 .page-node-add-gallery .field-name-field-image-collection .horizontal-tabs-list {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   border: 1px solid black; }
 
 .page-node-add-gallery .field-name-field-image-collection .field-group-htab .fieldset-legend {
@@ -6821,7 +6821,7 @@ html.js fieldset.collapsed {
   border-bottom: none; }
 
 .page-everything .views-exposed-form {
-  font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+  font-family: FuturaPTMedium-Reg, sans-serif;
   border-bottom: 1px solid black;
   padding-bottom: 1em;
   margin-bottom: 1em; }
@@ -6851,7 +6851,7 @@ html.js fieldset.collapsed {
       background-color: black;
       border: 1px solid black;
       cursor: pointer;
-      font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+      font-family: FuturaPTMedium-Reg, sans-serif;
       outline: 0;
       overflow: visible;
       padding: 3px 10px;
@@ -6870,10 +6870,10 @@ html.js fieldset.collapsed {
   margin-bottom: 1em;
   padding: 0.5em; }
   .page-everything .views-row .views-field-title {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center; }
   .page-everything .views-row .views-field-type {
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     text-align: center;
     color: #999; }
   .page-everything .views-row img {
@@ -6986,7 +6986,7 @@ html.js fieldset.collapsed {
       display: inline-block; }
       .tabs ul.secondary li a {
         display: block;
-        font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+        font-family: FuturaPTMedium-Reg, sans-serif;
         font-weight: normal;
         font-style: normal;
         padding: 10px;
@@ -7016,7 +7016,7 @@ html.js fieldset.collapsed {
     display: block;
     padding: 14px 38px 14px 16px;
     margin: 0;
-    font-family: FuturaPTMedium-Reg, Futura, "Trebuchet MS", "Lucida Grande", Arial, sans-serif;
+    font-family: FuturaPTMedium-Reg, sans-serif;
     font-weight: normal;
     font-style: normal;
     font-size: 15px;
