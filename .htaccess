@@ -59,6 +59,11 @@ DirectoryIndex index.php index.html index.htm
   Redirect 301 /workplan http://workplan.imaginary.org
   Redirect 301 /entdeckerbox http://imaginary.org/de/imaginary-entdeckerbox
 
+  # Always use https
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
   # Set "protossl" to "s" if we were accessed via https://.  This is used later
   # if you enable "www." stripping or enforcement, in order to ensure that
   # you don't bounce between http and https.
