@@ -301,6 +301,7 @@ function themekey_ui_form_alter(&$form, $form_state, $form_id) {
 
 function themekey_ui_user_profile_form_submit($form, &$form_state) {
   if ($form_state['values']['themekey_ui_theme'] != $form['#prev_themekey_ui_author_theme']) {
+    module_load_include('inc', 'themekey', 'themekey_base');
     themekey_invoke_modules('themekey_ui_author_theme_selected', $form['#user']->uid, $form_state['values']['themekey_ui_theme']);
     module_invoke_all('themekey_ui_author_theme_selected', $form['#user']->uid, $form_state['values']['themekey_ui_theme']);
   }

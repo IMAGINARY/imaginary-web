@@ -282,6 +282,23 @@ function _expire_get_expiration_handler($type) {
 }
 
 /**
+ * Loads and returns a single entity.
+ *
+ * @param $entity_type
+ *   The entity type to load.
+ *
+ * @param $entity_id
+ *   The ID of the Entity to load.
+ *
+ * @return mixed
+ *   The desired entity or FALSE if it couldn't be found.
+ */
+function _expire_load_single_entity($entity_type, $entity_id) {
+  $loaded_entity = entity_load($entity_type, array($entity_id));
+  return reset($loaded_entity);
+}
+
+/**
  * Simple print_r to html function.
  *
  * @param $data

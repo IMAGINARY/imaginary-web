@@ -5,6 +5,26 @@
  * Provide administration configuration pages to import users.
  */
 
+function user_import_confirm_delete($form, &$form_state, $import_id) {
+
+  $form['import_id'] = array(
+    '#type' => 'value',
+    '#value' => $import_id,
+  );
+
+  return confirm_form($form,
+    t('Are you sure you want to delete the user import process?'),
+    'admin/people/user_import',
+    t('Deleting a user import process will also delete the file from which user data was being read. This action cannot be undone.'),
+    t('Delete'), t('Cancel'));
+}
+
+function user_import_confirm_delete_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    user_import_delete($form_state['values']['import_id']);
+  }
+}
+
 function user_import_list($action = NULL, $import_id = NULL) {
 
   // clear incomplete imports
@@ -70,6 +90,28 @@ function user_import_preferences($import_id = NULL, $template_id = NULL) {
   return $output;
 }
 
+
+
+function user_import_confirm_continue($form, &$form_state, $import_id) {
+
+  $form['import_id'] = array(
+    '#type' => 'value',
+    '#value' => $import_id,
+  );
+
+  return confirm_form($form,
+    t('Are you sure you want to continue to import users?'),
+    'admin/people/user_import',
+    t('Restart user import from where it last finished.'),
+    t('Continue'), t('Cancel'));
+}
+
+function user_import_confirm_continue_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    user_import_continue($form_state['values']['import_id']);
+  }
+}
+
 function user_import_continue($import_id = NULL) {
 
   if (!empty($import_id) && is_numeric($import_id)) {
@@ -79,6 +121,26 @@ function user_import_continue($import_id = NULL) {
   }
 
   drupal_goto('admin/people/user_import');
+}
+
+function user_import_confirm_import($form, &$form_state, $import_id) {
+
+  $form['import_id'] = array(
+    '#type' => 'value',
+    '#value' => $import_id,
+  );
+
+  return confirm_form($form,
+    t('Are you sure you want to import users?'),
+    'admin/people/user_import',
+    t('Start importing users.'),
+    t('Import'), t('Cancel'));
+}
+
+function user_import_confirm_import_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    user_import_import($form_state['values']['import_id']);
+  }
 }
 
 function user_import_import($import_id = NULL) {

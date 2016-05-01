@@ -210,6 +210,11 @@ function themekey_redirect_callback() {
   // Clean-up the URI path for rule matching and response by overriding
   // $_GET['q'] and $_SERVER['REQUEST_URI'].
   $_GET['q'] = implode('/', func_get_args());
+  // If the path is empty, we're at the front page.
+  if (empty($_GET['q'])) {
+    $_GET['q'] = variable_get('site_frontpage', 'node');
+  }
+
   // Coder module complains "the use of REQUEST_URI is prone to XSS exploits and
   // does not work on IIS; use request_uri() instead [security_12]". But we have
   // to override (or set) the REQUEST_URI here which is not an security issue.

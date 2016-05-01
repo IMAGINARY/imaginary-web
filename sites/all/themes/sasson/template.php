@@ -521,7 +521,7 @@ function sasson_breadcrumb($vars) {
   }
 
   if ($condition) {
-    return "";//implode(" {$separator} ", $breadcrumb);
+    return implode(" {$separator} ", $breadcrumb);
   }
 }
 

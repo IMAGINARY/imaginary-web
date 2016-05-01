@@ -1,7 +1,7 @@
 ADDING FEATURED CONTENT BLOCKS
 
     To add new Featured Content Blocks, use the "Add Featured Content Block" tab 
-    (or button) on the administer blocks page, admin/build/block. You will 
+    (or button) on the administer blocks page, admin/structure/block. You will 
     then be able to configure your featured content block before adding it.
 
 CONFIGURING FEATURED CONTENT BLOCKS
@@ -36,16 +36,18 @@ CONFIGURING FEATURED CONTENT BLOCKS
 
     > For manual:
 
-    * URLs - manually selected internal URLs
+    * URLs - manually selected internal URLs (these must be node pages)
 
     > For CCK:
 
-    * CCK Fields - fields that contain node ids or references
+    * CCK Fields - fields that contain node ids or node/user references
 
     > For filtered:
 
     * Include Node Being Viewed - show current node in content block
  
+    * Languages - which languages to use when filtering content
+
     * Content Types - which content types to use when filtering content
 
     * Users - which users to use when filtering content

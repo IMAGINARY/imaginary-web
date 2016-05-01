@@ -6,6 +6,27 @@
  */
 
 /**
+ * Implements hook_variable_info().
+ */
+function login_one_time_variable_info($options) {
+  $variable['login_one_time_subject'] = array (
+    'title' => t('One-time Login mail Subject', array(), $options),
+    'description' => t('The Subject of the one-time login mail', array(), $options),
+    'default' => t("One-time login link for [user:name] at [site:name]", array(), $options),
+    'type' => 'string',
+    'localize' => TRUE,
+  );
+  $variable['login_one_time_body'] = array (
+    'title' => t('One-time Login mail Body', array(), $options),
+    'description' => t('The Body of the one-time login mail', array(), $options),
+    'default' => t("[user:name],\n\nA request to give you a one-time login for your account has been made at [site:name].\n\nYou may now log in to [site:url-brief] by clicking on this link or copying and pasting it in your browser:\n\n[user:login-one-time]\n\nThis is a one-time login, so it can be used only once.  It expires in two weeks and nothing will happen if it's not used.\n\n--  [site:name] team", array(), $options),
+    'type' => 'string',
+    'localize' => TRUE,
+  );
+  return $variable;
+}
+
+/**
  * Implements hook_perm().
  */
 function login_one_time_permission() {
@@ -172,6 +193,13 @@ function login_one_time_settings() {
     '#description' => t("To send to an email address other than the account email.  Will only show when the button is shown as well."),
     '#default_value' => variable_get('login_one_time_user_set_mail', FALSE),
   );
+  $form['user']['login_one_time_user_ignore_current_pass'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Ignore the <em>current password</em> field'),
+    '#description' => t('Will ignore and hide the current password field when on the user edit page.'),
+    '#default_value' => variable_get('login_one_time_user_ignore_current_pass', FALSE),
+  );
+
   return system_settings_form($form);
 }
 
@@ -226,7 +254,8 @@ function login_one_time_button($username = NULL, $path = NULL, $select = FALSE, 
       // Woops, they've supplied an $account!
       $username = $username->name;
     }
-    return drupal_render(drupal_get_form('login_one_time_button_form', $username, $path, $select, $set_mail));
+    $form = drupal_get_form('login_one_time_button_form', $username, $path, $select, $set_mail);
+    return drupal_render($form);
   }
   return NULL;
 }
@@ -413,7 +442,7 @@ function login_one_time_user_options($autocomplete = NULL) {
     $where = '';
     if ($autocomplete) {
       $where = " AND u.name LIKE :autocomplete";
-      $args[':autocomplete'] = '%' . $autocomplete . '.%';
+      $args[':autocomplete'] = '%' . $autocomplete . '%';
     }
     $result = db_query(
       'SELECT u.name AS name FROM {users} u'
@@ -424,7 +453,7 @@ function login_one_time_user_options($autocomplete = NULL) {
       $args
     );
     foreach ($result as $row) {
-      $options[$row->name] = $row->name;
+      $options[$row->name] = check_plain($row->name);
     }
   }
 
@@ -527,10 +556,11 @@ function login_one_time_get_link($account, $path = NULL) {
   $timestamp = REQUEST_TIME;
   return url(
     "login_one_time/" . $account->uid . "/" . $timestamp . "/" .
-      user_pass_rehash($account->pass, $timestamp, $account->login),
+      user_pass_rehash($account->pass, $timestamp, $account->login, $account->uid),
     array(
       'query' => array('destination' => $path),
       'absolute' => TRUE,
+      'language' => user_preferred_language($account),
     )
   );
 }
@@ -540,7 +570,7 @@ function login_one_time_get_link($account, $path = NULL) {
  */
 function login_one_time_form_user_admin_settings_alter(&$form, &$form_state) {
   //$email_token_help = t('Available variables are:') . ' !username, !site, !password, !uri, !uri_brief, !mailto, !date, !login_uri, !edit_uri, !login_url.';
-  $email_token_help = t('Available variables are:') . ' [site:name], [site:url], [user:name], [user:mail], [site:login-url], [site:url-brief], [user:edit-url], <strike>[user:one-time-login-url]</strike>, <strong>[user:login-one-time]</strong>, [user:cancel-url].';
+  $email_token_help = t('Available variables are:') . ' [site:name], [site:url], [user:name], [user:mail], [site:login-url], [site:url-brief], [user:edit-url], <strong>[user:login-one-time]</strong>, [user:cancel-url].';
 
   $form['email_login_one_time'] = array(
     '#type' => 'fieldset',
@@ -565,14 +595,36 @@ function login_one_time_form_user_admin_settings_alter(&$form, &$form_state) {
 }
 
 /**
+ * Retrieve the Global (or user) Language, seperated method to not polute the language variable in the parameter list.
+ */
+function _login_one_time_getLanguage(){
+    global $language ;
+  return $language->language;
+}
+
+/**
  * Returns a mail string for a variable name.
  *
  * Used by user_mail() and the settings forms to retrieve strings.
  */
 function login_one_time_mail_text($key, $path = NULL, $language = NULL, $variables = array()) {
-  if ($admin_setting = variable_get($key, FALSE)) {
-    // An admin setting overrides the default string.
-    return strtr($admin_setting, $variables);
+
+  if (empty($language)) {
+    $language = _login_one_time_getLanguage();
+  }
+  if (is_object($language)) {
+    $language = $language->language;
+  }
+  if (module_exists("i18n_variable")) {
+    $admin_setting = i18n_variable_get($key, $language, FALSE);
+  }
+  else {
+    $admin_setting = variable_get($key, FALSE);
+  }
+
+  if ($admin_setting) {
+   // An admin setting overrides the default string.
+   return strtr($admin_setting, $variables);
   }
   else {
     $langcode = isset($language) ? $language->language : NULL;
@@ -594,7 +646,7 @@ function login_one_time_mail_text($key, $path = NULL, $language = NULL, $variabl
  * Implements hook_mail().
  */
 function login_one_time_mail($key, &$message, $params) {
-   // This code handles a mixture of Drupal 6 legacy !variables and Drupal 7 tokens.
+  // This code handles a mixture of Drupal 6 legacy !variables and Drupal 7 tokens.
 
   $language = $message['language'];
   $path = &$params['path'];
@@ -688,7 +740,7 @@ function login_one_time_page($uid, $timestamp, $hashed_pass) {
         drupal_set_message(t('You have tried to use a one-time login link that has expired. Please use the log in form to supply your username and password.'));
         drupal_goto('user/login');
       }
-      elseif ($account->uid && $timestamp > $account->login && $timestamp < $current && $hashed_pass == user_pass_rehash($account->pass, $timestamp, $account->login)) {
+      elseif ($account->uid && $timestamp > $account->login && $timestamp < $current && $hashed_pass == user_pass_rehash($account->pass, $timestamp, $account->login, $account->uid)) {
 
         $action = login_one_time_get_action_path();
 
@@ -706,6 +758,8 @@ function login_one_time_page($uid, $timestamp, $hashed_pass) {
 
         module_invoke_all('login_one_time_used', $user);
 
+	// Add a session variable indicating whether the ignore current password field setting is enabled.
+	$_SESSION['ignore_current_pass'] = variable_get('login_one_time_user_ignore_current_pass', FALSE);
         drupal_set_message(t('You have just used your one-time login link.'));
         if (!empty($action)) {
           drupal_goto($action);
@@ -876,10 +930,31 @@ function login_one_time_block_view($delta = '') {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function login_one_time_form_user_profile_form_alter(&$form, &$form_state) {
+  // Remove the current password field from user profile edit form
+  // and disable validation.
+  if (variable_get('login_one_time_user_ignore_current_pass', FALSE) && isset($_SESSION['ignore_current_pass']) && $_SESSION['ignore_current_pass']) {
+    // Check for the current password validation hook, and disable it.
+    $key = array_search('user_validate_current_pass', $form['#validate']);
+
+    if ($key !== FALSE) {
+      unset($form['#validate'][$key]);
+    }
+
+    // Disable the current password form.
+    $form['account']['current_pass_required_value']['#access'] = FALSE;
+    $form['account']['current_pass']['#access'] = FALSE;
+  }
+}
+
+/**
  * Implements hook_tokens().
  */
 function login_one_time_tokens($type, $tokens, $data = array(), $options = array()) {
   $replacements = array();
+
   if ($type == 'user' && !empty($data['user'])) {
     $account = $data['user'];
 
@@ -887,8 +962,22 @@ function login_one_time_tokens($type, $tokens, $data = array(), $options = array
       switch ($name) {
         // Simple key values on the node.
         case 'login-one-time':
-          $replacements[$original] = login_one_time_get_link($account, $data['path']);
-          break;
+          $path = isset($data['path']) ? $data['path'] : NULL;
+          $replacements[$original] = login_one_time_get_link($account, $path);
+        break;
+      }
+    }
+  }
+  if ($type == 'comment' & !empty($data['comment'])) {
+    $comment = $data['comment'];
+
+    foreach ($tokens as $name => $original) {
+      switch($name) {
+        case 'login-one-time':
+          $node = node_load($comment->nid);
+          $author = user_load($node->uid);
+          $replacements[$original] = login_one_time_get_link($author, url("node/$node->nid") . '#' . $comment->cid);
+        break;
       }
     }
   }
@@ -899,16 +988,18 @@ function login_one_time_tokens($type, $tokens, $data = array(), $options = array
  * Implements hook_token_info().
  */
 function login_one_time_token_info() {
-  return array(
-    'tokens' => array(
-      'user' => array(
-        'login-one-time' => array(
-          'name' => t('Login one time link'),
-          'description' => t("A one-time login link set to the configured default path."),
-        ),
-      ),
-    ),
+
+  $info['tokens']['user']['login-one-time'] = array(
+    'name' => t('Login one time link'),
+    'description' => t("A one-time login link set to the configured default path."),
   );
+  if (module_exists('comment')) {
+    $info['tokens']['comment']['login-one-time'] = array(
+      'name' => t('Login one time link'),
+      'description' => t("A one-time login link for the commented node's author."),
+    );
+  }
+  return $info;
 }
 
 /**
@@ -974,5 +1065,5 @@ function login_one_time_send_mail_action_submit($form, $form_state) {
  *   Array with parameters for this action: depends on the trigger.
  */
 function login_one_time_send_mail_action(&$account, $context = array()) {
-  login_one_time_send_mail($account, $context['path']); 
+  login_one_time_send_mail($account, $context['path']);
 }

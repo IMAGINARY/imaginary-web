@@ -5,9 +5,9 @@ core = 7.x
 package = Administration
 configure = admin/config/user-interface/rename-admin-paths
 
-; Information added by drupal.org packaging script on 2013-05-06
-version = "7.x-2.1"
+; Information added by Drupal.org packaging script on 2014-11-03
+version = "7.x-2.2"
 core = "7.x"
 project = "rename_admin_paths"
-datestamp = "1367866511"
+datestamp = "1415056382"
 

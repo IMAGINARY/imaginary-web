@@ -5,6 +5,8 @@
  * Provides a filter for text fields to replace an icon token with icon markup.
  */
 
+define('ICON_FILTER_REGEX', '/\[icon:([^:]*):([^\]]*)\]/');
+
 /**
  * Implements hook_filter_info().
  */
@@ -34,9 +36,8 @@ function _icon_filter_tips($filter, $format, $long = FALSE) {
  * Process callback for icon filter.
  */
 function _icon_filter($text, $filter, $format, $langcode, $cache, $cache_id) {
-  $regex = '/\[icon:([^:]*):([^\]]*)\]/';
   $icons = array();
-  if (preg_match_all($regex, $text, $matches, PREG_SET_ORDER)) {
+  if (preg_match_all(ICON_FILTER_REGEX, $text, $matches, PREG_SET_ORDER)) {
     foreach ($matches as $match) {
       if (!isset($icons[$match[0]])) {
         $icons[$match[0]] = theme('icon', array('bundle' => $match[1], 'icon' => $match[2]));
@@ -49,4 +50,26 @@ function _icon_filter($text, $filter, $format, $langcode, $cache, $cache_id) {
     }
   }
   return $text;
+}
+
+/**
+ * Implements hook_field_prepare_view().
+ *
+ * Processes fields to attach bundle resources (if necessary).
+ */
+function icon_filter_preprocess_field(&$variables) {
+  $element = &$variables['element'];
+  if (!empty($element['#formatter'])) {
+    foreach ($element['#items'] as &$item) {
+      if (!empty($item['format']) && ($filters = filter_list_format($item['format'])) && !empty($filters['icon']->status)) {
+        if (preg_match_all(ICON_FILTER_REGEX, $item['value'], $matches, PREG_SET_ORDER)) {
+          foreach ($matches as $match) {
+            if (!isset($icons[$match[0]]) && ($bundle = icon_bundle_load($match[1]))) {
+              icon_process_attached($bundle);
+            }
+          }
+        }
+      }
+    }
+  }
 }

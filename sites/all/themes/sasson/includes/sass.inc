@@ -81,7 +81,6 @@ function sasson_pre_render($elements) {
     $last = end($parts);
     $fparts = explode(".", $last);
     $name = reset($fparts);
-    $directory = 'public://css';
     $files_directory = variable_get('file_' . file_default_scheme() . '_path', conf_path() . '/files') . '/css';
     $directory = theme_get_setting('sasson_compiler_destination') ? theme_get_setting('sasson_compiler_destination') . '/' . $file['theme'] . '/styles' : $files_directory;
     $path = $directory . '/' . $name . '.css';
@@ -146,15 +145,13 @@ function sasson_pick_files($items) {
  * Loads a stylesheet and writes the base path to all url declarations.
  *
  * @param $file
- *   A filepath or an array representing a stylesheet.
+ *   A filepath.
  *
  * @return
  *   A string that represents the processed contents of the stylesheet.
  */
 function sasson_load_stylesheet($file) {
-  $file = is_array($file) ? $file['data'] : $file;
-  //$data = drupal_load_stylesheet($file); // this removes @import statements
-  $data =  @file_get_contents($file);
+  $data = file_get_contents($file);
   // Build the base URL of this CSS file. Start with the full URL.
   $base = file_create_url($file);
   // Move to the parent.
@@ -165,9 +162,11 @@ function sasson_load_stylesheet($file) {
     $base = substr($base, strlen($GLOBALS['base_root']));
   }
   _drupal_build_css_path(NULL, $base . '/');
-  // Anchor all paths in the CSS with its base URL, ignoring external, absolute
-  // paths, and compass url helper functions.
-  $data = preg_replace_callback('/(?<!-)url\(\s*[\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\s*\)/i', '_drupal_build_css_path', $data);
+  if (theme_get_setting('sasson_url_rewrite')) {
+    // Anchor all paths in the CSS with its base URL, ignoring external, absolute
+    // paths, and compass url helper functions.
+    $data = preg_replace_callback('/(?<!-)url\(\s*[\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\s*\)/i', '_drupal_build_css_path', $data);
+  }
   // Quote all url(..) to ensure PhamlP doesn't strip them.
   $data = preg_replace("/url\(([^'\")]+)\)/i", "url('$1')", $data);
   return $data;

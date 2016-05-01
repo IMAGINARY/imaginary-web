@@ -69,6 +69,7 @@ settings[sasson_sass] = 1
 settings[sasson_devel] = 1
 settings[sasson_prefix] = 1
 settings[sasson_compiler_destination] = ''
+settings[sasson_url_rewrite] = 1
 settings[sasson_images_path] = ''
 settings[sasson_fonts_path] = ''
 settings[sasson_stylesheets_path] = ''
@@ -99,9 +100,9 @@ settings[sasson_breadcrumb_showtitle] = 0
 settings[sasson_breadcrumb_separator] = '»'
 settings[sasson_feed_icons] = 0
 
-; Information added by drupal.org packaging script on 2013-01-04
-version = "7.x-2.9"
+; Information added by drupal.org packaging script on 2013-05-21
+version = "7.x-2.10"
 core = "7.x"
 project = "sasson"
-datestamp = "1357305908"
+datestamp = "1369155612"
 

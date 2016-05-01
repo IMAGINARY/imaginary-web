@@ -2,13 +2,8 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the featured_content module.
+ * Install, update, and uninstall functions for the Featured Content module.
  *
- */
-
-/**
- * @file
- * Provides install, upgrade and un-install functions for featured_content.
  */
 
 /**
@@ -16,17 +11,15 @@
  */
 function featured_content_uninstall() {
 
-  // delete featured_content variables
-  variable_del('featured_content_blocks'); // array with all blocks data
-  variable_del('featured_content_block_ids'); // array with all block ids
+  // Delete Featured Content variables.
+  variable_del('featured_content_blocks'); // Array with all blocks data.
+  variable_del('featured_content_block_ids'); // Array with all block ids.
 
-  // remove block configurations
-  //db_query("DELETE FROM {blocks} WHERE module = 'featured_content'");
+  // Remove block configurations.
   db_delete('block')
     ->condition('module', 'featured_content')
     ->execute();
 
-  //db_query("DELETE FROM {blocks_roles} WHERE module = 'featured_content'");
   db_delete('block_role')
     ->condition('module', 'featured_content')
     ->execute();
@@ -45,5 +38,35 @@ function featured_content_enable() {
  * Implements hook_install().
  */
 function featured_content_install() {
-  // nothing to do
+  // Nothing to do.
+}
+
+/**
+ * Update the view mode display settings.
+ */
+function featured_content_update_7100() {
+  $featured_blocks = variable_get('featured_content_blocks', array());
+  if (! empty($featured_blocks)) {
+    foreach ($featured_blocks as $delta => $data) {
+
+      // Convert block view mode settings.
+      if ($data['display'] == 'teasers') {
+        $featured_blocks[$delta]['display'] = 'teaser';
+      }
+      elseif ($data['display'] == 'full_nodes') {
+        $featured_blocks[$delta]['display'] = 'full';
+      }
+
+      // Convert more page view mode settings.
+      if ($data['more']['display'] == 'teasers') {
+        $featured_blocks[$delta]['more']['display'] = 'teaser';
+      }
+      elseif ($data['display'] == 'full_nodes') {
+        $featured_blocks[$delta]['more']['display'] = 'full';
+      }
+    }
+  }
+  variable_set('featured_content_blocks', $featured_blocks);
+
+  return array();
 }

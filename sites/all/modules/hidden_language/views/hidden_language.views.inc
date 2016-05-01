@@ -1,11 +1,6 @@
 <?php
 
 /**
- * @file
- * hidden_language.views.inc
- */
-
-/**
  * Implements hook_views_data_alter().
  *
  * @todo: add relationships

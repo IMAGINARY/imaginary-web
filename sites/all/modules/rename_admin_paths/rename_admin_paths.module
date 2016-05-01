@@ -149,7 +149,7 @@ function rename_admin_paths_admin_paths_alter(&$paths) {
       // Replace "user" in administrative paths
       if (variable_get('rename_user_path', NULL)) {
         $rename_user_path_value = variable_get('rename_user_path_value', 'member');
-        $renamed_path = preg_replace('|^user(?![^/])|', $rename_admin_path_value, $path);
+        $renamed_path = preg_replace('|^user(?![^/])|', $rename_user_path_value, $path);
         $paths[$renamed_path] = $enable;
       }
     }
@@ -162,7 +162,7 @@ function rename_admin_paths_admin_paths_alter(&$paths) {
 function rename_admin_paths_overlay_parent_initialize() {
 
   // Check if enable
-  if (variable_get('rename_admin_path', NULL) || variable_get('rename_admin_path', NULL)) {
+  if (variable_get('rename_admin_path', NULL) || variable_get('rename_user_path', NULL)) {
 
     // Override overlay paths
     $paths = path_get_admin_paths();

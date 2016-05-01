@@ -46,7 +46,7 @@ class SassExtentionsCompassConfig {
 		}			
 		elseif (is_string($config) && isset(self::$config[$config])) {
 			return self::$config[$config]; 
-		}
+		}	
 	}
 	
 	/**

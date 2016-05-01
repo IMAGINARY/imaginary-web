@@ -134,8 +134,8 @@ function agrcache_get_js($scope = 'header', $javascript = NULL, $skip_alter = FA
 
   // Loop through the JavaScript to construct the rendered output.
   $element = array(
-    '#tag' => 'script', 
-    '#value' => '', 
+    '#tag' => 'script',
+    '#value' => '',
     '#attributes' => array(
       'type' => 'text/javascript',
     ),
@@ -214,16 +214,15 @@ function agrcache_get_js($scope = 'header', $javascript = NULL, $skip_alter = FA
       // Only include the file if was written successfully. Errors are logged
       // using watchdog.
       if ($uri) {
-        $preprocess_file = file_create_url($uri);
         $js_element = $element;
-        $js_element['#attributes']['src'] = $preprocess_file;
+        $js_element['#attributes']['src'] = file_create_url($uri);
         $processed[$key] = theme('html_tag', array('element' => $js_element));
       }
     }
   }
 
   if (!empty($map)) {
-    agrcache_add_to_variable('agrcache_js_cache_files', $map);
+    agrcache_update_file_list('js', $map);
   }
 
   // Keep the order of JS files consistent as some are preprocessed and others are not.
@@ -265,7 +264,7 @@ function agrcache_aggregate_css(&$css_groups) {
     }
   }
   if (!empty($map)) {
-    agrcache_add_to_variable('agrcache_css_cache_files', $map);
+    agrcache_update_file_list('css', $map);
   }
 }
 
@@ -275,8 +274,8 @@ function agrcache_aggregate_css(&$css_groups) {
 function agrcache_build_aggregate_cache($files, $type) {
   $data = '';
   $uri = '';
-  $map = variable_get('agrcache_' . $type . '_cache_files', array());
-  $key = hash('sha256', serialize($files));
+  $map = agrcache_get_file_list($type);
+  $key = hash('sha256', agrcache_serialize_files($files));
   if (isset($map['files'][$key])) {
     return array('uri' => $map['files'][$key]);
   }
@@ -288,8 +287,14 @@ function agrcache_build_aggregate_cache($files, $type) {
     if ($data) {
 
       // Prefix filename to prevent blocking by firewalls which reject files
-      // starting with "ad*".
-      $filename = $type . '_' . drupal_hash_base64($data) . ".$type";
+      // starting with "ad*". Even though the file map is by the hash of files,
+      // the filename must hash by both the the contents and the files array. It
+      // is possible to have identical contents even if files have moved, but
+      // since URLs are replaced, the resulting file should be different even if
+      // the contents are the same, i.e. two different file keys pointing to the
+      // same filename.
+      $filename = $type . '_' . drupal_hash_base64(agrcache_serialize_files($files) .  $data) . ".$type";
+
       // Create the aggregate directory within the files folder.
       $path = "public://$type";
       $uri = $path . '/' . $filename;
@@ -334,7 +339,7 @@ function agrcache_collect_css_group($css) {
 function agrcache_process_js_group($js) {
   $data = '';
   foreach ($js as $path => $info) {
-    if ($info['preprocess']) {
+    if ($info['preprocess'] && file_exists($path)) {
       // Append a ';' and a newline after each JS file to prevent them from running together.
       $data .= file_get_contents($path) . ";\n";
     }
@@ -386,7 +391,7 @@ function agrcache_generate_aggregate($filename, $type) {
   // Recreate the full uri from the filename.
   $path = "public://$type";
   $uri = $path . '/' . $filename;
-  $map = variable_get('agrcache_' . $type . '_cache_files', array());
+  $map = agrcache_get_file_list($type);
   $compression = variable_get($type . '_gzip_compression', TRUE) && variable_get('clean_url', 0) && extension_loaded('zlib');
 
   // This callback should only be called if the file does not already exist on
@@ -394,99 +399,128 @@ function agrcache_generate_aggregate($filename, $type) {
   // However it is possible that the file was created during bootstrap by another request.
   if (file_exists($uri)) {
     $data = file_get_contents($uri);
-    if ($compression) {
-      $compressed = gzencode($data, 9, FORCE_GZIP);
-    }
   }
   elseif (isset($map['callbacks'][$uri])) {
+    // There is a possible race condition in the following deployment case with
+    // multiple web heads.
+    //   - server A has updated code, and gets a page request - i.e. builds a
+    //     filename.
+    //   - server B (this server) is not updated yet, and gets a request for an
+    //   aggregate with that filename.
+    // In this case, server 2 cannot assume that the filename matches the
+    // actual contents of the files on disk, since the files on disk are in
+    // fact different, given the filename was generated on a different server,
+    // with different files. Based on the information in the map, build the
+    // filename again, and ensure they match. Since the filename depends on
+    // the contents of the files, if the filenames don't match we know we've
+    // hit this race condition. When that happens, log an error, don't write
+    // the aggregate, but still serve the contents of the old file, which is
+    // the best we can do.
+    $write = TRUE;
+    $function = 'agrcache_collect_' . $type . '_group';
+    $files = $map['callbacks'][$uri];
+    $this_data = $function($files);
+    $this_filename = $type . '_' . drupal_hash_base64(agrcache_serialize_files($files) . $this_data) . ".$type";
+    $path = "public://$type";
+    $this_uri = $path . '/' . $this_filename;
+    if ($this_uri !== $uri) {
+      watchdog('agrcache', 'Attempted to create an aggregate based on a set of files that does not match the filename provided.');
+      $write = FALSE;
+    }
     // @todo: consider adding locking here.
     // @see drupal.org/node/886488
     $function = 'agrcache_process_' . $type . '_group';
     $data = $function($map['callbacks'][$uri]);
     // Check file_exists() again, in case the file was built during processing.
-    if (!file_exists($uri)) {
-      // Create the file.
-      file_prepare_directory($path, FILE_CREATE_DIRECTORY);
-      if (!file_exists($uri) && !file_unmanaged_save_data($data, $uri, FILE_EXISTS_REPLACE)) {
-        drupal_add_http_header('Status', '503 Service Unavailable');
-        print t('Error generating aggregate');
-        drupal_exit();
-      }
+    if (!file_exists($uri) && $write) {
+      _agrcache_file_unmanaged_save_data($data, $path, $uri);
       // If gzip compression is enabled, clean URLs are enabled (which means
       // that rewrite rules are working) and the zlib extension is available then
       // create a gzipped version of this file. This file is served conditionally
       // to browsers that accept gzip using .htaccess rules.
       if ($compression) {
         $compressed = gzencode($data, 9, FORCE_GZIP);
-        if (!file_exists($uri . '.gz') && !file_unmanaged_save_data($compressed, $uri . '.gz', FILE_EXISTS_REPLACE)) {
-          drupal_add_http_header('Status', '503 Service Unavailable');
-          print t('Error generating aggregate');
-          drupal_exit();
+        if (!file_exists($uri . '.gz')) {
+          _agrcache_file_unmanaged_save_data($compressed, $path, $uri . '.gz');
         }
       }
     }
-    $content_type = $type == 'css' ? 'text/css' : 'application/javascript';
-    $headers = array();
-    $headers['Content-Type'] = $content_type;
-    // Ensure this file can be cached by browsers and reverse proxies.
-    $headers['Cache-Control'] = 'public, max-age=1209600';
-    // Since the file name is based on a hash of file contents, there is no
-    // problem allowing the browser to cache it for as long as possible.
-    // Set this to two weeks since that's what .htaccess does if mod_expires
-    // is enabled.
-    $headers['Expires'] = gmdate(DATE_RFC1123, REQUEST_TIME + 1209600);
-
-    // When possible, serve the gzip version of the file via PHP.
-    if (!empty($compressed) && isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE) {
-      $headers['Content-Encoding'] = 'gzip';
-      $data = $compressed;
-      ini_set('zlib.output_compression', '0');
-    }
-    foreach ($headers as $key => $value) {
-      drupal_add_http_header($key, $value);
-    }
-    print $data;
-    drupal_exit();
   }
   else {
+    $data = '';
     watchdog('agrcache', 'Received request for a non-existent css aggregate @uri', array('@uri' => $uri));
+  }
+
+  $content_type = $type == 'css' ? 'text/css' : 'application/javascript';
+  $headers = array();
+  $headers['Content-Type'] = $content_type;
+  // Ensure that only the request that is hitting PHP sees this file,
+  // otherwise we want to use the file on disk for consistency.
+  $headers['Cache-Control'] = 'private, no-cache, no-store';
+  $headers['Edge-Control'] = 'bypass-cache';
+  foreach ($headers as $key => $value) {
+    drupal_add_http_header($key, $value);
+  }
+  print $data;
+  drupal_exit();
+}
+
+/**
+ * Helper to atomically write a file.
+ */
+function _agrcache_file_unmanaged_save_data($data, $path, $uri) {
+  // Create the file.
+  file_prepare_directory($path, FILE_CREATE_DIRECTORY);
+  // PHP file functions do not like null bytes, so as well as randomizing the
+  // temporary filename, hash it too.
+  $tmp_uri = $uri . drupal_hash_base64($uri . drupal_random_bytes(10));
+  // file_unmanaged_save_data() uses copy, which is not atomic and could
+  // result in empty files being served from other requests while the file
+  // is being written. So write it to a temporary filename, then use
+  // rename() afterwards, which is atomic.
+  $write = file_unmanaged_save_data($data, $tmp_uri, FILE_EXISTS_REPLACE);
+  if ($write) {
+    // It's possible another process has already written the aggregate and
+    // renamed it, so suppress errors.
+    @rename($tmp_uri, $uri);
+  }
+  else {
+    trigger_error('Agrcache failed to write aggregate . ' . $uri . ' successfully.', E_USER_WARNING);
+  }
+  return $write;
+}
+
+/**
+ * Merge the existing file list with new values.
+ *
+ * @param $type
+ *   The type of file list, either 'js' or 'css'.
+ */
+function agrcache_get_file_list($type) {
+  $cid = "agrcache_file_list_$type";
+  if ($cache = cache_get($cid)) {
+    return $cache->data;
+  }
+  else {
+    return array('files' => array(), 'callbacks' => array());
   }
 }
 
 /**
- * Merge the existing value of a variable from the database with new values.
+ * Merge the existing file list with new values.
  *
- * @param $name
- *   The name of the variable.
+ * @param $type
+ *   The type of file list, either 'js' or 'css'.
  * @param $values
  *   An array of values to add.
- * @param $default
- *   The default value of the variable, as passed to variable_get().
- *   This defaults to an empty array().
  */
-function agrcache_add_to_variable($name, $values, $default = array()) {
-  // This function bypasses variable_get() on purpose. Since when dealing with
-  // 'volatile' variables such as css and javascript maps that may be updated
-  // by multiple threads, it is necessary to minimize the potential race
-  // condition where threads may overwrite the value of the variable with a
-  // version missing values that were just added by a previous process.
-  // This approach lowers the window for that race condition to the time
-  // between the database query and variable_set(), which should be only a
-  // couple of milliseconds compared to up to over a second between
-  // variable_initialize() and reaching this function.
-  $original = $default;
-  $result = db_query('SELECT value FROM {variable} WHERE name = :name', array(':name' => $name))->fetchField();
-  if ($result) {
-    $original = unserialize($result);
-  }
-  else {
-    $original = array('files' => array(), 'callbacks' => array());
-  }
-  $merged_values = array();
+function agrcache_update_file_list($type, array $values) {
+  $file_list = agrcache_get_file_list($type);
+
   foreach (array_keys($values) as $key) {
-    $merged_values[$key] = array_merge($values[$key], $original[$key]);
+    $file_list[$key] = array_merge($values[$key], $file_list[$key]);
   }
-  variable_set($name, $merged_values);
+  cache_set("agrcache_file_list_$type", $file_list);
 }
 
 /**
@@ -501,9 +535,34 @@ function agrcache_flush_caches() {
   // @todo: Require PHP 5.3.6 so this can use DEBUG_BACKTRACE_IGNORE_ARGS.
   $backtrace = debug_backtrace(FALSE);
   if (isset($backtrace[3]) && $backtrace[3]['function'] == 'drupal_flush_all_caches') {
-    foreach(array('css', 'js') as $type) {
-      variable_del('agrcache_' . $type . '_cache_files');
+    _agrcache_clear_file_list();
+  }
+}
+
+/**
+ * Clear the file list.
+ */
+function _agrcache_clear_file_list() {
+  if (variable_get('preprocess_css') || variable_get('preprocess_js')) {
+    $file_list = array('files' => array(), 'callbacks' => array());
+    foreach (array('js', 'css') as $type) {
+      cache_clear_all("agrcache_file_list_$type", "cache");
     }
   }
 }
 
+/**
+ * Normalize and serialize $files array before it gets hashed.
+ *
+ * @param $files
+ *   A $files array as retrieved from drupal_get_js() or drupal_get_css().
+ *
+ * @return
+ *   A PHP serialized string, based on a normalized version of the array.
+ */
+function agrcache_serialize_files($files) {
+  foreach ($files as $key => $file) {
+    unset($files[$key]['weight']);
+  }
+  return serialize($files);
+}

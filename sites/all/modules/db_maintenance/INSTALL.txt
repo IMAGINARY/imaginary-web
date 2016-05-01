@@ -6,4 +6,5 @@ Installation Instructions:
 
 2. Enable db_maintenance module at: Administration > Modules
 
-3. Select tables to be optimized during cron runs at: Administration > Configuration > System > DB maintenance
+3. Select tables to be optimized during cron runs at:
+  Administration > Configuration > System > DB maintenance

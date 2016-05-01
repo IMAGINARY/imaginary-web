@@ -223,6 +223,12 @@ function sasson_form_system_theme_settings_alter(&$form, &$form_state) {
     ),
     '#default_value' => theme_get_setting('sasson_compiler_destination'),
   );
+  $form['sasson_settings']['sasson_sass']['sasson_compiled_path']['sasson_url_rewrite'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Rewrite URLs.'),
+    '#description' => t('Anchor all paths in the CSS with its base URL, ignoring external, absolute paths, and compass url helper functions. You may disable this feature depending on the path to your generated CSS.'),
+    '#default_value' => theme_get_setting('sasson_url_rewrite'),
+  );
 
   $form['sasson_settings']['sasson_sass']['sasson_url_helpers'] = array(
     '#type' => 'fieldset',

@@ -147,12 +147,12 @@ Drupal.media.popups.mediaStyleSelector = function (mediaFile, onSelect, options)
   var defaults = Drupal.media.popups.mediaStyleSelector.getDefaults();
   // @todo: remove this awful hack :(
   if (typeof defaults.src === 'string' ) {
-    defaults.src = defaults.src.replace('-media_id-', mediaFile.fid) + '&fields=' + JSON.stringify(mediaFile.fields);
+    defaults.src = defaults.src.replace('-media_id-', mediaFile.fid) + '&fields=' + encodeURIComponent(JSON.stringify(mediaFile.fields));
   }
   else {
     var src = defaults.src.shift();
     defaults.src.unshift(src);
-    defaults.src = src.replace('-media_id-', mediaFile.fid) + '&fields=' + JSON.stringify(mediaFile.fields);
+    defaults.src = src.replace('-media_id-', mediaFile.fid) + '&fields=' + encodeURIComponent(JSON.stringify(mediaFile.fields));
   }
   options = $.extend({}, defaults, options);
   // Create it as a modal window.

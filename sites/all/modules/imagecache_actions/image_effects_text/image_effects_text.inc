@@ -538,7 +538,7 @@ function image_imagemagick_image_effects_text(stdClass $image, array $data) {
     $data['angle'] = $data['angle'] % 360 + 360;
   }
 
-  // Set font file, size and color.
+  // Set font file, size and color. fontpath is the real path, not a wrapper.
   $image->ops[] = '-font ' . escapeshellarg($data['fontpath']);
   $image->ops[] = "-pointsize {$data['size']}";
   $image->ops[] = '-fill ' . escapeshellarg($color);
@@ -592,14 +592,14 @@ function image_imagemagick_image_effects_text(stdClass $image, array $data) {
  * The algorithm will accept many more situations, though the result may be hard
  * to predict.
  *
+ * @param string $position
+ *   The string defining the position.
  * @param int $width
  *   The length of the horizontal dimension.
  * @param int $height
  *   The length of the vertical dimension.
  * @param int $length
  *   The length of the current dimension (should be either width or height).
- * @param string $position
- *   The string defining the position.
  *
  * @return number
  *   The computed offset in pixels.

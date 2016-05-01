@@ -1,3 +1,24 @@
+7.x-1.6
+[#2183287] by Kristen Pol: Don't show results if no terms but filtering by terms.
+[#2383087] by Kristen Pol: Add search restrict type option. Fix include node option.
+[#1875394] by Kristen Pol: Check i18n_taxonomy is enabled to query language column.
+[#1542628] by Kristen Pol: Workaround search nodes caching less data than needed.
+[#1621546] by Kristen Pol: Fix template suggestions for more/empty templates.
+[#1388714] by Kristen Pol: Clean up comments.
+[#1621546] by pcavanaugh: Order template suggestions with type then delta.
+[#1621546] by pcavanaugh: Fix template suggestions.
+[#1741994] by Cyclodex and Kristen Pol: Support node view modes for display.
+[#1649978] by Kristen Pol: Update all db_query to use db_select
+[#1383960] by Kristen Pol: Show RSS icon if enabled and there is empty text
+[#1375382] by Kristen Pol: add additional language filter
+[#1388714] by Kristen Pol: remove unused, commented-out Drupal 6 code
+[#1388714] by Kristen Pol: add more comments
+[#1254442] by Kristen Pol: initialize variable to get rid of notice
+[#1388714] by Jevon Wright & Kristen Pol: get rid of undefined indexes
+[#1416370] by Kristen Pol: get rid of errors when using taxonomy visibility
+[#1416370] by Kristen Pol: fix taxonomy visibility for multiple vocabularies
+[#1465856] by Haiping: use DBTNG query for select for db compatibility
+
 7.x-1.5
 [#1350110] by Kristen Pol: don't pass in variable into t function
 [#1373304] by Kristen Pol: change {blocks} to {block} and use fetchObject ftn

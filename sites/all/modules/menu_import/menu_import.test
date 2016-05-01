@@ -10,13 +10,12 @@
  */
 class MenuImportTestCase extends DrupalWebTestCase {
 
-  private $validate_structure;
   private $validate_hidden;
   private $validate_expanded;
 
   public static function getInfo() {
     return array(
-      'name' => 'Menu importing',
+      'name' => 'Menu export/import',
       'description' => 'Perform various tests on menu_import module.',
       'group' => 'Menu',
     );
@@ -31,10 +30,17 @@ class MenuImportTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->privileged_user);
   }
 
-  function testFileNoLinksOptsLinkCreateSearchNo() {
-    // Test file settings to validate against.
+  /**
+   * Verifies basic functionality by running two imports - the first creates
+   * menu links and new nodes referenced by them, the other one reorders existing menu items
+   * searching for existing content by title.
+   */
+  function testBasicFeatures() {
+    /**
+     * SUBTEST #1: import.
+     */
     $file = DRUPAL_ROOT . '/' . drupal_get_path('module', 'menu_import') . '/tests/nolinks_3levels.txt';
-    $this->validate_structure = array(
+    $validate_structure = array(
       '1' => array('12', '13' => array('131')),
       '2' => array('21' => array('211')),
     );
@@ -72,6 +78,8 @@ class MenuImportTestCase extends DrupalWebTestCase {
     $this->assertText(t('Initial content of type "@type" will be created', array('@type' => 'page')));
     $this->assertText(t('Content status: @status', array('@status' => 'published')));
     $this->assertText(t('Content author: @author', array('@author' => $this->privileged_user->name)));
+    $this->assertText(t('Path aliases will be created.'));
+    $this->assertText(t('Language: not defined'));
 
     // Assert menu is parsed correctly.
     // Drupal may change this structure.
@@ -79,7 +87,7 @@ class MenuImportTestCase extends DrupalWebTestCase {
 '<tbody>
  <tr class="odd"><td><span title="Test description">Page 1</span></td><td>No</td><td> - </td><td> - </td><td>1</td> </tr>
  <tr class="even"><td><span title=""><div class="indentation">&nbsp;</div>Page 12</span></td><td>No</td><td>admin/structure/menu/import</td><td>admin/structure/menu/import</td><td>0</td> </tr>
- <tr class="odd"><td><span title=""><div class="indentation">&nbsp;</div>Page 13</span></td><td>No</td><td>admin/structure/menu/export</td><td>admin/structure/menu/export</td><td>1</td> </tr>
+ <tr class="odd"><td><span title=""><div class="indentation">&nbsp;</div>Page 13</span></td><td>No</td><td>admin/structure/menu/export?arg=val</td><td>admin/structure/menu/export</td><td>1</td> </tr>
  <tr class="even"><td><span title=""><div class="indentation">&nbsp;</div><div class="indentation">&nbsp;</div>Page 131</span></td><td>No</td><td> - </td><td> - </td><td>0</td> </tr>
  <tr class="odd"><td><span title="">Page 2</span></td><td>No</td><td> - </td><td> - </td><td>2</td> </tr>
  <tr class="even"><td><span title=""><div class="indentation">&nbsp;</div>Page 21</span></td><td>No</td><td> - </td><td> - </td><td>0</td> </tr>
@@ -100,7 +108,100 @@ class MenuImportTestCase extends DrupalWebTestCase {
     // Validate menu structure and generated content.
     $menu_tree = menu_build_tree($menu_machine_name);
     array_shift($menu_tree); // Remove "Home" link, Drupal may change this structure!
-    $this->validateMenu($this->validate_structure, $menu_tree);
+    $this->validateMenu($validate_structure, $menu_tree);
+
+
+    /**
+     * SUBTEST #2: export.
+     */
+    $post_data = array(
+      'menu_name'   => 'main-menu',
+      'line_ending' => 'unix',
+      'options'     => 1,
+    );
+    $export_url = 'admin/structure/menu/export';
+    $this->drupalPost($export_url, $post_data, t('Export'));
+    $exported_menu = $this->drupalGetContent();
+    $expected_exported_menu =
+'Home {"url":"<front>","weight":"0"}
+Page 1 {"url":"node\/1","description":"Test description","weight":"1"}
+-Page 12 {"url":"admin\/structure\/menu\/import","hidden":true,"weight":"0"}
+-Page 13 {"url":"admin\/structure\/menu\/export","options":{"query":{"arg":"val"}},"weight":"1"}
+--Page 131 {"url":"node\/3","weight":"0"}
+Page 2 {"url":"node\/2","expanded":true,"weight":"2"}
+-Page 21 {"url":"node\/4","weight":"0"}
+--Page 211 {"url":"node\/5","weight":"0"}
+';
+    $this->assertEqual($exported_menu, $expected_exported_menu, 'Exported menu ok.');
+
+    /**
+     * SUBTEST #3: import with match by title.
+     */
+    // Test file settings to validate against.
+    $file = DRUPAL_ROOT . '/' . drupal_get_path('module', 'menu_import') . '/tests/nolinks_3levels_reordered.txt';
+    $validate_structure = array(
+      '12' => array('1', '131' => array('13')),
+      '211' => array('21' => array('2')),
+    );
+    // Element's index is the id of the node referenced by menu item.
+    $node_ids = array(0, '1', '2', '131', '21', '211');
+
+    $post_data = array(
+      'menu_name' => 'main-menu',
+      'files[upload]'    => $file,
+      'create_content' => FALSE,
+      'link_to_content' => TRUE,
+    );
+    $this->drupalPost($post_url, $post_data, t('Upload & preview'));
+
+    // Assert options are ok.
+    $this->assertText(
+      t('Import @count items into "@menu_title" menu (@menu_name)',
+      array(
+        '@count' => $items_total,
+        '@menu_title' => $menu_title,
+        '@menu_name' => $menu_machine_name
+      )));
+    $this->assertText('Link to existing content if found');
+    $this->assertText(t('Language: not defined'));
+
+    // Assert menu is parsed correctly.
+    // Drupal may change this structure.
+    $expected_menu =
+'<tbody>
+ <tr class="odd"><td><span title="">Page 12</span></td><td>No</td><td> - </td><td> - </td><td>3</td> </tr>
+ <tr class="even"><td><span title=""><div class="indentation">&nbsp;</div>Page 1</span></td><td>Yes</td><td> - </td><td>node/' . array_search('1', $node_ids) . '</td><td>0</td> </tr>
+ <tr class="odd"><td><span title=""><div class="indentation">&nbsp;</div>Page 131</span></td><td>Yes</td><td> - </td><td>node/' . array_search('131', $node_ids) . '</td><td>1</td> </tr>
+ <tr class="even"><td><span title=""><div class="indentation">&nbsp;</div><div class="indentation">&nbsp;</div>Page 13</span></td><td>No</td><td> - </td><td> - </td><td>0</td> </tr>
+ <tr class="odd"><td><span title="">Page 211</span></td><td>Yes</td><td> - </td><td>node/' . array_search('211', $node_ids) . '</td><td>4</td> </tr>
+ <tr class="even"><td><span title=""><div class="indentation">&nbsp;</div>Page 21</span></td><td>Yes</td><td> - </td><td>node/' . array_search('21', $node_ids) . '</td><td>0</td> </tr>
+ <tr class="odd"><td><span title=""><div class="indentation">&nbsp;</div><div class="indentation">&nbsp;</div>Page 2</span></td><td>Yes</td><td> - </td><td>node/' . array_search('2', $node_ids) . '</td><td>0</td> </tr>
+</tbody>';
+    $this->assertRaw($expected_menu, 'Menu structure has been parsed.');
+
+    // Get hidden form fields for post.
+    $post_data = $this->getFormHiddenFields();
+
+    // Post to the same page.
+    $this->drupalPost(NULL, $post_data, t('Import'));
+
+    // Check report.
+    $this->assertText(t('Items imported: @items.', array('@items' => $items_total)));
+    $this->assertText(t('External URLs: 0 items.'));
+    $this->assertText(t('Content not found: 2 items.'));
+    $this->assertText(t('Existing content matched: @cnt items.', array('@cnt' => $content_items)));
+    $this->assertText(t('New content created: 0 items.'));
+    $this->assertText(t('Menu items deleted: 0.'));
+
+    // Validate menu structure and generated content.
+    // Cache clear is required since some items are not updated (a bug?)
+    menu_cache_clear($menu_machine_name);
+    $menu_tree = menu_build_tree($menu_machine_name);
+    // Remove "Home" and two orphanes links that appeared after reorder Drupal may change this structure!
+    $menu_tree = array_slice($menu_tree, 3);
+    $this->validate_expanded = array();
+    $this->validate_hidden = array();
+    $this->validateMenu($validate_structure, $menu_tree);
   }
 
   function validateMenu($reference, &$actual) {

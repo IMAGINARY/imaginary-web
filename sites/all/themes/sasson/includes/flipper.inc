@@ -9,41 +9,41 @@
  */
 
 class Flipper {
-  
+
   /**
    * extract blocks from css file, then $this->parse_block() on each.
    */
   function parse_css($css) {
-  
+
     $return = '';
     $is_media = FALSE;
-    
+
     // Strip Sass debug info (firesass info) to save media queries
     $css = preg_replace('/@media -sass-debug-info.*?\}\}/', '', $css);
-    
+
     // Break the css into media queries
     $css = preg_split('/(@media.*?\}\})/', $css, 0, PREG_SPLIT_DELIM_CAPTURE);
-    
+
     foreach ($css as $section) {
       // Break the css into blocks
       $section = explode('}', $section);
 
       // loop through blocks.
       foreach ($section as $block) {
-                
+
         // explode to selector and code.
         $block = explode('{', $block);
 
         // check header to see if it's @media.
         $h = $this->remove_comments($block[0]);
-        
+
         // If the section is wrapped in a media query
         if( preg_match( '/@media/', $h ) ) {
           $is_media = TRUE;
           $return .= "\n" . $block[0] . "{\n";
           array_shift($block);
         }
-        
+
         // parse code
         if (!empty($block[1]) && !preg_match('/no-flip-block/', $block[1])) {
           $t = !empty($block[1]) ? $this->parse_block($block[1]) : FALSE;
@@ -51,14 +51,14 @@ class Flipper {
 
         if ($t) {
           $return .= "\n" . trim($block[0]) . " {\n$t\n}\n";
-        } 
+        }
 
       }
       if ($is_media) {
         $return .= "}\n";
         // Reset value
         $is_media = FALSE;
-      } 
+      }
     }
 
     return $return;
@@ -152,7 +152,7 @@ class Flipper {
         $is_right = preg_match('/^([\s\t]*)right\:/', $line);
         if ($this->has === ($is_right ? 'left' : 'right')) {
           $this->has = FALSE;
-        } 
+        }
         else {
           $this->has = $is_right ? 'right' : 'left';
         }
@@ -163,7 +163,7 @@ class Flipper {
         $is_right = preg_match('/^([\s\t]*)padding-right\:/', $line);
         if ($this->has_p === ($is_right ? 'left' : 'right')) {
           $this->has_p = FALSE;
-        } 
+        }
         else {
           $this->has_p = $is_right ? 'right' : 'left';
         }
@@ -174,7 +174,7 @@ class Flipper {
         $is_right = preg_match('/^([\s\t]*)margin-right\:/', $line);
         if ($this->has_m === ($is_right ? 'left' : 'right')) {
           $this->has_m = FALSE;
-        } 
+        }
         else {
           $this->has_m = $is_right ? 'right' : 'left';
         }
@@ -185,7 +185,7 @@ class Flipper {
         $is_right = preg_match('/^([\s\t]*)border-right\:/', $line);
         if ($this->has_b === ($is_right ? 'left' : 'right')) {
           $this->has_b = FALSE;
-        } 
+        }
         else {
           $this->has_b = $is_right ? 'right' : 'left';
         }
@@ -193,7 +193,7 @@ class Flipper {
 
       // flip right snf left.
       $line = $this->right_to_left($line);
-    } 
+    }
     elseif (preg_match('/(padding|margin):(([\s\t]*)([^\s\t]+)([\s\t]+)([^\s\t]+)([\s\t]+)([^\s\t]+)([\s\t]+)([^\s\t]*)([\s\t]*)(!important)?([\s\t]*);)/', $line, $matches)) {
       // If it's <code>padding: 1 2 3 4;</code> we'll flip the 2nd and the 4th values.
       // if they are equal, return false.
@@ -204,13 +204,13 @@ class Flipper {
         // now flip
         $line = str_replace($matches[2], $matches[3] . $matches[4] . $matches[5] . $matches[10] . $matches[7] . $matches[8] . $matches[9] . $matches[6] . $matches[11] . $matches[11] . ';', $line);
       }
-    } 
+    }
 
     // check if it has rtl or ltr word.
     elseif (preg_match('/(rtl|ltr)/', $line)) {
       // now flip
       $line = $this->rtl_to_ltr($line);
-    } 
+    }
 
     else { // no RTL to do, return false
       $line = FALSE;

@@ -3,9 +3,11 @@ description = "Alter the cache settings per block."
 core = 7.x
 package = Performance and scalability
 
-; Information added by drupal.org packaging script on 2011-12-28
-version = "7.x-1.x-dev"
+configure = admin/config/development/performance/blockcache_alter
+
+; Information added by Drupal.org packaging script on 2014-11-08
+version = "7.x-1.1-beta1"
 core = "7.x"
 project = "blockcache_alter"
-datestamp = "1325030978"
+datestamp = "1415445185"
 

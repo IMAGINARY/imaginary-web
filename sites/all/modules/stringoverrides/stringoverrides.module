@@ -61,7 +61,7 @@ function stringoverrides_menu() {
 
   // Add the language tabs if there are other languages
   if (module_exists('locale')) {
-    global $language;
+    $language = language_default();
     $languages = locale_language_list();
     foreach ($languages as $code => $name) {
       $items["admin/config/regional/stringoverrides/manage/$code"] = array(
@@ -70,6 +70,7 @@ function stringoverrides_menu() {
         'page arguments' => array('stringoverrides_admin', $code),
         'access arguments' => array('administer string overrides'),
         'type' => $language->language == $code ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+        'file' => 'stringoverrides.admin.inc',
       );
     }
   }

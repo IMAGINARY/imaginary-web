@@ -28,3 +28,11 @@ function agrcache_update_7001() {
   variable_del('agrcache_js_cache_files');
   variable_del('agrcache_css_cache_files');
 }
+
+/**
+ * Don't use variables anymore.
+ */
+function agrcache_update_7002() {
+  variable_del('agrcache_js_cache_files');
+  variable_del('agrcache_css_cache_files');
+}

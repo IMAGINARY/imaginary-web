@@ -108,13 +108,19 @@ function drush_expire_absolute_url() {
 function drush_expire_internal_path() {
 
   // Get drush params.
-  $internal_paths = drush_get_arguments();
-  unset($internal_paths[0]);
+  $paths = drush_get_arguments();
+  unset($paths[0]);
 
-  foreach ($internal_paths as &$path) {
-    $path = $path === 'FRONT' ? '<front>' : $path;
+  $internal_paths = array();
+  foreach ($paths as &$path) {
+    if ($path === 'FRONT') {
+      $internal_paths += ExpireAPI::getFrontPageUrls();
+    }
+    else {
+      $internal_paths[] = $path;
+    }
   }
-
+ 
   // Expire internal paths.
   ExpireAPI::executeExpiration($internal_paths);
 }

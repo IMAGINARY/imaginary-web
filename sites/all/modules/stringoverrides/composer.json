@@ -1,0 +1,12 @@
+{
+    "name": "drupal/stringoverrides",
+    "description": "Provides a quick and easy way of replacing text.",
+    "type": "drupal-module",
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Rob Loach",
+            "web": "http://robloach.net"
+        }
+    ]
+}

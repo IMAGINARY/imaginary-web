@@ -143,23 +143,42 @@ function icon_menu() {
     'file path' => $module_path . '/includes',
   );
 
+  // The actual path will be set in hook_menu_alter() but we want the item to be
+  // defined here to let the menu system fill-in defaults. To ensure we do not
+  // have path collisions, we just temporarily a child of our admin path.
+  $view_path_alias = ICON_ADMIN_PATH . '/tmp';
+  $items[$view_path_alias] = $items[ICON_ADMIN_PATH];
+  $items[$view_path_alias]['access arguments'] = array('view icons');
+  $items[$view_path_alias . '/%icon_bundle'] = $items[ICON_ADMIN_PATH . '/bundle/%icon_bundle'];
+  $items[$view_path_alias . '/%icon_bundle']['access arguments'] = array('view icons');
+  $items[$view_path_alias . '/%icon_bundle']['title arguments'] = array(1);
+  $items[$view_path_alias . '/%icon_bundle']['page arguments'] = array(1);
+  $items[$view_path_alias . '/%icon_bundle']['theme arguments'] = array(1);
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function icon_menu_alter(&$items) {
   // Create a path alias for users with the "view icons" permission.
   $view_path_alias = variable_get('icon_api_view_path_alias');
+
   // If variable is not set and path is not taken, set it.
-  if ($view_path_alias === NULL && !menu_get_item('icons')) {
+  if ($view_path_alias === NULL && empty($items['icons'])) {
     $view_path_alias = 'icons';
     variable_set('icon_api_view_path_alias', $view_path_alias);
   }
+
+  $tmp_path = ICON_ADMIN_PATH . '/tmp';
   if (!empty($view_path_alias)) {
-    $items[$view_path_alias] = $items[ICON_ADMIN_PATH];
-    $items[$view_path_alias]['access arguments'] = array('view icons');
-    $items[$view_path_alias . '/%icon_bundle'] = $items[ICON_ADMIN_PATH . '/bundle/%icon_bundle'];
-    $items[$view_path_alias . '/%icon_bundle']['access arguments'] = array('view icons');
-    $items[$view_path_alias . '/%icon_bundle']['title arguments'] = array(1);
-    $items[$view_path_alias . '/%icon_bundle']['page arguments'] = array(1);
-    $items[$view_path_alias . '/%icon_bundle']['theme arguments'] = array(1);
+    $items[$view_path_alias] = $items[$tmp_path];
+    $items[$view_path_alias . '/%icon_bundle'] = $items[$tmp_path . '/%icon_bundle'];
   }
-  return $items;
+
+  unset($items[$tmp_path]);
+  unset($items[$tmp_path . '/%icon_bundle']);
 }
 
 /**

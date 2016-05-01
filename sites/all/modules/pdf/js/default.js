@@ -2,7 +2,7 @@
   Drupal.behaviors.pdf = {
     attach: function(context, settings) {
       var info = getAcrobatInfo();
-      console.log(info.browser+ " " + info.acrobat + " " + info.acrobatVersion);
+      console.log(info.browser + " " + info.acrobat + " " + info.acrobatVersion);
       var iframe = $('iframe.pdf');
       if (info.acrobat) {
         iframe.each(function(){
@@ -33,6 +33,7 @@
 
 /**
  * Detect browser support for canvas.
+ *
  * Canvas support is one of the main things that is needed by pdf.js
  * so detecting this should rule out most of the browsers that aren't
  * going to work.

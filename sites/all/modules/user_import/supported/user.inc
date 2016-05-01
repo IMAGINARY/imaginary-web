@@ -83,7 +83,7 @@ function user_user_import_data($settings, $update_setting, $column_settings, $mo
         $parsed['year']
       );
 
-      if (!empty($timestamp) && is_numerric($timestamp)) {
+      if (!empty($timestamp) && is_numeric($timestamp)) {
         $value = $timestamp;
       }
     }

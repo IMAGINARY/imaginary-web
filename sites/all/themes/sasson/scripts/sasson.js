@@ -18,11 +18,11 @@
       var headElm = $('head > link[href*="' + filename + '.css"]');
       if (headElm.length > 0) {
         // If it's in a <link> tag
-        headElm.attr('href', headElm.attr('href').replace(filename + '.css?', filename + '.css?s'));
-      } else {
+        headElm.attr('href', headElm.attr('href').replace(filename + '.css?', filename + '.css?' + Math.random()));
+      } else if ($("head > *:contains('" + filename + ".css')").length > 0) {
         // If it's in an @import rule
         headElm = $("head > *:contains('" + filename + ".css')");
-        headElm.html(headElm.html().replace(filename + '.css?', filename + '.css?s'));
+        headElm.html(headElm.html().replace(filename + '.css?', filename + '.css?' + Math.random()));
       }
     };
     
@@ -39,7 +39,7 @@
         } else if (instant && (fileExt === 'scss' || fileExt === 'sass')) {
           // SASS/SCSS file - trigger sass compilation with an ajax call and update head
           $.ajax({
-            url: "",
+            url: "?recompile=true",
             success: function() {
               updateStyle(filename);
             }
