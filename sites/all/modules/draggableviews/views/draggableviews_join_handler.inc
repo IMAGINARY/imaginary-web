@@ -46,10 +46,14 @@ class draggableviews_join_handler extends views_join {
         $arguments[':view_name'] = $view->name;
         $arguments[':view_display'] = $view->current_display;
       }
-      else {
+      else if (isset($view->sort[$weight_key]->options['draggableviews_setting_view']) && stripos($view->sort[$weight_key]->options['draggableviews_setting_view'], ':')) {
         list($setting_view_name, $setting_view_display) = explode(':', $view->sort[$weight_key]->options['draggableviews_setting_view']);
         $arguments[':view_name'] = $setting_view_name;
         $arguments[':view_display'] = $setting_view_display;
+      }
+      else {
+        $arguments[':view_name'] = $view->sort[$weight_key]->options['draggableviews_setting_view'];
+        $arguments[':view_display'] = '';
       }
 
       // Arguments passed to view (including exposed filters).
