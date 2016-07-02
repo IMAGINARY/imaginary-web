@@ -2,7 +2,8 @@
 .view-galleries .views-row,
 .view-exhibitions-view .views-row,
 .view-physical-exhibits .views-row,
-.view-films .views-row  {
+.view-films .views-row,
+.view-mathlapse .views-row {
   width: 45%;
   float: left;
   margin: 0 0 40px 0;
@@ -35,7 +36,8 @@
 .view-galleries,
 .view-exhibitions-view,
 .view-physical-exhibits,
-.view-films {
+.view-films,
+.view-mathlapse {
 
   .view-content {
     @include responsive($xs) {
