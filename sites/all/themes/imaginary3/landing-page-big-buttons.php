@@ -52,20 +52,6 @@ $size = ' width="400" height="220" ';
         </div>
       </div>
     </a>
-    <a href="<?php print url('films') ?>">
-      <div class="big-button films random hidden">
-        <div class="inner">
-          <div class="text">
-            <h2><?php print t('FILMS'); ?></h2>
-
-            <p><?php print t('watch math movies'); ?></p>
-          </div>
-          <div class="background-image">
-            <img src="<?php echo $themePath; ?>films-2.jpg"
-              alt="image1"<?php echo $size; ?>></div>
-        </div>
-      </div>
-    </a>
 
     <a href="<?php print url('exhibitions') ?>">
       <div class="big-button exhibitions random hidden">
@@ -86,25 +72,6 @@ $size = ' width="400" height="220" ';
 
   <div class="row">
 
-<!--    <a href="--><?php //print url('participate') ?><!--">-->
-<!--      <div class="big-button register">-->
-<!---->
-<!--        <div class="inner">-->
-<!--          <div class="text">-->
-<!--            <h2>--><?php //print t('BE PART OF IT'); ?><!--</h2>-->
-<!---->
-<!--            <p>--><?php //print t('participate and share ideas'); ?><!--</p>-->
-<!--          </div>-->
-<!---->
-<!--          <div class="background-image">-->
-<!--            <img src="--><?php //echo $themePath; ?><!--be_part_of_it.jpg"-->
-<!--                 alt="image1"--><?php //echo $size; ?><!-- > -->
-<!--          </div>-->
-<!--        </div>-->
-<!---->
-<!--      </div>-->
-<!--    </a>-->
-
     <a href="<?php print url('http://ic16.imaginary.org/') ?>">
       <div class="big-button big-button-darkbg ic16">
 
@@ -124,19 +91,17 @@ $size = ' width="400" height="220" ';
       </div>
     </a>
 
-    <a href="<?php print url('imaginary-entdeckerbox') ?>">
-      <div class="big-button entdeckerbox">
-
+    <a href="<?php print url('films/mathlapse') ?>">
+      <div class="big-button mathlapse">
         <div class="inner">
           <div class="text">
-            <h2><?php print t('ENTDECKERBOX'); ?></h2>
+            <h2><?php print t('MathLapse'); ?></h2>
 
-            <p><?php print t('explore our math school box'); ?></p>
+            <p><?php print t('watch math movies'); ?></p>
           </div>
           <div class="background-image">
-            <img src="<?php echo $themePath; ?>entdeckerbox.jpg"
-                 alt="image1"<?php echo $size; ?>>
-          </div>
+            <img src="<?php echo $themePath; ?>films-2.jpg"
+                 alt="image1"<?php echo $size; ?>></div>
         </div>
       </div>
     </a>

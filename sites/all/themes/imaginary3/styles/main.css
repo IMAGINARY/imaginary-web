@@ -2122,7 +2122,8 @@ iframe {
     text-align: center;
     margin: 0; }
   #big-buttons .galleries,
-  #big-buttons .entdeckerbox {
+  #big-buttons .entdeckerbox,
+  #big-buttons .mathlapse {
     margin: 0 12px; }
   #big-buttons .random,
   #big-buttons .hands-on,
@@ -2173,7 +2174,7 @@ iframe {
     display: table; }
   #big-buttons .row:after {
     clear: both; }
-  #big-buttons .galleries, #big-buttons .entdeckerbox {
+  #big-buttons .galleries, #big-buttons .entdeckerbox, #big-buttons .mathlapse {
     margin-left: 0;
     margin-right: 0; } }
 
