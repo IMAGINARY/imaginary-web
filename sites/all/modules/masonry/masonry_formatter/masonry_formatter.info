@@ -1,9 +1,10 @@
-name = Masonry
-description = "Makes the 'jQuery Masonry' plugin available to Drupal as a library."
+name = Masonry Field Formatter
+description = "Allows multi-value fields to be displayed in a jQuery Masonry grid."
 core = 7.x
 package = User interface
 
-dependencies[] = libraries (>=2.x)
+dependencies[] = masonry
+dependencies[] = field_formatter_settings
 
 
 ; Information added by drupal.org packaging script on 2013-02-04

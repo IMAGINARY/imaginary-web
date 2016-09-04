@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Install, update and uninstall functions for the Masonry API module.
+ * Install, update and uninstall functions for the Masonry module.
  */
 
 /**
@@ -12,34 +12,20 @@ function masonry_requirements($phase) {
   $t = get_t();
 
   if ($phase == 'runtime') {
-    $masonry = libraries_detect('masonry');
+    $library = libraries_detect('masonry');
+
     $requirements['masonry'] = array(
       'title' => $t('jQuery Masonry'),
     );
-    if ($masonry['installed']) {
-      $requirements['masonry']['value'] = $masonry['version'];
+    if ($library['installed']) {
+      $requirements['masonry']['value'] = $library['version'];
       $requirements['masonry']['severity'] = REQUIREMENT_OK;
     }
     else {
-      $requirements['masonry']['value'] = $masonry['error'];
-      $requirements['masonry']['description'] = $masonry['error message'];
+      $requirements['masonry']['value'] = $library['error'];
+      $requirements['masonry']['description'] = $library['error message'];
       $requirements['masonry']['severity'] = REQUIREMENT_ERROR;
     }
-
-    $imagesloaded = libraries_detect('imagesloaded');
-    $requirements['imagesloaded'] = array(
-      'title' => $t('jQuery Images Loaded'),
-    );
-    if ($imagesloaded['installed']) {
-      $requirements['imagesloaded']['value'] = $imagesloaded['version'];
-      $requirements['imagesloaded']['severity'] = REQUIREMENT_OK;
-    }
-    else {
-      $requirements['imagesloaded']['value'] = $imagesloaded['error'];
-      $requirements['imagesloaded']['description'] = $imagesloaded['error message'];
-      $requirements['imagesloaded']['severity'] = REQUIREMENT_ERROR;
-    }
-
   }
 
   return $requirements;
