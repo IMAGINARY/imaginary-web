@@ -74,7 +74,7 @@
   <?php if ($logo || $site_name || $site_slogan || $page['header']): ?>
     <header id="header" role="banner">
       <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo">
-        <img src="<?php print url('sites/all/themes/imaginary3/images/imaginary-logo-800.png'); ?>" alt="<?php print t('Home'); ?>" />
+        <img src="<?php print url('sites/all/themes/imaginary3/images/imaginary-logo-800.png', array('language' => (object)array('language' => FALSE))); ?>" alt="<?php print t('Home'); ?>" />
       </a>
 
       <?php if ($site_name): ?>
