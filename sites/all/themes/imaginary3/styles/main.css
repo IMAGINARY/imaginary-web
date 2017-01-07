@@ -3797,6 +3797,12 @@ img.file-icon {
     margin: 0;
     padding: 0; } }
 
+div.field-group-tabs-wrapper div.field-type-datetime fieldset {
+  border: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 2.5em 0 0;
+  position: relative; }
+
 @media screen and (max-width: 959px) {
   .vco-slider .slider-item .content .content-container {
     padding-bottom: 30px; }

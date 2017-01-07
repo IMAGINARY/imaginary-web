@@ -339,6 +339,13 @@
   }
 }
 
+div.field-group-tabs-wrapper div.field-type-datetime fieldset {
+  border: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 2.5em 0 0;
+  position: relative;
+}
+
 @include responsive($xs-sm) {
 
   .vco-slider .slider-item .content {
