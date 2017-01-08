@@ -273,6 +273,18 @@ function hook_icon_PROVIDER_import_validate($bundle) {
   return t('Invalid %provider bundle.', array('%provider' => $provider['title']));
 }
 
+/**
+ * Allows modules and themes to alter the list of permitted icon wrappers.
+ *
+ * @param array $options
+ *   An associative array of key/value pairs, where the wrapper HTML element is
+ *   the key and an human readable label is the value.
+ */
+function hook_icon_wrapper_options_alter(&$options) {
+  unset($options['div']);
+  $options['section'] = 'Section';
+}
+
 /*
  * @} End of "addtogroup hooks".
  */

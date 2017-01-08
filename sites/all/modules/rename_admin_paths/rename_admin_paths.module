@@ -65,6 +65,14 @@ function rename_admin_paths_url_outbound_alter(&$path, &$options, $original_path
     if (preg_match('|^admin(?![^/])(.*)|', $path, $matches)) {
       $path = urlencode($rename_admin_path_value) . $matches[1];
     }
+
+    if (!empty($options['query']['destination'])) {
+      // Replace admin in the destination. Take care of the possible presence of %2F,
+      // which represents the forward slash (/).
+      if (preg_match('/^admin(?:(?![^\/])|(?!(?!\%2F)))(.*)/', $options['query']['destination'], $matches)) {
+        $options['query']['destination'] = urlencode($rename_admin_path_value) . $matches[1];
+      }
+    }
   }
 
   // user path
@@ -74,6 +82,13 @@ function rename_admin_paths_url_outbound_alter(&$path, &$options, $original_path
     // Replace user in path
     if (preg_match('|^user(?![^/])(.*)|', $path, $matches)) {
       $path = urlencode($rename_user_path_value) . $matches[1];
+    }
+
+    if (!empty($options['query']['destination'])) {
+      // Replace user in the destination.
+      if (preg_match('/^user(?:(?![^\/])|(?!(?!\%2F)))(.*)/', $options['query']['destination'], $matches)) {
+        $options['query']['destination'] = urlencode($rename_user_path_value) . $matches[1];
+      }
     }
   }
 }

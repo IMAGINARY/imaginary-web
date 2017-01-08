@@ -675,3 +675,36 @@ function icon_provider_load($name) {
   }
   return $loaded[$name];
 }
+
+/**
+ * Provides the list of permitted wrapper options.
+ *
+ * @return array
+ *   An associative array of key/value pairs, where the wrapper HTML element is
+ *   the key and an human readable label is the value.
+ */
+function icon_wrapper_options() {
+  // Use the advanced drupal_static() pattern, since this is called very often.
+  static $drupal_static_fast;
+  if (!isset($drupal_static_fast)) {
+    $drupal_static_fast['options'] = &drupal_static(__FUNCTION__);
+  }
+  $options = &$drupal_static_fast['options'];
+  if (!isset($options)) {
+    $options = array(
+      ''  => t('None'),
+      'div' => 'Div',
+      'span' => 'Span',
+      'h2' => 'H2',
+      'h3' => 'H3',
+      'h4' => 'H4',
+      'h5' => 'H5',
+      'h6' => 'H6',
+      'p' => 'P',
+      'em' => 'Em',
+      'strong' => 'Strong',
+    );
+    drupal_alter(__FUNCTION__, $options);
+  }
+  return $options;
+}

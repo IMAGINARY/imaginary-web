@@ -50,7 +50,7 @@ function webform_localization_i18n_string_info() {
 /**
  * Update / create / delete translation source for components.
  *
- * Refresh callback that regenerates all the translatable poperties of the
+ * Refresh callback that regenerates all the translatable properties of the
  * components of the matching webforms configuration.
  */
 function webform_localization_i18n_string_refresh($group) {
@@ -198,7 +198,7 @@ function webform_localization_webform_component_presave(&$component) {
   $wl_options = webform_localization_get_config($component['nid']);
 
   // Create translation source for i18n_string for all the translatable
-  // poperties.
+  // properties.
   if ($wl_options['expose_strings']) {
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
     webform_localization_component_update_translation_strings($component);
@@ -389,7 +389,7 @@ function webform_localization_webform_submission_presave(&$node, &$submission) {
  * Implements hook_node_delete().
  */
 function webform_localization_node_delete($node) {
-  if (!in_array($node->type, webform_variable_get('webform_node_types'))) {
+  if (!in_array($node->type, webform_variable_get('webform_node_types')) || empty($node->webform['components'])) {
     return;
   }
   module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');

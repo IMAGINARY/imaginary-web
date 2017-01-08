@@ -88,6 +88,11 @@ function recaptcha_admin_settings() {
  * @see recaptcha_admin_settings()
  */
 function recaptcha_admin_settings_validate($form, &$form_state) {
+  // Clear the page cache if Ajax API has been disabled.
+  if (empty($form_state['values']['recaptcha_ajax_api']) && $form['recaptcha_ajax_api']['#default_value']) {
+    cache_clear_all(NULL, 'cache_page');
+  }
+
   $tabindex = $form_state['values']['recaptcha_tabindex'];
   if (!empty($tabindex) && !is_numeric($tabindex)) {
     form_set_error('recaptcha_tabindex', t('The Tab Index must be an integer.'));

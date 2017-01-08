@@ -8,3 +8,33 @@ function imaginary_misc_update_7100(&$sandbox) {
 
   variable_set('entity_translation_shared_labels', 0);
 }
+
+/**
+ * Remove traces of badly uninstalled modules of yore.
+ */
+function imaginary_misc_update_7101(&$sandbox) {
+
+  $modules = array('birthdays', 'calendar_ical', 'cck', 'conditional_fields',
+    'role_delegation', 'ace_editor', 'admin', 'advanced_forum',
+    'advanced_forum_more_styles', 'agreement', 'ajax_comments', 'authcache',
+    'background_process', 'better_exposed_filters', 'botcha', 'cmf',
+    'core_library', 'core_library_ui', 'css_injector',
+    'entityreference_view_widget', 'field_collection_bulkupload',
+    'field_formatter_settings', 'field_label_plurals', 'filefield_role_limit',
+    'fitvids', 'fontello', 'fpa', 'fullcalendar', 'fullcalendar_legend',
+    'fullcalendar_options', 'in_field_labels', 'ip_geoloc', 'labjs',
+    'language_access', 'logintoboggan_content_access_integration',
+    'logintoboggan', 'manager', 'managers_bar', 'managers_page',
+    'masonry_fields', 'mathjax', 'media_oembed', 'oembed', 'oembedcore',
+    'oembedembedly', 'oembedfield', 'om_maximenu', 'opening_hours',
+    'openlayers_ui', 'openlayers_views', 'openlayers', 'pdf_reader', 'plupload',
+    'profile2_page', 'profile2', 'progress', 'quicktabs', 'quicktabs_tabstyles',
+    'ref_field_sync', 'relation_add', 'required_by_role', 'save_edit',
+    'search_krumo', 'timeline', 'tmgmt', 'tmgmt_ui', 'ultimate_cron',
+    'views_content_cache');
+
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}

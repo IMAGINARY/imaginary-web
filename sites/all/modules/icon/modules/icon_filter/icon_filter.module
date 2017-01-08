@@ -61,6 +61,10 @@ function icon_filter_preprocess_field(&$variables) {
   $element = &$variables['element'];
   if (!empty($element['#formatter'])) {
     foreach ($element['#items'] as &$item) {
+      // Some modules don't store the items as an array. Skip those here.
+      if (!is_array($item)) {
+        continue;
+      }
       if (!empty($item['format']) && ($filters = filter_list_format($item['format'])) && !empty($filters['icon']->status)) {
         if (preg_match_all(ICON_FILTER_REGEX, $item['value'], $matches, PREG_SET_ORDER)) {
           foreach ($matches as $match) {

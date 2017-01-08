@@ -285,6 +285,12 @@ function boost_drupal_goto_alter(&$path, &$options, &$http_response_code) {
  */
 function boost_exit($destination = NULL) {
   global $_boost;
+
+  // Bypass caching on redirects (issues #1176534 and #1957532).
+  if(!empty($destination)) {
+    $_boost['is_cacheable'] = FALSE;
+  }
+
   // Bail out of caching.
   if (!isset($_boost['cache_this'])) {
     if (!isset($_boost['is_cacheable'])) {
@@ -333,6 +339,14 @@ function boost_exit($destination = NULL) {
     // Attach extension to filename.
     $_boost['filename'] .= '.' . $_boost['matched_header_info']['extension'];
     // Write to file.
+    $_boost['filename'] = str_ireplace('%2F', '/', $_boost['filename']);
+
+    // If the filename includes URL encoded characters create an extra copy of
+    // the file with the characters decoded.
+    if (rawurldecode($_boost['filename']) != $_boost['filename']) {
+      boost_write_file(rawurldecode($_boost['filename']), $data);
+    }
+
     boost_write_file($_boost['filename'], $data);
 
     // Gzip support.
@@ -1190,10 +1204,11 @@ function boost_boost_storage_types() {
       'application/rss+xml',
     ),
   );
+  // #1219484
   $types['text/javascript'] = array(
-    'title'           => t('AJAX/JSON'),
-    'description'     => t('JSON output, usually a response to a AJAX request'),
-    'extension'       => 'json',
+    'title'           => t('text/javascript'),
+    'description'     => t('Javascript output, usually a response to a AJAX request'),
+    'extension'       => 'js',
     'enabled'         => FALSE,
     'gzip'            => TRUE,
     'lifetime_max'    => 3600,
@@ -1202,6 +1217,31 @@ function boost_boost_storage_types() {
     'comment_end'    => ' */',
     'variants'        => array(),
   );
+  $types['application/javascript'] = array(
+    'title'           => t('AJAX/JavaScript'),
+    'description'     => t('Javascript output, usually a response to a AJAX request'),
+    'extension'       => 'json',
+    'enabled'         => FALSE,
+    'gzip'            => TRUE,
+    'lifetime_max'    => 3600,
+    'lifetime_min'    => 0,
+    'comment_start'  => '',
+    'comment_end'    => '',
+    'variants'        => array(),
+  );
+  $types['application/json'] = array(
+    'title'           => t('AJAX/JSON'),
+    'description'     => t('JSON output, usually a response to a AJAX request'),
+    'extension'       => 'json',
+    'enabled'         => FALSE,
+    'gzip'            => TRUE,
+    'lifetime_max'    => 3600,
+    'lifetime_min'    => 0,
+    'comment_start'  => '',
+    'comment_end'    => '',
+    'variants'        => array(),
+  );
+
   return $types;
 }
 

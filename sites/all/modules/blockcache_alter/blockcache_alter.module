@@ -223,8 +223,7 @@ function blockcache_alter_save_settings($form, &$form_state) {
 
   $blockcache_alter = db_select('blockcache_alter', 'b')
     ->fields('b', array('bid'))
-    ->condition('module', $form['module']['#value'])
-    ->condition('delta', $form['delta']['#value'])
+    ->condition('b.bid', $bids)
     ->execute()
     ->fetchCol();
 

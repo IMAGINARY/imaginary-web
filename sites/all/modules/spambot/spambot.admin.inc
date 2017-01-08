@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Administration part (forms and pages) for Spambot module.
+ */
+
+/**
  * Form builder for settings form.
  */
 function spambot_settings_form() {
@@ -41,25 +46,25 @@ function spambot_settings_form() {
     '#type' => 'select',
     '#title' => t('Number of times the email has been reported is equal to or more than'),
     '#description' => t('If the email address for a user or user registration has been reported to www.stopforumspam.com this many times, then it is deemed as a spammer.'),
-    '#options' => array(0 => t('Don\'t use email as a criteria')) + $numbers,
+    '#options' => array(0 => t("Don't use email as a criteria")) + $numbers,
     '#default_value' => variable_get('spambot_criteria_email', SPAMBOT_DEFAULT_CRITERIA_EMAIL),
   );
   $form['criteria']['spambot_criteria_username'] = array(
     '#type' => 'select',
     '#title' => t('Number of times the username has been reported is equal to or more than'),
     '#description' => t('If the username for a user or user registration has been reported to www.stopforumspam.com this many times, then it is deemed as a spammer. Be careful about using this option as you may accidentally block genuine users who happen to choose the same username as a known spammer.'),
-    '#options' => array(0 => t('Don\'t use username as a criteria')) + $numbers,
+    '#options' => array(0 => t("Don't use username as a criteria")) + $numbers,
     '#default_value' => variable_get('spambot_criteria_username', SPAMBOT_DEFAULT_CRITERIA_USERNAME),
   );
   $form['criteria']['spambot_criteria_ip'] = array(
     '#type' => 'select',
     '#title' => t('Number of times the IP address has been reported is equal to or more than'),
     '#description' => t('If the IP address for a user or user registration has been reported to www.stopforumspam.com this many times, then it is deemed as a spammer. Be careful about setting this threshold too low as IP addresses can change.'),
-    '#options' => array(0 => t('Don\'t use IP address as a criteria')) + $numbers,
+    '#options' => array(0 => t("Don't use IP address as a criteria")) + $numbers,
     '#default_value' => variable_get('spambot_criteria_ip', SPAMBOT_DEFAULT_CRITERIA_IP),
   );
 
-  // Whitelists.
+  // White lists.
   $form['spambot_whitelist'] = array(
     '#type' => 'fieldset',
     '#title' => t('Whitelists'),
@@ -97,9 +102,9 @@ function spambot_settings_form() {
     '#title' => t('Protect the user registration form'),
     '#description' => t('If ticked, new user registrations will be tested if they match any known spammers and blacklisted.'),
     '#default_value' => variable_get('spambot_user_register_protect', TRUE),
-  ); 
+  );
 
-  $sleep_options = array(t('Don\'t delay'), t('1 second'));
+  $sleep_options = array(t("Don't delay"), t('1 second'));
   foreach (array(2, 3, 4, 5, 10, 20, 30) as $num) {
     $sleep_options[$num] = t('@num seconds', array('@num' => $num));
   }
@@ -115,7 +120,7 @@ function spambot_settings_form() {
   $form['existing'] = array(
     '#type' => 'fieldset',
     '#title' => t('Scan existing accounts'),
-    '#description' => t('This module can also scan existing user accounts to see if they are known spammers. It works by checking user accounts with increasing uid\'s ie. user id 2, 3, 4 etc during cron.'),
+    '#description' => t("This module can also scan existing user accounts to see if they are known spammers. It works by checking user accounts with increasing uid's ie. user id 2, 3, 4 etc during cron."),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -151,38 +156,45 @@ function spambot_settings_form() {
       ->fields('u', array('uid'))
       ->condition('u.uid', 1, '>')
       ->condition('u.uid', $last_uid, '<=')
+      ->countQuery()
       ->execute()
-      ->rowCount();
+      ->fetchField();
 
     $num_left = db_select('users', 'u')
       ->fields('u', array('uid'))
       ->condition('u.uid', 1, '>')
       ->condition('u.uid', $last_uid, '>')
+      ->countQuery()
       ->execute()
-      ->rowCount();
+      ->fetchField();
 
     $last_uid = db_select('users', 'u')
       ->fields('u', array('uid'))
-      ->condition('u.uid', 1, '>')
+      ->condition('u.uid', 1, '>=')
       ->condition('u.uid', $last_uid, '<=')
       ->orderBy('u.uid', 'DESC')
       ->range(0, 1)
       ->execute()
       ->fetchField();
-    
+
     $account = user_load($last_uid);
-    $suffix = '<br />' . t('The last checked user account is: !account (uid @uid)', array('!account' => l(check_plain($account->name), 'user/' . $account->uid), '@uid' => $account->uid));
+    $suffix = '<br />';
+    $suffix .= t('The last checked user account is: !account (uid %uid)', array(
+      '!account' => l($account->name, 'user/' . $account->uid),
+      '%uid' => $account->uid,
+    ));
   }
   else {
     $num_checked = 0;
     $num_left = db_select('users')
       ->fields('users')
       ->condition('uid', 1, '>')
+      ->countQuery()
       ->execute()
-      ->rowCount();
+      ->fetchField();
   }
 
-  $text = t('Accounts checked: @checked, Accounts remaining: @remaining', array('@checked' => $num_checked, '@remaining' => $num_left));
+  $text = t('Accounts checked: %checked, Accounts remaining: %remaining', array('%checked' => $num_checked, '%remaining' => $num_left));
   $form['existing']['message'] = array(
     '#type' => 'fieldset',
     '#title' => t('Scan status'),
@@ -207,21 +219,21 @@ function spambot_settings_form() {
     '#type' => 'textarea',
     '#title' => t('User registration blocked message (blocked email address)'),
     '#rows' => 1,
-    '#default_value' => t(variable_get('spambot_blocked_message_email', SPAMBOT_DEFAULT_BLOCKED_MESSAGE)),
+    '#default_value' => variable_get('spambot_blocked_message_email', SPAMBOT_DEFAULT_BLOCKED_MESSAGE),
     '#description' => t('Message to display when user action is blocked due to email address. <br />Showing a specific reason why registration was blocked may make spambot easier to circumvent.<br />The following tokens are available: <em>@email %email @username %username @ip %ip</em>'),
   );
   $form['messages']['spambot_blocked_message_username'] = array(
     '#type' => 'textarea',
     '#title' => t('User registration blocked message (blocked username)'),
     '#rows' => 1,
-    '#default_value' => t(variable_get('spambot_blocked_message_username', SPAMBOT_DEFAULT_BLOCKED_MESSAGE)),
+    '#default_value' => variable_get('spambot_blocked_message_username', SPAMBOT_DEFAULT_BLOCKED_MESSAGE),
     '#description' => t('Message to display when user action is blocked due to username.<br />The following tokens are available: <em>@email %email @username %username @ip %ip</em>'),
   );
   $form['messages']['spambot_blocked_message_ip'] = array(
     '#type' => 'textarea',
     '#title' => t('User registration blocked message (blocked ip address)'),
     '#rows' => 1,
-    '#default_value' => t(variable_get('spambot_blocked_message_ip', SPAMBOT_DEFAULT_BLOCKED_MESSAGE)),
+    '#default_value' => variable_get('spambot_blocked_message_ip', SPAMBOT_DEFAULT_BLOCKED_MESSAGE),
     '#description' => t('Message to display when user action is blocked due to ip address.<br />The following tokens are available: <em>@email %email @username %username @ip %ip</em>'),
   );
 

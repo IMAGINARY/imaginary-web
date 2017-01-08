@@ -3,9 +3,9 @@ description = Adds a 'Save as Draft' button to content types
 core = 7.x
 files[] = save_draft.test
 
-; Information added by Drupal.org packaging script on 2015-08-12
-version = "7.x-1.4+8-dev"
+; Information added by Drupal.org packaging script on 2016-06-17
+version = "7.x-1.4+10-dev"
 core = "7.x"
 project = "save_draft"
-datestamp = "1439364540"
+datestamp = "1466179360"
 

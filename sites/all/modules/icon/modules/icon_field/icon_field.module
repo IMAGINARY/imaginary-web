@@ -16,6 +16,8 @@ function icon_field_field_info() {
       'settings' => array(
         'bundle' => NULL,
         'icon' => NULL,
+        'wrapper' => NULL,
+        'wrapper_class' => NULL,
       ),
       'instance_settings' => array(
         'bundle' => NULL,
@@ -63,6 +65,8 @@ function icon_field_field_widget_form(&$form, &$form_state, $field, $instance, $
     '#type' => 'icon_selector',
     '#default_bundle' => isset($items[$delta]['bundle']) ? $items[$delta]['bundle'] : '',
     '#default_icon' => isset($items[$delta]['icon']) ? $items[$delta]['icon'] : '',
+    '#default_wrapper' => isset($items[$delta]['wrapper']) ? $items[$delta]['wrapper'] : '',
+    '#default_wrapper_class' => isset($items[$delta]['wrapper_class']) ? $items[$delta]['wrapper_class'] : '',
   );
   return $element;
 }
@@ -123,6 +127,10 @@ function icon_field_field_formatter_settings_summary($field, $instance, $view_mo
 function icon_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $elements = array();
   foreach ($items as $delta => $item) {
+    $item += array(
+      'wrapper' => '',
+      'wrapper_class' => '',
+    );
     if ($display['settings']['link_to_content']) {
       $uri = entity_uri($entity_type, $entity);
       $options = array('html' => TRUE, 'attributes' => array());
@@ -133,7 +141,7 @@ function icon_field_field_formatter_view($entity_type, $entity, $field, $instanc
       $elements[$delta] = array(
         '#theme' => 'link',
         '#path' => $uri['path'],
-        '#text' => theme('icon', array('bundle' => $item['bundle'], 'icon' => $item['icon'])),
+        '#text' => theme('icon', $item),
         '#options' => $options,
       );
     }
@@ -142,6 +150,8 @@ function icon_field_field_formatter_view($entity_type, $entity, $field, $instanc
         '#theme' => 'icon',
         '#bundle' => $item['bundle'],
         '#icon' => $item['icon'],
+        '#wrapper' => $item['wrapper'],
+        '#wrapper_class' => $item['wrapper_class'],
       );
     }
   }

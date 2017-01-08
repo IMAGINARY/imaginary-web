@@ -1,11 +1,16 @@
 <?php
 
 /**
+ * @file
+ * Install and update hooks for Spambot module.
+ */
+
+/**
  * Implements hook_schema().
  */
 function spambot_schema() {
   $schema['node_spambot'] = array(
-    'description' => t('Node table to track author IP addresses. For use by spambot only.'),
+    'description' => 'Node table to track author IP addresses. For use by spambot only.',
     'fields' => array(
       'nid' => array(
         'type' => 'int',
@@ -44,7 +49,6 @@ function spambot_uninstall() {
 }
 
 /**
- * Implements hook_update_N().
  * Update variables, create new table 'node_spambot'.
  */
 function spambot_update_7101() {
@@ -79,7 +83,8 @@ function spambot_update_7101() {
           'not null' => TRUE,
           'default' => 0,
         ),
-        'hostname' => array('type' => 'varchar',
+        'hostname' => array(
+          'type' => 'varchar',
           'length' => 128,
           'not null' => FALSE,
         ),
@@ -92,6 +97,6 @@ function spambot_update_7101() {
     db_create_table('node_spambot', $node_spambot);
     $messages[] = t('Created new table <em>node_spambot</em>.');
   }
-  
+
   return implode('<br />', $messages);
 }
