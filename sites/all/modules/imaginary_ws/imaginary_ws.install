@@ -1,0 +1,58 @@
+<?php
+
+function imaginary_ws_schema() {
+
+  $schema['ima_file_hash'] = array(
+    'description' => 'File hash cache',
+    'fields' => array(
+      'fid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'algorithm' => array(
+        'type' => 'varchar',
+        'length' => 30,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'hash' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('fid', 'algorithm'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Add table for caching file hashes
+ */
+function imaginary_ws_update_7100(&$sandbox) {
+
+  db_create_table('ima_file_hash', array(
+    'description' => 'File hash cache',
+    'fields' => array(
+      'fid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'algorithm' => array(
+        'type' => 'varchar',
+        'length' => 30,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'hash' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('fid', 'algorithm'),
+  ));
+}

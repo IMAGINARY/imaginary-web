@@ -75,12 +75,14 @@ function imaginary_ws_snapshots_list() {
 
     $pdf = field_get_items('node', $node, 'field_pdf');
     $doi = field_get_items('node', $node, 'field_doi_computed');
+    $hash = imaginary_ws_file_hash($pdf[0]);
 
     $output['snapshots'][] = array(
       'title' => $node->title,
       'url' => url("node/{$node->nid}", array('absolute' => true)),
       'url_short' => url("node/{$node->nid}", array('absolute' => true, 'alias' => true)),
       'pdf' => file_create_url($pdf[0]['uri']),
+      'sha256' => !empty($hash) ? $hash : '',
       'authors' => $authors,
       'doi' => $doi[0]['value']
     );
@@ -89,4 +91,73 @@ function imaginary_ws_snapshots_list() {
   drupal_add_http_header('Content-Type', 'application/json');
   print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
   exit;
+}
+
+/**
+ * Loads a file hash from the db cache
+ *
+ * @param $fid
+ *  File ID
+ * @param $algorithm
+ *  Hash algorithm
+ * @return bool|string
+ *  The hash or FALSE if it was not found
+ */
+function _imaginary_ws_load_file_hash($fid, $algorithm) {
+
+  $recordset = db_select('ima_file_hash', 'h')
+    ->fields('h', array('hash'))
+    ->condition('fid', $fid)
+    ->condition('algorithm', $algorithm)
+    ->execute();
+
+  return $recordset->fetchField();
+}
+
+/**
+ * Stores a file hash in the db cache
+ *
+ * @param $fid
+ *  File ID
+ * @param $algorithm
+ *  Hash algorithm
+ * @param $hash
+ *  The hash to store
+ */
+function _imaginary_ws_save_file_hash($fid, $algorithm ,$hash) {
+
+  db_merge('ima_file_hash')
+    ->key(array('fid' => $fid, 'algorithm' => $algorithm))
+    ->fields(array(
+      'hash' => $hash
+    ))
+    ->execute();
+}
+
+/**
+ * Returns the sha256 hash of a file entity
+ *
+ * This function uses a db table for caching hash values.
+ *
+ * @param $file
+ *  File entity
+ * @return string
+ *  The sha256 hash or FALSE if it can't be calculated
+ */
+function imaginary_ws_file_hash($file) {
+
+  $algorithm = 'sha256';
+
+  $hash = _imaginary_ws_load_file_hash($file['fid'], $algorithm);
+  if ($hash === FALSE) {
+    $path = drupal_realpath($file['uri']);
+    if($path !== FALSE) {
+      $hash = hash_file($algorithm, $path);
+      if (!empty($hash)) {
+        _imaginary_ws_save_file_hash($file['fid'], $algorithm, $hash);
+      }
+    }
+  }
+
+  return $hash;
 }
