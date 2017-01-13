@@ -1,5 +1,7 @@
 <?php
 
+define(WEB_SERVICE_VERSION, '1.0.0');
+
 /**
  * Implementation of hook_menu()
  */
@@ -39,6 +41,7 @@ function _imaginary_ws_snapshots_get_published_tid() {
 function imaginary_ws_snapshots_list() {
 
   $output = array(
+    'version' => WEB_SERVICE_VERSION,
     'snapshots' => array(),
   );
 
