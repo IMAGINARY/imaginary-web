@@ -72,18 +72,18 @@ $size = ' width="400" height="220" ';
 
   <div class="row">
 
-    <a href="<?php print url('http://ic16.imaginary.org/') ?>">
-      <div class="big-button big-button-darkbg ic16">
+    <a href="<?php print url('node/1184') ?>">
+      <div class="big-button big-button-darkbg math_creations">
 
         <div class="inner">
           <div class="text">
-            <h2><?php print t('IMAGINARY Conference'); ?></h2>
+            <h2><?php print t('Math Creations'); ?></h2>
 
-            <p><?php print t('participate and share ideas'); ?></p>
+            <p><?php print t('join the math art contest'); ?></p>
           </div>
 
           <div class="background-image">
-            <img src="<?php echo $themePath; ?>ic16.jpg"
+            <img src="<?php echo $themePath; ?>math_creations.jpg"
                  alt="image1"<?php echo $size; ?>>
           </div>
         </div>
