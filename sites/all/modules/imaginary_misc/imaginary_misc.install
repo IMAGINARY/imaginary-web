@@ -38,3 +38,15 @@ function imaginary_misc_update_7101(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
 }
+
+/**
+ * Remove traces of yet more badly uninstalled modules of yore.
+ */
+function imaginary_misc_update_7102(&$sandbox) {
+  $modules = array('devel', 'devel_generate', 'devel_node_access');
+
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
