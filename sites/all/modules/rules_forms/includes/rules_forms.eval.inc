@@ -8,10 +8,10 @@
 /**
  * Condition: Check a form element value.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
- * @param ArrayObject $form_state
+ * @param array $form_state
  *   A reference to the form state array of the form for which the
  *   event was triggered.
  * @param string $value
@@ -26,10 +26,27 @@
  */
 function rules_forms_condition_element_value($form, $form_state, $element, $value, $regex) {
   $form_element = &_rules_forms_get_element($form, $element);
+  list(, $element_name) = explode(':', $element);
+  $element_value = NULL;
 
   // Check the #value if it exists, then #default_value, or return FALSE.
   $attribute = isset($form_element['#value']) ? '#value' : '#default_value';
   if (!isset($form_element[$attribute])) {
+    // If the #value property is not set, check the form state.
+    if (isset($form_state['values']) && isset($form_state['values'][$element_name])) {
+      $element_value = $form_state['values'][$element_name];
+      // If the element is a field, then its form_state value
+      // will be in the format [language][delta][key].
+      while (is_array($element_value) && count($element_value) == 1) {
+        $element_value = reset($element_value);
+      }
+    }
+  }
+  else {
+    $element_value = $form_element[$attribute];
+  }
+
+  if (!isset($element_value)) {
     return FALSE;
   }
 
@@ -39,7 +56,7 @@ function rules_forms_condition_element_value($form, $form_state, $element, $valu
     // Return FALSE immediately if an expression fails.
     $lines = explode("\r\n", $value);
     foreach ($lines as $line) {
-      $result = preg_match($value, $form_element[$attribute]) == 1;
+      $result = preg_match($line, $element_value) == 1;
       if ($result === FALSE) {
         return FALSE;
       }
@@ -48,20 +65,20 @@ function rules_forms_condition_element_value($form, $form_state, $element, $valu
   }
 
   // Multiple values come in as array.
-  if (is_array($form_element[$attribute])) {
+  if (is_array($element_value)) {
     $lines = explode("\r\n", $value);
-    return rules_forms_equal_array_values($lines, $form_element[$attribute]);
+    return rules_forms_equal_array_values($lines, $element_value);
   }
-  return $form_element[$attribute] === $value;
+  return $element_value === $value;
 }
 
 /**
  * Condition: Form element value has changed.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
- * @param ArrayObject $form_state
+ * @param array $form_state
  *   A reference to the form state array of the form for which the
  *   event was triggered.
  * @param string $element
@@ -77,12 +94,20 @@ function rules_forms_condition_element_changed($form, $form_state, $element) {
 
   if (isset($_SESSION['rules_forms_form_values'][$form_id])) {
     // Get the build form values and the element name being validated.
-    $element_name = substr($element, strpos($element, ':') + 1);
+    list(, $element_name) = explode(':', $element);
     $build_values = $_SESSION['rules_forms_form_values'][$form_id];
 
-    // Ensure that form values are set. This will prevent the condition from being evaluated during build.
-    if (isset($build_values[$element]) && isset($form_state['values']) && isset($form_state['values'][$element_name])) {
-      return $build_values[$element] !== $form_state['values'][$element_name];
+    // Ensure that form values are set.
+    // This will prevent the condition from being evaluated during build.
+    if (isset($form_state['values']) && isset($form_state['values'][$element_name])) {
+      $element_value = $form_state['values'][$element_name];
+      if (isset($build_values[$element]) && !empty($element_value)) {
+        while (is_array($element_value) && count($element_value) == 1) {
+          $element_value = reset($element_value);
+        }
+        return $build_values[$element] !== $element_value;
+      }
+      return TRUE;
     }
   }
   return FALSE;
@@ -91,10 +116,10 @@ function rules_forms_condition_element_changed($form, $form_state, $element) {
 /**
  * Condition: Form button was clicked.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
- * @param ArrayObject $form_state
+ * @param array $form_state
  *   A reference to the form state array of the form for which the
  *   event was triggered.
  * @param string $element
@@ -119,8 +144,9 @@ function rules_forms_condition_button_clicked($form, $form_state, $element) {
 }
 
 /**
- * Returns TRUE if both arrays contain the same values, regardless
- * of their keys and value ordering.
+ * Returns TRUE if both arrays contain the same values.
+ *
+ * Regardless of their keys and value ordering.
  *
  * @param array $array1
  *   An array to compare against $array2.
@@ -139,7 +165,7 @@ function rules_forms_equal_array_values($array1, $array2) {
 /**
  * Action: Set the redirect target.
  *
- * @param ArrayObject $form_state
+ * @param array $form_state
  *   A reference to the form state array of the form for which the
  *   event was triggered.
  * @param string $path
@@ -167,7 +193,7 @@ function rules_forms_action_redirect($form_state, $path, $query, $fragment) {
 /**
  * Action: Set the title of a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -186,7 +212,7 @@ function rules_forms_action_set_title($form, $element, $title) {
 /**
  * Action: Set the description of a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -205,7 +231,7 @@ function rules_forms_action_set_description($form, $element, $description) {
 /**
  * Action: Hide a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -227,7 +253,7 @@ function rules_forms_action_set_access($form, $element, $access) {
 /**
  * Action: Disable a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -246,7 +272,7 @@ function rules_forms_action_set_disabled($form, $element, $disabled) {
 /**
  * Action: Require a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -265,7 +291,7 @@ function rules_forms_action_set_required($form, $element, $required) {
 /**
  * Action: Set the default value of a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -279,18 +305,26 @@ function rules_forms_action_set_default($form, $element, $value) {
   $form_element = &_rules_forms_get_element($form, $element);
 
   // Try to determine if this is a multiple option element.
-  if (isset($form_element['#options']) && is_array($form_element['#options'])) {
-    $form_element['#default_value'] = explode("\r\n", $value);
+  if (isset($form_element['#type']) && isset($form_element['#options'])) {
+    switch ($form_element['#type']) {
+      case 'checkboxes':
+        $multiple = TRUE;
+        break;
+
+      case 'select':
+      case 'tableselect':
+        if (isset($form_element['#multiple']) && $form_element['#multiple']) {
+          $multiple = TRUE;
+        }
+    }
   }
-  else {
-    $form_element['#default_value'] = $value;
-  }
+  $form_element['#default_value'] = isset($multiple) ? explode("\r\n", $value) : $value;
 }
 
 /**
  * Action: Set the prefix of a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -312,7 +346,7 @@ function rules_forms_action_set_prefix_suffix_html($form, $element, $prefix, $su
 /**
  * Action: Adjust weight of a form element.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -332,7 +366,7 @@ function rules_forms_action_set_weight($form, $element, $weight) {
 /**
  * Action: Set form error.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element
@@ -415,10 +449,11 @@ function rules_forms_action_set_options_validate($element) {
 
 /**
  * Action: Set multiple value options of a form element.
+ *
  * Note: For multiple option values each key value pair is on its own line
  * and formatted key|value.
  *
- * @param ArrayObject $form
+ * @param array $form
  *   A reference to the form array of the form for which the event
  *   was triggered.
  * @param string $element_id
@@ -443,4 +478,3 @@ function rules_forms_action_set_options($form, $element_id, $value) {
     $form_element['#options'] = $processed_options;
   }
 }
-

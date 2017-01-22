@@ -1,6 +1,13 @@
 Sasson 7.x-2.x-dev (development release)
 ---------------------------
 
+Sasson 7.x-2.10, 2013-05-21
+---------------------------
+- Improved file watcher
+- Improved flipper
+- Allow toggling of CSS URL rewrite
+-
+
 Sasson 7.x-2.9, 2013-01-04
 ---------------------------
 - Allow setting of compiled CSS destination via theme settings.

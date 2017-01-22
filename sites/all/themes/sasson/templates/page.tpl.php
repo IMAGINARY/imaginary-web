@@ -75,11 +75,7 @@
     <header id="header" role="banner">
       <?php if ($logo): ?>
         <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo">
-        <?php 
-            global $theme;
-            $path = drupal_get_path('theme', $theme);
-        ?>
-          <img src="<?php print "/" . $path . "/images/imaginary-logo-800.png"; ?>" alt="<?php print t('Home'); ?>" />
+          <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
         </a>
       <?php endif; ?>
 
@@ -97,13 +93,13 @@
     </header><!-- /#header -->
   <?php endif; ?>
   
-  <?php if ($main_menu_links == "asdasd"): ?>
+  <?php if ($main_menu_links): ?>
     <nav id="main-menu" role="navigation">
       <?php print $main_menu_links; ?>
     </nav><!-- /#main-menu -->
   <?php endif; ?>
 
-  <?php if ($secondary_menu_links == "asdasda"): ?>
+  <?php if ($secondary_menu_links): ?>
     <nav id="secondary-menu" role="navigation">
       <?php print $secondary_menu_links ?>
     </nav> <!-- /#secondary-menu -->
@@ -122,7 +118,7 @@
       </div><!-- /#highlighted -->
     <?php endif; ?>
      
-    <?php //print $breadcrumb; ?>
+    <?php print $breadcrumb; ?>
     <?php print render($title_prefix); ?>
     <?php if ($title): ?>
       <h1 class="title" id="page-title"><?php print $title; ?></h1>

@@ -37,6 +37,29 @@ function menu_import_export_form($form, &$form_state) {
     );
   }
 
+  $form['options'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Export menu item options'),
+    '#description' => t('A set of various menu link data in JSON representation. Some modules (like menu_per_role) store their data inside these options.'),
+    '#default_value' => !empty($form_state['values']['options']) ? $form_state['values']['options'] : 1,
+  );
+
+  if (module_exists('uuid')) {
+    $form['export_uuid'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Export UUID'),
+      '#description' => t('Menu items that link to a node with an uuid will have it exported as well.'),
+      '#default_value' => !empty($form_state['values']['export_uuid']) ? $form_state['export_uuid'] : 1,
+    );
+  }
+
+  $form['export_weight'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Export weight'),
+    '#description' => t('Export the weight of each menu item.'),
+    '#default_value' => !empty($form_state['values']['export_weight']) ? $form_state['export_weight'] : 1,
+  );
+
   $form['sumbit'] = array(
     '#type' => 'submit',
     '#value' => t('Export'),
@@ -50,9 +73,21 @@ function menu_import_export_form($form, &$form_state) {
  */
 function menu_import_export_form_submit($form, &$form_state) {
   $menu_name = $form_state['values']['menu_name'];
-  $options = array(
-    'export_language' => $form_state['values']['export_language']
-  );
+  $options = array();
+
+  if (!empty($form_state['values']['export_language'])) {
+    $options['export_language'] = $form_state['values']['export_language'];
+  }
+
+  if (!empty($form_state['values']['export_uuid'])) {
+    $options['export_uuid'] = $form_state['values']['export_uuid'];
+  }
+
+  if (!empty($form_state['values']['export_weight'])) {
+    $options['export_weight'] = $form_state['values']['export_weight'];
+  }
+
+  $options['options'] = $form_state['values']['options'];
 
   switch ($form_state['values']['line_ending']) {
     case 'unix':
@@ -70,7 +105,7 @@ function menu_import_export_form_submit($form, &$form_state) {
 
   if (empty($result['errors'])) {
     $filename = "$menu_name-export.txt";
-    drupal_add_http_header('Content-type', 'text/plain');
+    drupal_add_http_header('Content-Type', 'text/plain; charset=utf-8');
     drupal_add_http_header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     drupal_send_headers();
     echo $result['menu'];
@@ -93,7 +128,11 @@ function menu_import_export_form_submit($form, &$form_state) {
 function menu_import_export_menu($menu_name, $options) {
   global $me_options;
   $me_options = $options;
-  $tree = menu_build_tree($menu_name);
+
+  // Here we bypass access control and i18n filtering of links
+  // based on current/default language.
+  $tree = _menu_build_tree($menu_name);
+  $tree = $tree['tree'];
 
   // Menu contains items.
   if (count($tree)) {
@@ -115,6 +154,7 @@ function _menu_import_export_recurse($tree, $level, &$output) {
 
   foreach ($tree as $data) {
     $link = $data['link'];
+    $link['options'] = unserialize($link['options']);
     $indentation = str_repeat('-', $level);
     $details = array();
 
@@ -122,18 +162,51 @@ function _menu_import_export_recurse($tree, $level, &$output) {
     $alias = drupal_lookup_path('alias', $link['link_path']);
     $details['url'] = $alias ? $alias : $link['link_path'];
 
-    if (!empty($link['description'])) {
-      $details['description'] = $link['description'];
+    if (!empty($link['options']['attributes']['title'])) {
+      $details['description'] = $link['options']['attributes']['title'];
     }
+
     if ($link['hidden']) {
       $details['hidden'] = TRUE;
     }
+
     if ($link['expanded']) {
       $details['expanded'] = TRUE;
     }
+
     if (!empty($me_options['export_language'])) {
       $details['lang'] = $link['language'];
     }
+
+    // Export options.
+    if ($me_options['options']) {
+      // Already exported as description.
+      if (!empty($details['description'])) {
+        unset($link['options']['attributes']['title']);
+      }
+      if (isset($link['options']['attributes']) && empty($link['options']['attributes'])) {
+        unset($link['options']['attributes']);
+      }
+      if (!empty($link['options'])) {
+        if (!empty($link['options'])) {
+          $details['options'] = $link['options'];
+        }
+      }
+    }
+
+    if (!empty($me_options['export_uuid'])) {
+      $matches = array();
+      if (preg_match('|^node/([0-9]+)$|', $link['link_path'], $matches)) {
+        $details['node_uuid'] = uuid_get_uuid('node', 'nid', $matches[1]);
+      }
+    }
+
+    if (!empty($me_options['export_weight'])) {
+      $details['weight'] = $link["weight"];
+    }
+
+    // Allow other modules to alter the exported data.
+    drupal_alter('menu_export', $link, $details);
 
     $output .=
       $indentation
@@ -144,5 +217,34 @@ function _menu_import_export_recurse($tree, $level, &$output) {
     if ($data['below']) {
       _menu_import_export_recurse($data['below'], $level + 1, $output);
     }
+  }
+}
+
+// Remove once <a href="http://drupal.org/node/858274" title="http://drupal.org/node/858274" rel="nofollow">http://drupal.org/node/858274</a> is resolved.
+if (!function_exists('uuid_get_uuid')) {
+  /**
+   * API function to get the UUID of an object based on its serial ID.
+   *
+   * @param $entity_type
+   *   The entity type.
+   * @param $key
+   *   The name of the serial ID column.
+   * @param $id
+   *   The serial ID of the object.
+   * @return
+   *   The UUID of the object, or FALSE if not found.
+   */
+  function uuid_get_uuid($entity_type, $key, $id) {
+    $supported = uuid_get_core_entity_info();
+    if (!isset($supported[$entity_type])) {
+      return FALSE;
+    }
+    $entity_info = entity_get_info($entity_type);
+    $table = $entity_info['base table'];
+    return db_select($table, 't')
+            ->condition($key, $id)
+            ->fields('t', array('uuid'))
+            ->execute()
+            ->fetchField();
   }
 }

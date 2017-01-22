@@ -22,6 +22,10 @@
   @include fluid-grid($ninesixty-columns);
 }
 
+#logo {
+  float: left;
+}
+
 // Sidebars
 #sidebar-first {
   @include fluid-grid($sidebar-first);

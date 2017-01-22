@@ -42,7 +42,6 @@ function save_draft_form_node_form_alter(&$form, &$form_state) {
     // fieldset accordingly.
     if (isset($form['options']['status'])) {
       $form['options']['status']['#access'] = FALSE;
-      $form['options']['#title'] = t('Promotion settings');
       $form['options']['#attributes']['class'] = array('node-promotion-options');
       $form['options']['#attached'] = array(
         'js' => array(
@@ -77,7 +76,7 @@ function save_draft_form_node_form_alter(&$form, &$form_state) {
     // Button labels when editing an existing draft.
     elseif (!$form_state['node']->status) {
       $form['actions']['submit']['#value'] = t('Publish');
-      $form['actions']['draft']['#value'] = t('Save');
+      $form['actions']['draft']['#value'] = t('Save as draft');
       // Move the draft button before the submit button, so that the
       // "Save" action is always first when editing existing content.
       $form['actions']['draft']['#weight'] = 0;

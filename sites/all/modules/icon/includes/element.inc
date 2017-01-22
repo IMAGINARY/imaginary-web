@@ -17,12 +17,34 @@ function icon_element_info() {
     '#collapsed' => FALSE,
     '#default_bundle' => '',
     '#default_icon' => '',
+    '#default_wrapper' => '',
+    '#default_wrapper_class' => '',
     '#process' => array('form_process_fieldset', 'form_process_icon_selector'),
     '#pre_render' => array('form_pre_render_fieldset'),
     '#theme_wrappers' => array('fieldset'),
     '#attached' => array('library' => array(array('icon', 'icon_selector'))),
   );
   return $types;
+}
+
+/**
+ * Generates a #states selector to be used.
+ *
+ * @param string $key
+ *   The target element.
+ * @param array $element
+ *   The relevant element, if any.
+ *
+ * @return string
+ *   A constructed #states selector.
+ */
+function _icon_states_selector($key, array $element = NULL) {
+  if (isset($element) && ($keys = isset($element['#parents']) ? $element['#parents'] : array())) {
+    $keys[] = $key;
+    $first = array_shift($keys);
+    return ':input[name="' . $first. '[' . implode('][', $keys) . ']' . '"]';
+  }
+  return ':input[name="' . $key . '"]';
 }
 
 /**
@@ -70,13 +92,70 @@ function form_process_icon_selector($element) {
     '#title' => t('Select Icon'),
     '#type' => 'select',
     '#options' => $options,
-    '#default_value' => $default_value,
+    '#default_value' => isset($element['#default_value']) ? $element['#default_value'] : $default_value,
     '#empty_option' => '- No Icon -',
+    '#required' => !empty($element['#required']),
     '#weight' => -10,
   );
-  if (isset($element['#default_value'])) {
-    $element['icon']['#default_value'] = $element['#default_value'];
+
+  $default_wrapper = isset($element['#default_wrapper']) ? $element['#default_wrapper'] : '';
+  $element['wrapper'] = array(
+    '#type' => 'select',
+    '#title' => t('Icon Wrapper'),
+    '#description' => t('Choose an HTML element to wrap the icon with.'),
+    '#options' => icon_wrapper_options(),
+    '#default_value' => $default_wrapper,
+    '#states' => array(
+      'invisible' => array(
+        _icon_states_selector('icon', $element) => array('value' => ''),
+      ),
+    ),
+    '#weight' => -9,
+  );
+
+  $default_wrapper_class = isset($element['#default_wrapper_class']) ? $element['#default_wrapper_class'] : '';
+  $element['wrapper_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Icon Wrapper Classes'),
+    '#description' => t('A space separated list of CSS classes. Token replacement patterns are allowed.'),
+    '#default_value' => $default_wrapper_class,
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#states' => array(
+      'invisible' => array(
+        array(_icon_states_selector('icon', $element) => array('value' => '')),
+        array(_icon_states_selector('wrapper', $element) => array('value' => '')),
+      ),
+    ),
+    '#weight' => -8,
+  );
+
+  $element['wrapper_class_token'] = array(
+    '#type' => 'container',
+    '#states' => array(
+      'invisible' => array(
+        array(_icon_states_selector('icon', $element) => array('value' => '')),
+        array(_icon_states_selector('wrapper', $element) => array('value' => '')),
+      ),
+    ),
+    '#weight' => -7,
+  );
+
+  if (module_exists('token')) {
+    $element['wrapper_class_token']['help'] = array(
+      '#theme' => 'token_tree',
+      '#token_types' => isset($element['#token_types']) ? $element['#token_types'] : 'all',
+      '#global_types' => FALSE,
+      '#dialog' => TRUE,
+    );
   }
+  else {
+    $element['wrapper_class_token']['help'] = array(
+      '#type' => 'item',
+      '#markup' => t('Install the <a href="http://drupal.org/project/token" target="_blank" title="Token module project page">Token</a> module to view available replacement patterns.'),
+    );
+  }
+
   return $element;
 }
 
@@ -88,8 +167,11 @@ function form_process_icon_selector($element) {
 function form_type_icon_selector_value(&$element, $input = FALSE, &$form_state = array()) {
   if ($input !== FALSE && isset($input['icon']) && strpos($input['icon'], '|') !== FALSE) {
     list($bundle, $icon) = explode('|', $input['icon']);
-    $parents = $element['#parents'];
+    $wrapper = !empty($input['wrapper']) && in_array($input['wrapper'], array_keys(icon_wrapper_options())) ? $input['wrapper'] : '';
+    $wrapper_class = !empty($input['wrapper_class']) ? filter_xss_admin($input['wrapper_class']) : '';
     drupal_array_set_nested_value($form_state['values'], array_merge($element['#parents'], array('bundle')), $bundle, TRUE);
     drupal_array_set_nested_value($form_state['values'], array_merge($element['#parents'], array('icon')), $icon, TRUE);
+    drupal_array_set_nested_value($form_state['values'], array_merge($element['#parents'], array('wrapper')), $wrapper, TRUE);
+    drupal_array_set_nested_value($form_state['values'], array_merge($element['#parents'], array('wrapper_class')), $wrapper_class, TRUE);
   }
 }

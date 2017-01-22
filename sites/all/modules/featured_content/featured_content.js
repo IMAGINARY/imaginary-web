@@ -2,28 +2,28 @@
 
   Drupal.behaviors.featuredContent = {
     attach: function (context) {
-      // show manual or filter fieldset depending on type selection
+      // Show manual or filter fieldset depending on type selection.
       var type = $('#edit-featured-content-block-type');
       if (type) {
         showHideFeaturedBlockSettings(type);
       }
       $('#edit-featured-content-block-type').bind('change', {}, onchangeFeaturedBlockSettings);
     
-      // show style select list depending on display selection
+      // Show style select list depending on display selection.
       var display = $('#edit-featured-content-block-display');
       if (display) {
         showHideFeaturedBlockStyleSettings(display);
       }
       $('#edit-featured-content-block-display').bind('change', {}, onchangeFeaturedBlockStyleSettings);
     
-      // show read more fields depending on more selection
+      // Show read more fields depending on more selection.
       var more = $('#edit-featured-content-block-more-display');
       if (more) {
         showHideFeaturedBlockMoreSettings(more);
       }
       $('#edit-featured-content-block-more-display').bind('change', {}, onchangeFeaturedBlockMoreSettings);
     
-      // show rss fields depending on rss selection
+      // Show rss fields depending on rss selection.
       var rss = $('#edit-featured-content-block-rss-display');
       if (rss) {
         showHideFeaturedBlockRSSSettings(rss);

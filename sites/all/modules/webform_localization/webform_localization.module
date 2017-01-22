@@ -50,56 +50,103 @@ function webform_localization_i18n_string_info() {
 /**
  * Update / create / delete translation source for components.
  *
- * Refresh callback that regenerates all the translatable poperties of the
+ * Refresh callback that regenerates all the translatable properties of the
  * components of the matching webforms configuration.
  */
-function webform_localization_i18n_string_refresh() {
+function webform_localization_i18n_string_refresh($group) {
+  if ($group == 'webform') {
+    global $language;
+    $languages = language_list();
+    $source_language = $languages[i18n_string_source_language()];
+    // Refresh the strings using source language.
+    $language = $source_language;
+    module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
 
-  module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
+    // In case updating before UUID support.
+    if (module_exists('uuid') && !variable_get('webform_localization_using_uuid', FALSE)) {
+      webform_localization_uuid_update_strings(FALSE);
+    }
 
-  // In case updating before UUID support.
-  if (module_exists('uuid') && !variable_get('webform_localization_using_uuid', FALSE)) {
-    webform_localization_uuid_update_strings(FALSE);
+    // Get components configured as translatable.
+    $query = db_select('webform_component', 'wc');
+    $query->fields('wc');
+    $query->condition('wl.expose_strings', 0, '>');
+    $query->innerJoin('webform_localization', 'wl', 'wc.nid = wl.nid');
+    $components = $query->execute()->fetchAll();
+
+    foreach ($components as $component) {
+      $component = (array) $component;
+      $component['extra'] = unserialize($component['extra']);
+
+      webform_localization_component_update_translation_strings($component);
+
+      $component['extra'] = serialize($component['extra']);
+      drupal_write_record('webform_component', $component, array('nid', 'cid'));
+    }
+    // Get emails configured as translatable.
+    $query = db_select('webform_localization', 'wl');
+    $query->fields('wl', array('nid'));
+    $query->condition('wl.expose_strings', 0, '>');
+    $nid_list = $query->execute()->fetchAllAssoc('nid');
+    // @todo: Find a more eficient way to manage webform translatable
+    // properties.
+    $nodes = node_load_multiple(array_keys($nid_list));
+    module_load_include('inc', 'webform_localization', 'includes/webform_localization.sync');
+    foreach ($nid_list as $nid => $value) {
+      $emails = _webform_localization_emails_load($nid);
+      webform_localization_emails_translation_string_refresh($emails, $nid);
+      $node = $nodes[$nid];
+      webform_localization_translate_strings($node, TRUE);
+    }
+
+    // NOTE: Delete string for webforms that has disabled i18n translation.
+    // This is the only moment when we deleted translation for disabled
+    // webforms. This way we provide the feature to temporally disable the
+    // webform i18n string without losing custom translated texts.
+    webform_localization_delete_all_strings();
+    return TRUE;
   }
+}
 
-  // Get components configured as translatable.
-  $query = db_select('webform_component', 'wc');
-  $query->fields('wc');
-  $query->condition('wl.expose_strings', 0, '>');
-  $query->innerJoin('webform_localization', 'wl', 'wc.nid = wl.nid');
-  $components = $query->execute()->fetchAll();
+/**
+ * Load a component file into memory.
+ *
+ * @see webform_component_include()
+ *
+ * @param string $component_type
+ *   The string machine name of a component.
+ */
+function webform_localization_component_include($component_type) {
+  static $included = array();
 
-  foreach ($components as $component) {
-    $component = (array) $component;
-    $component['extra'] = unserialize($component['extra']);
-
-    webform_localization_component_update_translation_strings($component);
-
-    $component['extra'] = serialize($component['extra']);
-    drupal_write_record('webform_component', $component, array('nid', 'cid'));
+  // No need to load components that have already been added once.
+  if (!isset($included[$component_type])) {
+    $included[$component_type] = TRUE;
+    module_load_include('inc', 'webform_localization', 'components/' . $component_type);
   }
-  // Get emails configured as translatable.
-  $query = db_select('webform_localization', 'wl');
-  $query->fields('wl', array('nid'));
-  $query->condition('wl.expose_strings', 0, '>');
-  $nid_list = $query->execute()->fetchAllAssoc('nid');
-  // @todo: Find a more eficient way to manage webform translatable properties.
-  $nodes = node_load_multiple(array_keys($nid_list));
-  module_load_include('inc', 'webform_localization', 'includes/webform_localization.sync');
-  foreach ($nid_list as $nid => $value) {
-    $emails = _webform_localization_emails_load($nid);
-    webform_localization_emails_translation_string_refresh($emails, $nid);
-    $node = $nodes[$nid];
-    webform_localization_translate_strings($node, TRUE);
+}
+
+/**
+ * Invoke a component callback.
+ *
+ * @see webform_component_invoke()
+ *
+ * @param string $type
+ *   The component type as a string.
+ * @param string $callback
+ *   The callback to execute.
+ * @param ...
+ *   Any additional parameters required by the $callback.
+ */
+function webform_localization_component_invoke($type, $callback) {
+  $args = func_get_args();
+  $type = array_shift($args);
+  $callback = array_shift($args);
+  $function = '_webform_localization_' . $callback . '_' . $type;
+  webform_localization_component_include($type);
+  if (function_exists($function)) {
+    return call_user_func_array($function, $args);
   }
-  /**
-   *  NOTE: Delete string for webforms that has disabled i18n translation.
-   *  This is the only moment when we deleted translation for disabled webforms.
-   *  This way we provide the feature to temporally disable the webform i18n
-   *  string without losing custom translated texts.
-   */
-  webform_localization_delete_all_strings();
-  return TRUE;
 }
 
 /**
@@ -110,10 +157,12 @@ function webform_localization_webform_component_insert($component) {
   $wl_options = webform_localization_get_config($component['nid']);
 
   // Create translation source for i18n_string for all the translatable
-  // poperties.
+  // properties.
   if ($wl_options['expose_strings']) {
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
     webform_localization_component_update_translation_strings($component);
+    $component['extra'] = serialize($component['extra']);
+    drupal_write_record('webform_component', $component, array('nid', 'cid'));
   }
 
   if ($wl_options['sync_components'] && _webform_localization_sync()) {
@@ -149,26 +198,32 @@ function webform_localization_webform_component_presave(&$component) {
   $wl_options = webform_localization_get_config($component['nid']);
 
   // Create translation source for i18n_string for all the translatable
-  // poperties.
+  // properties.
   if ($wl_options['expose_strings']) {
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
     webform_localization_component_update_translation_strings($component);
   }
 
   if ($wl_options['sync_components'] && _webform_localization_sync()) {
-    // Turn Off Sync.
-    _webform_localization_sync(FALSE);
-    module_load_include('inc', 'webform_localization', 'includes/webform_localization.component.sync');
-    // Get all versions of the component across all translations.
-    $translations = webform_localization_component_get_translations($component);
-    unset($translations[$component['nid']]);
-    // Sync the changed component with it's translations versions.
-    webform_localization_component_sync($component, $translations);
-    foreach ($translations as $trans_c) {
-      webform_component_update($trans_c);
+    $test_node = node_load($component['nid']);
+    if ($test_node->tnid > 0) {
+      // Turn Off Sync.
+      _webform_localization_sync(FALSE);
+      module_load_include('inc', 'webform_localization', 'includes/webform_localization.component.sync');
+      // Get all versions of the component across all translations.
+      $translations = webform_localization_component_get_translations($component);
+      unset($translations[$component['nid']]);
+      // Sync the changed component with it's translations versions.
+      webform_localization_component_sync($component, $translations);
+      foreach ($translations as $trans_c) {
+        webform_component_update($trans_c);
+      }
+      // Turn On Sync.
+      _webform_localization_sync(TRUE);
     }
-    // Turn On Sync.
-    _webform_localization_sync(TRUE);
+    else {
+      debug('configuration error: webform_localization_sync enabled AND Keep a single webform across a translation set. but no tnid, to resolve this either disable <Keep a single webform across a translation set> by unchecking this option, or enable node translation on the webform', t('debug'));
+    }
   }
 }
 
@@ -191,14 +246,50 @@ function webform_localization_webform_component_delete($component) {
     // Get all versions of the node.
     $node = node_load($component['nid']);
     $translations = translation_node_get_translations($node->tnid);
-    unset($translations[$node->language]);
-    foreach ($translations as $trans_c) {
-      $component_version = webform_localization_component_load($trans_c->nid, $component['cid']);
-      webform_component_delete($trans_c, $component_version);
+    if ($translations) {
+      unset($translations[$node->language]);
+      foreach ($translations as $trans_c) {
+        $component_version = webform_localization_component_load($trans_c->nid, $component['cid']);
+        webform_component_delete($trans_c, $component_version);
+      }
     }
+
     // Turn On Sync.
     _webform_localization_sync(TRUE);
   }
+}
+
+/**
+ * A menu to_arg handler explicitly invoked by webform_menu_to_arg().
+ *
+ * If a single webform is used across all translations, use the appropriate
+ * node ID for webform paths.
+ */
+function webform_localization_webform_menu_to_arg($arg, $map, $index) {
+  if ($node = node_load($arg)) {
+    if ($nid = webform_localization_single_webform_nid($node)) {
+      $node = node_load($nid);
+    }
+  }
+  return $node ? $node->nid : $arg;
+}
+
+/**
+ * Find nid of node containing the 'single webform' for this translation set.
+ */
+function webform_localization_single_webform_nid($node) {
+  $cache = &drupal_static(__FUNCTION__, array());
+  if (!array_key_exists($node->nid, $cache)) {
+    // Select all webforms that match the localization configuration.
+    $query = db_select('webform', 'w');
+    $query->innerJoin('webform_localization', 'wl', 'w.nid = wl.nid');
+    $query->fields('w', array('nid'));
+    $query->condition('wl.single_webform', 0, '<>');
+    $query->condition('wl.single_webform', $node->tnid, '=');
+    $query->condition('w.nid', $node->nid, '<>');
+    $cache[$node->nid] = $query->execute()->fetchField();
+  }
+  return $cache[$node->nid];
 }
 
 /**
@@ -208,23 +299,13 @@ function webform_localization_node_view($node, $view_mode) {
   if (!in_array($node->type, webform_variable_get('webform_node_types'))) {
     return;
   }
-  // Select all webforms that match the localization configuration.
-  $query = db_select('webform', 'w');
-  $query->innerJoin('webform_localization', 'wl', 'w.nid = wl.nid');
-  $query->fields('w', array('nid'));
-  $query->condition('wl.single_webform', 0, '<>');
-  $query->condition('wl.single_webform', $node->tnid, '=');
-  $query->condition('w.nid', $node->nid, '<>');
-  $result = $query->execute()->fetchField();
+  if ($nid = webform_localization_single_webform_nid($node)) {
 
-  if ($result) {
-    /**
-     * NOTE:
-     * Perhaps not most eficient way.. a possible alternative
-     * @todo rewrite the webform load and view process as a
-     * independent function to reuse.
-     */
-    $source_node = node_load($result);
+    // NOTE:
+    // Perhaps not most eficient way.. a possible alternative
+    // @todo rewrite the webform load and view process as a
+    // independent function to reuse.
+    $source_node = node_load($nid);
     // We replace the webform with the node translation source.
     $node->webform = $source_node->webform;
 
@@ -265,11 +346,10 @@ function webform_localization_node_load($nodes, $types) {
  * Implements hook_webform_submission_update().
  */
 function webform_localization_webform_submission_insert($node, $submission) {
-  /**
-   * NOTE:
-   * We have 2 options here: to use the node language or the language of
-   * the page... for now make more sense use the node as language source
-   */
+
+  // NOTE:
+  // We have 2 options here: to use the node language or the language of
+  // the page... for now make more sense use the node as language source.
   $language = $node->language;
   // Update language field when a submission is updated.
   db_update('webform_submissions')
@@ -284,8 +364,8 @@ function webform_localization_webform_submission_insert($node, $submission) {
  * Implements hook_webform_submission_load().
  */
 function webform_localization_webform_submission_load(&$submissions) {
-  if(empty($submissions)) {
-      return;
+  if (empty($submissions)) {
+    return;
   }
   $query = db_select('webform_submissions', 's');
   $query->fields('s', array('language', 'sid'));
@@ -297,11 +377,19 @@ function webform_localization_webform_submission_load(&$submissions) {
 }
 
 /**
+ * Implements hook_webform_submission_presave().
+ */
+function webform_localization_webform_submission_presave(&$node, &$submission) {
+  if (isset($node->tnid) && $node->tnid != 0) {
+    $submission->serial = _webform_submission_serial_next_value($node->tnid);
+  }
+}
+
+/**
  * Implements hook_node_delete().
  */
 function webform_localization_node_delete($node) {
-  if (!in_array($node->type, webform_variable_get('webform_node_types'))
-      || empty($node->webform['components'])) {
+  if (!in_array($node->type, webform_variable_get('webform_node_types')) || empty($node->webform['components'])) {
     return;
   }
   module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
@@ -321,6 +409,10 @@ function webform_localization_webform_component_render_alter(&$element, $compone
   if ($wl_options['expose_strings']) {
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
     _webform_localization_translate_component($element, $component);
+    if (!empty($element['#attributes']['placeholder'])) {
+      $name = webform_localization_i18n_string_name($component['nid'], $component['cid'], '#placeholder');
+      $element['#attributes']['placeholder'] = i18n_string($name, $element['#attributes']['placeholder']);
+    }
   }
 }
 
@@ -338,16 +430,74 @@ function webform_localization_webform_component_display_alter(&$display_element,
 }
 
 /**
+ * Implements hook_webform_analysis_component_data_alter().
+ */
+function webform_localization_webform_analysis_component_data_alter(&$data, $node, &$component) {
+  // Gets webform localization options that match this node ID.
+  $wl_options = webform_localization_get_config($node->nid);
+  // Translate the translatable properties.
+  if ($wl_options['expose_strings']) {
+    // Translate component name, this is not a component spesific property.
+    foreach ($component['extra']['translated_strings'] as $name) {
+      $name_list = explode(':', $name);
+      // Translate component name from title property.
+      if ($name_list[3] == '#title') {
+        $component['name'] = i18n_string($name, $component['name']);
+        break;
+      }
+    }
+    // Translate data array.
+    $result = webform_localization_component_invoke($component['type'], 'analysis_data', $data, $node, $component);
+    if (!empty($result)) {
+      $data = $result;
+    }
+  }
+}
+
+/**
+ * Implements hook_webform_csv_header_alter().
+ */
+function webform_localization_webform_csv_header_alter(&$header, $component) {
+  // Gets webform localization options that match this node ID.
+  $wl_options = webform_localization_get_config($component['nid']);
+  // Translate the translatable properties.
+  if ($wl_options['expose_strings']) {
+    $result = webform_localization_component_invoke($component['type'], 'csv_header', $header, $component);
+    if (!empty($result)) {
+      $header = $result;
+    }
+  }
+}
+
+/**
+ * Implements hook_webform_csv_data_alter().
+ */
+function webform_localization_webform_csv_data_alter(&$data, $component, $submission) {
+  // Gets webform localization options that match this node ID.
+  $wl_options = webform_localization_get_config($component['nid']);
+  // Translate the translatable properties.
+  if ($wl_options['expose_strings']) {
+    $result = webform_localization_component_invoke($component['type'], 'csv_data', $data, $component, $submission);
+    if (!empty($result)) {
+      $data = $result;
+    }
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  *
- * Add specific localization options to Webform Configure Form
+ * Add specific localization options to Webform Configure Form.
  */
 function webform_localization_form_webform_configure_form_alter(&$form, &$form_state, $form_id) {
+
+  // @see https://api.drupal.org/comment/52443#comment-52443
+  $enabled_languages = locale_language_list('name');
 
   // Gets webform localization options that match this node ID.
   $webform_localization_options = webform_localization_get_config($form['nid']['#value']);
 
-  if ($webform_localization_options['expose_strings']) {
+  if ($webform_localization_options['expose_strings'] && count($enabled_languages) > 1) {
     // Avoid caching for translatable element values.
     entity_get_controller('node')->resetCache(array($form['nid']['#value']));
     $form['#node'] = node_load($form['nid']['#value']);
@@ -356,6 +506,17 @@ function webform_localization_form_webform_configure_form_alter(&$form, &$form_s
       $form['submission']['redirection']['redirect_url']['#default_value'] = $form['#node']->webform['redirect_url'];
     }
     $form['advanced']['submit_text']['#default_value'] = $form['#node']->webform['submit_text'];
+    // Add friendly translation link.
+    $name = webform_localization_i18n_string_name($form['#node']->nid, 'confirmation');
+    $string_source = i18n_string_get_string($name);
+    if (isset($string_source->lid) && $string_source->lid != FALSE) {
+      $link = l(t('here'), 'admin/config/regional/translate/edit/' . $string_source->lid, array('query' => drupal_get_destination()));
+      $description = t('Click !here to translate this string.', array('!here' => $link));
+    }
+    else {
+      $description = t('<i>The message must be filled in before it can be translated.</i>');
+    }
+    $form['submission']['confirmation']['#description'] .= ' ' . $description;
   }
 
   $single_webform = 0;
@@ -482,17 +643,42 @@ function _webform_localization_webform_configure_form_submit($form, &$form_state
  */
 function _webform_localization_webform_configure_form_submit_i18n_tweaks($form, &$form_state) {
   global $language;
-  $default_language = language_default();
-  if ($default_language->language != $language->language) {
-    // Webform Configure Form not in default language.
+  $source_language = i18n_string_source_language();
+  if ($source_language != $language->language) {
+    // Webform Configure Form not in source language.
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
-    $name = webform_localization_i18n_string_name($form['#node']->webform['nid'], 'confirmation');
-    $string_source = i18n_string_get_string($name);
-    $string_translation = $form_state['values']['confirmation']['value'];
-    // We reset the source string value before saving the form.
-    $form_state['values']['confirmation']['value'] = $string_source->get_string();
-    // We save the translated string using i18n string.
-    i18n_string_translation_update($name, $string_translation, $language->language);
+    // Collect the form elements that are translatable.
+    $form_elements = array('confirmation', 'submit_text');
+    // Add redirect url if it's not set to none or the default
+    // confirmation page.
+    if (!in_array($form_state['values']['redirect_url'], array('<confirmation>', '<none>'))) {
+      $form_elements[] = 'redirect_url';
+    }
+    foreach ($form_elements as $element) {
+      // Get i18n string for $element.
+      $name = webform_localization_i18n_string_name($form['#node']->webform['nid'], $element);
+      $i18n_string = i18n_string_get_string($name);
+      // Get submitted value for $element (the translation).
+      $string_translation = ($element == 'confirmation' ? $form_state['values'][$element]['value'] : $form_state['values'][$element]);
+      if ($i18n_string->lid) {
+        // There is an i18n string source.
+        $string_source = $i18n_string->get_string();
+        // We reset the source string value before saving the form.
+        if ($element == 'confirmation') {
+          $form_state['values'][$element]['value'] = $string_source;
+        }
+        else {
+          $form_state['values'][$element] = $string_source;
+        }
+      }
+      else {
+        // No i18n string source found: use the current translation as the
+        // string source.
+        $string_source = $string_translation;
+      }
+      // We save the translated string using i18n string.
+      i18n_string_translation_update($name, $string_translation, $language->language, $string_source);
+    }
   }
 }
 
@@ -509,14 +695,20 @@ function webform_localization_form_webform_email_edit_form_alter(&$form, &$form_
  * Handle emails sync on individual email change.
  */
 function _webform_localization_webform_email_edit_form_submit($form, &$form_state) {
-  $webform_localization_options = webform_localization_get_config($form_state['values']['node']->nid);
+
+  $node = $form['#node'];
+  $webform_localization_options = webform_localization_get_config($node->nid);
   if ($webform_localization_options['sync_emails']) {
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.sync');
-    webform_localization_emails_sync($form_state['values']['node']->nid);
+    webform_localization_emails_sync($node->nid);
   }
-  if ($webform_localization_options['expose_strings']) {
-    module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
-    webform_localization_emails_update_translation_string($form_state['values']);
+  if (isset($form_state['values']['node'])) {
+    // Above isset avoids problem when using entity_translation.
+    // @see https://www.drupal.org/node/2482521
+    if ($webform_localization_options['expose_strings']) {
+      module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
+      webform_localization_emails_update_translation_string($form_state['values'] + array('node' => $node));
+    }
   }
 }
 
@@ -533,14 +725,20 @@ function webform_localization_form_webform_email_delete_form_alter(&$form, &$for
  * Handle emails localization cleanup / sync on email deletion.
  */
 function _webform_localization_webform_email_delete_form_submit($form, &$form_state) {
-  $webform_localization_options = webform_localization_get_config($form_state['values']['node']->nid);
+
+  $node = $form['node']['#value'];
+  $webform_localization_options = webform_localization_get_config($node->nid);
   if ($webform_localization_options['sync_emails']) {
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.sync');
-    webform_localization_emails_sync($form_state['values']['node']->nid);
+    webform_localization_emails_sync($node->nid);
   }
-  if ($webform_localization_options['expose_strings']) {
-    module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
-    webform_localization_emails_delete_translation_string($form_state['values']['email']['eid'], $form_state['values']['email']['nid']);
+  if (isset($form_state['values']['node'])) {
+    // Above isset avoids problem when using entity_translation.
+    // @see https://www.drupal.org/node/2482521
+    if ($webform_localization_options['expose_strings']) {
+      module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
+      webform_localization_emails_delete_translation_string($form_state['values']['email']['eid'], $node->nid);
+    }
   }
 }
 
@@ -583,10 +781,8 @@ function webform_localization_form_webform_component_edit_form_alter(&$form, &$f
       '#default_value' => $select_options['extra_values'],
       '#description' => t('Special properties that applies only for this type of component.'),
     );
-    /**
-     * NOTE:
-     * First we save the sync options to know what to do with the changes.
-     */
+    // NOTE:
+    // First we save the sync options to know what to do with the changes.
     array_unshift($form['#submit'], '_webform_localization_webform_component_edit_form_submit');
   }
 }
@@ -621,16 +817,12 @@ function webform_localization_field_attach_prepare_translation_alter(&$entity, $
   if ($context['entity_type'] == 'node') {
     if (isset($context['source_entity']->webform)) {
       $webform_localization_options = webform_localization_get_config($context['source_entity']->nid);
-      /**
-       * Copy all Webform settings over to translated versions of this node
-       * if the configuration match.
-       */
+      // Copy all Webform settings over to translated versions of this node
+      // if the configuration match.
       if ($webform_localization_options['sync_components']) {
-        /**
-         * NOTE:
-         * Perhaps could be interesting to copy only specific properties
-         * but for now the entire webform make more sense.
-         */
+        // NOTE:
+        // Perhaps could be interesting to copy only specific properties
+        // but for now the entire webform make more sense.
         $entity->webform = $context['source_entity']->webform;
       }
     }
@@ -638,11 +830,118 @@ function webform_localization_field_attach_prepare_translation_alter(&$entity, $
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function webform_localization_form_alter(&$form, &$form_state, $form_id) {
+  // n.b. We are not using hook_form_BASE_FORM_ID_alter(), as we need
+  // to interact closely with other hook_form_alter() implementations.
+  // @see webform_localization_module_implements_alter()
+  if (strpos($form_id, 'webform_client_form_') !== 0) {
+    return;
+  }
+
+  // Enhance webform's mollom support, to handle our 'single_webform' option.
+  if (module_exists('mollom')) {
+    _webform_localization_mollom_form_alter($form, $form_state, $form_id);
+  }
+}
+
+/**
+ * Interaction with mollom_form_alter() for 'single_webform' localization.
+ *
+ * If the translation source node's webform is protected by mollom, and
+ * uses our 'single_webform' setting, then we must also protect the other
+ * nodes in the translation set.
+ *
+ * This is because each node in the translation set will still have a
+ * unique client form_id (based on the nid, not the tnid), but mollom will
+ * only know about one of those form_ids.
+ * 
+ * @see webform_localization_module_implements_alter()
+ */
+function _webform_localization_mollom_form_alter(&$form, &$form_state, $form_id) {
+  // Establish that the current node has a (different) translation source.
+  // (If this is the translation source, mollom will already know about it).
+  $node = $form['#node'];
+  if (empty($node->tnid) || $node->tnid == $node->nid) {
+    return;
+  }
+
+  // Prime the static mollom form cache (for manipulation).
+  mollom_form_cache();
+  $mollom_cache = &drupal_static('mollom_form_cache');
+  $protected = &$mollom_cache['protected'];
+
+  // If the source node's webform is not protected by mollom, we can bail
+  // out immediately.
+  $source_form_id = 'webform_client_form_' . $node->tnid;
+  if (!array_key_exists($source_form_id, $protected)) {
+    return;
+  }
+
+  // Check that the 'single_webform' option is configured for the source.
+  $source_wl_options = webform_localization_get_config($node->tnid);
+  if (empty($source_wl_options['single_webform'])) {
+    return;
+  }
+
+  // Protect this form using the settings for the single webform.
+  // Firstly we take care of the mollom_form_cache() static cache.
+  $protected[$form_id] = $protected[$source_form_id];
+
+  // Then, if necessary, we update the mollom_form_load() cache.
+  $mollom_form = mollom_form_load($form_id);
+  if (!$mollom_form) {
+    $source_mollom_form = mollom_form_load($source_form_id);
+    $mollom_form = $source_mollom_form;
+    $mollom_form['form_id'] = $form_id;
+    $cid = 'mollom:form:' . $form_id;
+    cache_set($cid, $mollom_form);
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * We need our hook_form_alter() to run before mollom's, so that we can
+ * prime and modify its cache before mollom uses it.
+ *
+ * @see webform_localization_form_alter()
+ * @see mollom_form_alter()
+ */
+function webform_localization_module_implements_alter(&$implementations, $hook) {
+  if ($hook != 'form_alter') {
+    return;
+  }
+
+  // If mollom isn't enabled, do nothing.
+  if (!module_exists('mollom')) {
+    return;
+  }
+
+  // If our code will run before mollom's, do nothing.
+  $pos = array_flip(array_keys($implementations));
+  if ($pos['webform_localization'] < $pos['mollom']) {
+    return;
+  }
+
+  // Make it so our hook implementation runs before mollom's.
+  $webform_localization = array(
+    'webform_localization' => $implementations['webform_localization'],
+  );
+  $implementations = array_diff_key($implementations, $webform_localization);
+  $implementations = array_merge(
+      array_slice($implementations, 0, $pos['mollom'], TRUE), $webform_localization, array_slice($implementations, $pos['mollom'], NULL, TRUE)
+  );
+}
+
+/**
  * Gets webform localization options that match a node ID.
  *
  * @staticvar array $webform_localization_options
  *   An array of webform localization options group by nid.
- * @param $nid
+ *
+ * @param int $nid
  *   A node Id.
  * @param bool $clear_cache
  *   A flag to force a database reading in case that properties are cached.
@@ -662,12 +961,20 @@ function webform_localization_get_config($nid, $clear_cache = FALSE) {
     unset($webform_properties['roles']);
     unset($webform_properties['emails']);
     unset($webform_properties['record_exists']);
+
+    // If webform_uuid is being used since $component['nid'] is really a UUID
+    // get the nid.
+    if (module_exists('webform_uuid') && variable_get('webform_localization_using_uuid', FALSE)) {
+      $record = entity_get_id_by_uuid('node', array($nid));
+      $nid = (!empty($record)) ? array_pop($record) : $nid;
+    }
+
     // Select webform localization options that match this node ID.
     $options = db_select('webform_localization')
-            ->fields('webform_localization')
-            ->condition('nid', $nid, '=')
-            ->execute()
-            ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
+        ->fields('webform_localization')
+        ->condition('nid', $nid, '=')
+        ->execute()
+        ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
     if (count($options) == 0) {
       $webform_localization_options[$nid] = array(
         'nid' => $nid,
@@ -777,5 +1084,213 @@ function webform_localization_modules_enabled($modules) {
   if (in_array('uuid', $modules)) {
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
     webform_localization_uuid_update_strings(FALSE);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add related translations to translation form.
+ */
+function webform_localization_form_i18n_string_locale_translate_edit_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['textgroup']['#value'] == 'webform') {
+    if (isset($form['context']['#markup']) && preg_match('/#title/', $form['context']['#markup'])) {
+      list($id, $cid, $name) = explode(':', $form['context']['#markup']);
+      $form['#submit'][] = 'webform_localization_i18n_string_locale_translate_edit_form_submit';
+      $rel_key = 'webform:' . $id . ':' . $cid . '%';
+      $related = db_query('SELECT lid, source, context, textgroup, location FROM {locales_source} WHERE location LIKE :key', array(':key' => $rel_key));
+
+      $langs_installed = language_list();
+
+      $langs_enabled = language_list('enabled');
+      $langs_enabled = $langs_enabled[1];
+
+      if (isset($form['translations'])) {
+        foreach ($form['translations'] as $key => $value) {
+          if (array_key_exists($key, $langs_installed) && !array_key_exists($key, $langs_enabled)) {
+            unset($form['translations'][$key]);
+          }
+        }
+      }
+
+      $form['items'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Related strings'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#weight' => 2,
+      );
+      foreach ($related as $source) {
+        if ($source->context != $form['context']['#markup']) {
+          $lid = $source->lid;
+          // Add original text to the top and some values for form altering.
+          $form['items'][$lid]['original'] = array(
+            '#type' => 'item',
+            '#title' => t('Original text'),
+            '#markup' => check_plain(wordwrap($source->source, 0)),
+          );
+          if (!empty($source->context)) {
+            $form['items'][$lid]['context'] = array(
+              '#type' => 'item',
+              '#title' => t('Context'),
+              '#markup' => check_plain($source->context),
+            );
+          }
+          $form['items'][$lid]['textgroup'] = array(
+            '#type' => 'value',
+            '#value' => $source->textgroup,
+          );
+          $form['items'][$lid]['location'] = array(
+            '#type' => 'value',
+            '#value' => $source->location,
+          );
+
+          $languages = $langs_enabled;
+          // We don't need the default language value, that value is in $source.
+          $omit = $source->textgroup == 'default' ? 'en' : i18n_string_source_language();
+          unset($languages[($omit)]);
+          $form['items'][$lid]['translations-' . $lid] = array('#tree' => TRUE);
+          // Approximate the number of rows to use in the default textarea.
+          $rows = min(ceil(str_word_count($source->source) / 12), 10);
+          foreach ($languages as $langcode => $language) {
+            $form['items'][$lid]['translations-' . $lid][$langcode] = array(
+              '#type' => 'textarea',
+              '#title' => t($language->name),
+              '#rows' => $rows,
+              '#default_value' => '',
+            );
+          }
+
+          // Fetch translations and fill in default values in the form.
+          $result = db_query("SELECT DISTINCT translation, language FROM {locales_target} WHERE lid = :lid AND language <> :omit", array(':lid' => $lid, ':omit' => $omit));
+          foreach ($result as $translation) {
+            $form['items'][$lid]['translations-' . $lid][$translation->language]['#default_value'] = $translation->translation;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Submit handler for translations form.
+ */
+function webform_localization_i18n_string_locale_translate_edit_form_submit($form, &$form_state) {
+  foreach ($form_state['values'] as $key => $value) {
+    if (preg_match("/translations-(.*)/", $key, $lid)) {
+      foreach ($value as $lang => $translation) {
+        $existing = db_query("SELECT translation FROM {locales_target} WHERE lid = :lid AND language = :language", array(':lid' => $lid[1], ':language' => $lang))->fetchField();
+        if (!empty($translation)) {
+          if (!empty($existing)) {
+            db_update('locales_target')
+                ->fields(array(
+                  'translation' => $translation,
+                  'i18n_status' => I18N_STRING_STATUS_CURRENT,
+                ))
+                ->condition('lid', $lid[1])
+                ->condition('language', $lang)
+                ->execute();
+          }
+          else {
+            db_insert('locales_target')
+                ->fields(array(
+                  'lid' => $lid[1],
+                  'translation' => $translation,
+                  'language' => $lang,
+                ))
+                ->execute();
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_webform_components_form().
+ *
+ * Adds a translate link to each webform component.
+ */
+function webform_localization_preprocess_webform_components_form(&$variables) {
+  $form = $variables['form'];
+  if (!isset($form['#node']->webform['nid'])) {
+    return;
+  }
+
+  $header = $variables['header'];
+  $rows = $variables['rows'];
+  $node = $form['#node'];
+
+  $enabled_languages = locale_language_list('name');
+
+  $webform_localization_options = webform_localization_get_config($form['#node']->webform['nid']);
+  $row_data = array();
+  if ($webform_localization_options['expose_strings'] && count($enabled_languages) > 1) {
+    // Change colspan of header and footer.
+    $footer = array_pop($rows);
+    $header[6]['colspan'] = 4;
+    $footer['data'][6]['colspan'] = 4;
+    // Add translate link to rows.
+    foreach ($rows as $key => $row) {
+      $row_data[$key] = $row;
+      if (isset($row['data-cid'])) {
+        $name = webform_localization_i18n_string_name($node->nid, $row['data-cid'], '#title');
+        $string_source = i18n_string_get_string($name);
+        if (isset($string_source->lid)) {
+          $row_data[$key]['data'][] = l(t('Translate'), 'admin/config/regional/translate/edit/' . $string_source->lid, array('query' => drupal_get_destination()));
+        }
+      }
+    }
+    $variables['rows'] = $row_data;
+    $variables['rows'][] = $footer;
+    $variables['header'] = $header;
+    $variables['form'] = $form;
+  }
+}
+
+/**
+ * Implements hook_js_alter().
+ */
+function webform_localization_js_alter(&$javascript) {
+  // Only react on webform nodes.
+  if ($node = menu_get_object()) {
+    if (!isset($node->type) || !in_array($node->type, webform_variable_get('webform_node_types'))) {
+      return FALSE;
+    }
+
+    // Only react when we are not on the source node.
+    if ($node->nid != $node->tnid && $node->tnid > 0) {
+      // Gets webform localization options that match this node ID.
+      $webform_localization_options = webform_localization_get_config($node->tnid);
+
+      // Only react when keep a single webform across a translation set.
+      if ($webform_localization_options['single_webform'] > 0) {
+        foreach ($javascript['settings']['data'] as &$setting) {
+          if (isset($setting['webform']['conditionals']['webform-client-form-' . $node->tnid])) {
+            $setting['webform']['conditionals']['webform-client-form-' . $node->nid] = $setting['webform']['conditionals']['webform-client-form-' . $node->tnid];
+            unset($setting['webform']['conditionals']['webform-client-form-' . $node->tnid]);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entitycache_node_load().
+ */
+function webform_localization_entitycache_node_load($nodes) {
+  $webform_types = webform_variable_get('webform_node_types');
+  foreach ($nodes as $nid => &$node) {
+    if (in_array($node->type, $webform_types)) {
+      // Gets webform localization options that match this node ID.
+      $wl_options = webform_localization_get_config($nid);
+      if ($wl_options['expose_strings']) {
+        module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
+        // Translate custom strings.
+        webform_localization_translate_strings($node);
+        webform_localization_email_translate_strings($node);
+      }
+    }
   }
 }

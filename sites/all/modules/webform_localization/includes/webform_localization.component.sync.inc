@@ -18,38 +18,42 @@
  *
  * @staticvar array $component_translations
  *   An array of webform components for each tnid.
+ *
  * @param array $component
  *   A webform component array.
- * @return
- *   An array of webform components that match a tnid.
  *
+ * @return array
+ *   An array of webform components that match a tnid.
  */
 function webform_localization_component_get_translations($component) {
   static $component_translations = array();
 
   $node = node_load($component['nid']);
   $translations = translation_node_get_translations($node->tnid);
+  $component_translations[$node->tnid] = array();
 
-  if (!isset($component_translations[$node->tnid]) && !empty($translations)) {
+  if (!empty($translations) && !isset($component_translations[$node->tnid])) {
     $nid_list = array();
     foreach ($translations as $trans_node) {
       $nid_list[] = $trans_node->nid;
     }
     // Load components for each translated node.
-    $components = db_select('webform_component')
-            ->fields('webform_component')
-            ->condition('nid', $nid_list, 'IN')
-            ->condition('cid', $component['cid'], '=')
-            ->orderBy('nid')
-            ->execute()
-            ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
-    // Cleanup on each component.
-    foreach ($components as $cid => $c) {
-      $components[$cid]['nid'] = $c['nid'];
-      $components[$cid]['extra'] = unserialize($c['extra']);
-      webform_component_defaults($components[$cid]);
+    if (!empty($nid_list)) {
+      $components = db_select('webform_component')
+          ->fields('webform_component')
+          ->condition('nid', $nid_list, 'IN')
+          ->condition('cid', $component['cid'], '=')
+          ->orderBy('nid')
+          ->execute()
+          ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
+      // Cleanup on each component.
+      foreach ($components as $cid => $c) {
+        $components[$cid]['nid'] = $c['nid'];
+        $components[$cid]['extra'] = unserialize($c['extra']);
+        webform_component_defaults($components[$cid]);
+      }
+      $component_translations[$node->tnid] = $components;
     }
-    $component_translations[$node->tnid] = $components;
   }
 
   return $component_translations[$node->tnid];
@@ -58,17 +62,17 @@ function webform_localization_component_get_translations($component) {
 /**
  * Synchronize the changed component with it's translations versions.
  *
- * @param $component
+ * @param array $component
  *   A webform component that have been modified.
- * @param $translations
+ * @param array $translations
  *   An Array of the translated webform components to sync with.
  */
 function webform_localization_component_sync($component, &$translations) {
-  /**
-   * Get properties to sync
-   * $sync_properties['standar_values'] = array('mandatory', 'weight', 'pid');
-   * $sync_properties['extra_values'] = array('options', 'private');
-   */
+
+  // Get properties to sync.
+  // $sync_properties['standar_values'] = array('mandatory', 'weight', 'pid');
+  // $sync_properties['extra_values'] = array('options', 'private');
+
   $sync_properties = webform_localization_synchronizable_properties($component);
   foreach ($translations as $component_key => $translation) {
     foreach ($sync_properties['standar_values'] as $sync_key) {
@@ -85,13 +89,14 @@ function webform_localization_component_sync($component, &$translations) {
 }
 
 /**
- * Get synchronizable properties for a webform component
+ * Get synchronizable properties for a webform component.
  *
  * @param array $component
  *   A webform component.
- * @param boolean $clear_cache
+ * @param bool $clear_cache
  *   A flag to force a database reading in case that properties are cached.
- * @return
+ *
+ * @return array
  *   An array with synchronizable properties.
  */
 function webform_localization_synchronizable_properties($component, $clear_cache = FALSE) {
@@ -102,11 +107,11 @@ function webform_localization_synchronizable_properties($component, $clear_cache
   if ($clear_cache || !isset($webform_component_localization_options[$nid][$cid])) {
     // Select webform localization options that match this node ID.
     $options = db_select('webform_component_localization')
-            ->fields('webform_component_localization')
-            ->condition('nid', $nid, '=')
-            ->condition('cid', $cid, '=')
-            ->execute()
-            ->fetchObject();
+        ->fields('webform_component_localization')
+        ->condition('nid', $nid, '=')
+        ->condition('cid', $cid, '=')
+        ->execute()
+        ->fetchObject();
     if (!$options) {
       $synchronizable = _webform_localization_default_properties($component);
       $webform_component_localization_options[$nid][$cid] = $synchronizable;
@@ -136,7 +141,8 @@ function webform_localization_synchronizable_properties($component, $clear_cache
  *
  * @param array $component
  *   A webform component.
- * @return
+ * 
+ * @return array
  *   An array with webform synchronizable default properties.
  */
 function _webform_localization_default_properties($component) {
@@ -171,23 +177,23 @@ function webform_localization_synchronizable_properties_delete($component) {
 }
 
 /**
- * Load a Webform Component
+ * Load a Webform Component.
  *
- * @param $nid
+ * @param int $nid
  *   A node Id.
- * @param $cid
+ * @param int $cid
  *   A webform component Id.
- * @return
+ * 
+ * @return array
  *   A webform component array.
- *
  */
 function webform_localization_component_load($nid, $cid) {
   $component = db_select('webform_component')
-          ->fields('webform_component')
-          ->condition('nid', $nid, '=')
-          ->condition('cid', $cid, '=')
-          ->execute()
-          ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
+      ->fields('webform_component')
+      ->condition('nid', $nid, '=')
+      ->condition('cid', $cid, '=')
+      ->execute()
+      ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
   $component[$nid]['nid'] = $nid;
   $component[$nid]['extra'] = unserialize($component[$nid]['extra']);
   webform_component_defaults($component[$nid]);

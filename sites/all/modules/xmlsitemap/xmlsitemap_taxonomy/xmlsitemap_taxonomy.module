@@ -50,7 +50,7 @@ function xmlsitemap_taxonomy_xmlsitemap_process_taxonomy_term_links(array $tids)
   $terms = taxonomy_term_load_multiple($tids);
   foreach ($terms as $term) {
     $link = xmlsitemap_taxonomy_create_link($term);
-    xmlsitemap_link_save($link);
+    xmlsitemap_link_save($link, array($link['type'] => $term));
   }
 }
 
@@ -107,7 +107,7 @@ function xmlsitemap_taxonomy_vocabulary_update(stdClass $vocabulary) {
  */
 function xmlsitemap_taxonomy_term_insert(stdClass $term) {
   $link = xmlsitemap_taxonomy_create_link($term);
-  xmlsitemap_link_save($link);
+  xmlsitemap_link_save($link, array($link['type'] => $term));
 }
 
 /**
@@ -115,7 +115,7 @@ function xmlsitemap_taxonomy_term_insert(stdClass $term) {
  */
 function xmlsitemap_taxonomy_term_update(stdClass $term) {
   $link = xmlsitemap_taxonomy_create_link($term);
-  xmlsitemap_link_save($link);
+  xmlsitemap_link_save($link, array($link['type'] => $term));
 }
 
 /**
@@ -260,6 +260,19 @@ function xmlsitemap_taxonomy_entity_query_alter($query) {
 
       $query->propertyCondition('vid', $vids, $conditions['bundle']['operator']);
       unset($conditions['bundle']);
+    }
+  }
+}
+
+/**
+ * Implements hook_features_pipe_COMPONENT_alter().
+ *
+ * Add variables to exported taxonomy vocabularies.
+ */
+function xmlsitemap_taxonomy_features_pipe_taxonomy_alter(&$pipe, $data, $export) {
+  if (!empty($data)) {
+    foreach ($data as $vocabulary_name) {
+      $pipe['variable'][] = "xmlsitemap_settings_taxonomy_term_{$vocabulary_name}";
     }
   }
 }

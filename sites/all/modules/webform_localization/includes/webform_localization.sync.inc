@@ -14,10 +14,11 @@
 /**
  * Sync webform configured properties with its translated versions.
  *
- * @param $nid
+ * @param int $nid
  *   A node Id.
  */
 function webform_localization_webform_properties_sync($nid) {
+
   // Gets webform localization options that match this node ID.
   $webform_localization_options = webform_localization_get_config($nid, TRUE);
   if (count($webform_localization_options['webform_properties']) > 0) {
@@ -25,10 +26,10 @@ function webform_localization_webform_properties_sync($nid) {
     if (count($node_list) > 1) {
       // Select all webforms that match these node IDs.
       $result = db_select('webform')
-              ->fields('webform')
-              ->condition('nid', $node_list, 'IN')
-              ->execute()
-              ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
+          ->fields('webform')
+          ->condition('nid', $node_list, 'IN')
+          ->execute()
+          ->fetchAllAssoc('nid', PDO::FETCH_ASSOC);
       if ($result) {
         $origin = $result[$nid];
         unset($result[$nid]);
@@ -47,16 +48,16 @@ function webform_localization_webform_properties_sync($nid) {
 /**
  * Sync webform roles with its translated versions.
  *
- * @param $nid
+ * @param int $nid
  *   A node Id.
  */
 function webform_localization_roles_sync($nid) {
   $node_list = _webform_localization_translation_set_node_list($nid);
   $roles = db_select('webform_roles')
-          ->fields('webform_roles', array('rid'))
-          ->condition('nid', $nid)
-          ->execute()
-          ->fetchCol();
+      ->fields('webform_roles', array('rid'))
+      ->condition('nid', $nid)
+      ->execute()
+      ->fetchCol();
   foreach ($node_list as $n) {
     if ($n != $nid) {
       db_delete('webform_roles')->condition('nid', $n)->execute();
@@ -70,7 +71,7 @@ function webform_localization_roles_sync($nid) {
 /**
  * Sync webform emails recipients with its translated versions.
  *
- * @param $nid
+ * @param int $nid
  *   A node Id.
  */
 function webform_localization_emails_sync($nid) {
@@ -111,17 +112,18 @@ function webform_localization_emails_sync($nid) {
 /**
  * Get an Array of webform emails recipients for a Node Id.
  *
- * @param $nid
+ * @param int $nid
  *   A node Id.
- * @return
+ *
+ * @return array
  *   An array of webform emails.
  */
 function _webform_localization_emails_load($nid) {
   $emails = db_select('webform_emails')
-          ->fields('webform_emails')
-          ->condition('nid', $nid)
-          ->execute()
-          ->fetchAllAssoc('eid', PDO::FETCH_ASSOC);
+      ->fields('webform_emails')
+      ->condition('nid', $nid)
+      ->execute()
+      ->fetchAllAssoc('eid', PDO::FETCH_ASSOC);
   // Unserialize the exclude component list for e-mails.
   foreach ($emails as $eid => $email) {
     $emails[$eid]['excluded_components'] = array_filter(explode(',', $email['excluded_components']));
@@ -135,9 +137,10 @@ function _webform_localization_emails_load($nid) {
 /**
  * Get a node Id list of a translation set.
  *
- * @param $nid
+ * @param int $nid
  *   A node Id.
- * @return
+ *
+ * @return array
  *   An array of node ids that share a tnid.
  */
 function _webform_localization_translation_set_node_list($nid) {

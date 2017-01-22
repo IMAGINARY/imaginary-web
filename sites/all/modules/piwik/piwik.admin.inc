@@ -40,6 +40,11 @@ function piwik_admin_settings_form($form_state) {
     '#maxlength' => 255,
     '#description' => t('The URL to your Piwik base directory with SSL certificate installed. Required if you track a SSL enabled website. Example: "https://www.example.com/piwik/".'),
   );
+  // Required for automated form save testing only.
+  $form['account']['piwik_url_skiperror'] = array(
+    '#type' => 'hidden',
+    '#default_value' => FALSE,
+  );
 
   // Visibility settings.
   $form['tracking_title'] = array(
@@ -94,8 +99,8 @@ function piwik_admin_settings_form($form_state) {
 
   if ($visibility == 2 && !$php_access) {
     $form['tracking']['page_vis_settings'] = array();
-    $form['tracking']['page_vis_settings']['visibility'] = array('#type' => 'value', '#value' => 2);
-    $form['tracking']['page_vis_settings']['pages'] = array('#type' => 'value', '#value' => $pages);
+    $form['tracking']['page_vis_settings']['piwik_visibility_pages'] = array('#type' => 'value', '#value' => 2);
+    $form['tracking']['page_vis_settings']['piwik_pages'] = array('#type' => 'value', '#value' => $pages);
   }
   else {
     $options = array(
@@ -169,6 +174,12 @@ function piwik_admin_settings_form($form_state) {
     ),
     '#default_value' => variable_get('piwik_custom', 0),
   );
+  $form['tracking']['user_vis_settings']['piwik_trackuserid'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Track User ID'),
+    '#default_value' => variable_get('piwik_trackuserid', 0),
+    '#description' => t('User ID enables the analysis of groups of sessions, across devices, using a unique, persistent, and non-personally identifiable ID string representing a user. <a href="@url">Learn more about the benefits of using User ID</a>.', array('@url' => 'http://piwik.org/docs/user-id/')),
+  );
 
   // Link specific configurations.
   $form['tracking']['linktracking'] = array(
@@ -191,7 +202,7 @@ function piwik_admin_settings_form($form_state) {
     '#type' => 'textfield',
     '#default_value' => variable_get('piwik_trackfiles_extensions', PIWIK_TRACKFILES_EXTENSIONS),
     '#description' => t('A file extension list separated by the | character that will be tracked when clicked. Regular expressions are supported. For example: !extensions', array('!extensions' => PIWIK_TRACKFILES_EXTENSIONS)),
-    '#maxlength' => 255,
+    '#maxlength' => 500,
     '#states' => array(
       'enabled' => array(
         ':input[name="piwik_track"]' => array('checked' => TRUE),
@@ -203,6 +214,18 @@ function piwik_admin_settings_form($form_state) {
     ),
   );
 
+  $colorbox_dependencies = '<div class="admin-requirements">';
+  $colorbox_dependencies .= t('Requires: !module-list', array('!module-list' => (module_exists('colorbox') ? t('@module (<span class="admin-enabled">enabled</span>)', array('@module' => 'Colorbox')) : t('@module (<span class="admin-disabled">disabled</span>)', array('@module' => 'Colorbox')))));
+  $colorbox_dependencies .= '</div>';
+
+  $form['tracking']['linktracking']['piwik_trackcolorbox'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Track content in colorbox modal dialogs'),
+    '#default_value' => variable_get('piwik_trackcolorbox', 1),
+    '#description' => t('Enable to track the content shown in colorbox modal windows.') . $colorbox_dependencies,
+    '#disabled' => (module_exists('colorbox') ? FALSE : TRUE),
+  );
+
   // Message specific configurations.
   $form['tracking']['messagetracking'] = array(
     '#type' => 'fieldset',
@@ -212,7 +235,7 @@ function piwik_admin_settings_form($form_state) {
     '#type' => 'checkboxes',
     '#title' => t('Track messages of type'),
     '#default_value' => variable_get('piwik_trackmessages', array()),
-    '#description' => t('This will track the selected message types shown to users. Tracking of form validation errors may help you identifying usability issues in your site. Every message is tracked as one individual event. Messages from excluded pages cannot tracked.'),
+    '#description' => t('This will track the selected message types shown to users. Tracking of form validation errors may help you identifying usability issues in your site. Every message is tracked as one individual event. Messages from excluded pages cannot be tracked.'),
     '#options' => array(
       'status' => t('Status message'),
       'warning' => t('Warning message'),
@@ -364,6 +387,8 @@ function piwik_admin_settings_form($form_state) {
   }
 
   // Code snippet settings.
+  $user_access_add_js_snippets = !user_access('add JS snippets for piwik');
+  $user_access_add_js_snippets_permission_warning = $user_access_add_js_snippets ? ' <em>' . t('This field has been disabled because you do not have sufficient permissions to edit it.') . '</em>' : '';
   $form['advanced']['codesnippet'] = array(
     '#type' => 'fieldset',
     '#title' => t('Custom JavaScript code'),
@@ -375,6 +400,7 @@ function piwik_admin_settings_form($form_state) {
     '#type' => 'textarea',
     '#title' => t('Code snippet (before)'),
     '#default_value' => variable_get('piwik_codesnippet_before', ''),
+    '#disabled' => $user_access_add_js_snippets,
     '#rows' => 5,
     '#description' => t('Code in this textarea will be added <strong>before</strong> _paq.push(["trackPageView"]).')
   );
@@ -382,6 +408,7 @@ function piwik_admin_settings_form($form_state) {
     '#type' => 'textarea',
     '#title' => t('Code snippet (after)'),
     '#default_value' => variable_get('piwik_codesnippet_after', ''),
+    '#disabled' => $user_access_add_js_snippets,
     '#rows' => 5,
     '#description' => t('Code in this textarea will be added <strong>after</strong> _paq.push(["trackPageView"]). This is useful if you\'d like to track a site in two accounts.')
   );
@@ -425,16 +452,26 @@ function piwik_admin_settings_form_validate($form, &$form_state) {
     form_set_error('piwik_site_id', t('A valid Piwik site ID is an integer only.'));
   }
 
-  $url = $form_state['values']['piwik_url_http'] . 'piwik.php';
+  $piwik_url = $form_state['values']['piwik_url_http'];
+  if ('/' != drupal_substr($piwik_url, -1, 1)) {
+    $piwik_url = $piwik_url . '/';
+    $form_state['values']['piwik_url_http'] = $piwik_url;
+  }
+  $url = $piwik_url . 'piwik.php';
   $result = drupal_http_request($url);
-  if ($result->code != 200) {
+  if ($result->code != 200 && $form_state['values']['piwik_url_skiperror'] == FALSE) {
     form_set_error('piwik_url_http', t('The validation of "@url" failed with error "@error" (HTTP code @code).', array('@url' => check_url($url), '@error' => $result->error, '@code' => $result->code)));
   }
 
   if (!empty($form_state['values']['piwik_url_https'])) {
-    $url = $form_state['values']['piwik_url_https'] . 'piwik.php';
+    $piwik_url = $form_state['values']['piwik_url_https'];
+    if ('/' != drupal_substr($piwik_url, -1, 1)) {
+      $piwik_url = $piwik_url . '/';
+      $form_state['values']['piwik_url_https'] = $piwik_url;
+    }
+    $url = $piwik_url . 'piwik.php';
     $result = drupal_http_request($url);
-    if ($result->code != 200) {
+    if ($result->code != 200 && $form_state['values']['piwik_url_skiperror'] == FALSE) {
       form_set_error('piwik_url_https', t('The validation of "@url" failed with error "@error" (HTTP code @code).', array('@url' => check_url($url), '@error' => $result->error, '@code' => $result->code)));
     }
   }
@@ -455,6 +492,12 @@ function piwik_admin_settings_form_validate($form, &$form_state) {
 
 /**
  * Layout for the custom variables table in the admin settings form.
+ *
+ * @param array $variables
+ *   An array contains the form elements.
+ *
+ * @return string
+ *   The rendered output.
  */
 function theme_piwik_admin_custom_var_table($variables) {
   $form = $variables['form'];
@@ -516,6 +559,13 @@ function piwik_token_element_validate(&$element, &$form_state) {
   return $element;
 }
 
+/**
+ * @param array $value
+ *   An array of token values.
+ *
+ * @return array
+ *   A unique array of invalid tokens.
+ */
 function _piwik_get_forbidden_tokens($value) {
   $invalid_tokens = array();
   $value_tokens = is_string($value) ? token_scan($value) : $value;
@@ -533,8 +583,9 @@ function _piwik_get_forbidden_tokens($value) {
 /**
  * Validate if a string contains forbidden tokens not allowed by privacy rules.
  *
- * @param $token_string
+ * @param string $token_string
  *   A string with one or more tokens to be validated.
+ *
  * @return boolean
  *   TRUE if blacklisted token has been found, otherwise FALSE.
  */

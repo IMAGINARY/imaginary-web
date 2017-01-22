@@ -53,7 +53,7 @@ class ExpireVotingapi implements ExpireInterface {
       if ($expire_entity_page) {
 
         // Load entity.
-        $entity = entity_load_single($entity_type, $entity_id);
+        $entity = _expire_load_single_entity($entity_type, $entity_id);
 
         // Check whether entity is loaded.
         if (!empty($entity)) {
@@ -71,7 +71,7 @@ class ExpireVotingapi implements ExpireInterface {
       if ($expire_entity) {
 
         // Load entity.
-        $entity = entity_load_single($entity_type, $entity_id);
+        $entity = _expire_load_single_entity($entity_type, $entity_id);
         $handler = _expire_get_expiration_handler($entity_type);
         if (is_object($handler) && !empty($entity)) {
           $handler->expire($entity, 0, $skip_action_check = TRUE);

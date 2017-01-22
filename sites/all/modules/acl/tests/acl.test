@@ -5,8 +5,16 @@
  * Tests for the ACL module.
  */
 
+/**
+ * Test case for ACL module.
+ */
 class AclWebTestCase extends DrupalWebTestCase {
 
+  /**
+   * Implements getInfo().
+   *
+   * @return array
+   */
   public static function getInfo() {
     return array(
       'name' => 'ACL access permissions',
@@ -16,7 +24,7 @@ class AclWebTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Implementation setUp().
+   * Implements setUp().
    */
   function setUp() {
     parent::setUp('acl', 'acl_node_test');

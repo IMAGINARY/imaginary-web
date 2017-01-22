@@ -9,12 +9,11 @@
  * Implements hook_install().
  */
 function webform_localization_install() {
-  /**
-   * NOTE:
-   * We add a field to record the language of the submission since when using
-   * "Localization by String Translation" you can get single webform been
-   * submitted by several nodes in different languages.
-   */
+
+  // NOTE:
+  // We add a field to record the language of the submission since when using
+  // "Localization by String Translation" you can get single webform been
+  // submitted by several nodes in different languages.
   db_add_field('webform_submissions', 'language', array(
     'description' => 'The {languages}.language source of this submission.',
     'type' => 'varchar',

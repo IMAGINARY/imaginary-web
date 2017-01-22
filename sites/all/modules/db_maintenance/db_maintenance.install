@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Installation file for DB Maintenance (http://drupal.org/project/db_maintenance).
+ * Installation file for DB Maintenance.
  */
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  */
 function db_maintenance_uninstall() {
 
@@ -14,6 +14,7 @@ function db_maintenance_uninstall() {
   variable_del('db_maintenance_cron_last');
   variable_del('db_maintenance_cron_frequency');
   variable_del('db_maintenance_log');
+  variable_del('db_maintenance_all_tables');
 
   // Delete the list of tables for each DB.
   $result = db_query("

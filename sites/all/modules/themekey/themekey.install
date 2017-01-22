@@ -109,6 +109,45 @@ function themekey_uninstall() {
   cache_clear_all('variables', 'cache');
 }
 
+/**
+ * Implements hook_requirements().
+ */
+function themekey_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  switch ($phase) {
+    case 'update':
+      if (module_exists('domain_theme') && !module_exists('domain_themekey')) {
+        $requirements['domain_themekey_warning'] = array(
+          'title' => $t('Domain ThemeKey'),
+          'description' => $t('You enabled the Domain Theme module. To ensure the its compatibility to ThemeKey its required to additionally install and enable the !module_link sub-module before you proceed.', array('!module_link' => l('Domain ThemeKey', 'https://www.drupal.org/project/domain_themekey'))),
+          'value' => $t('Not installed'),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      break;
+
+    case 'runtime':
+      // If Domain ThemeKey is disabled or uninstalled but ThemeKey
+      // holds Domain ThemeKey properties then error message needed.
+      if (!module_exists('domain_themekey')) {
+        $themekey_properties = db_select('themekey_properties', 'tp')->fields('tp')->condition('tp.enabled', 1)->condition('tp.property', db_like('domain:') . '%', 'LIKE')->execute()->fetchAll();
+
+        if (count($themekey_properties) > 0) {
+          $requirements['domain_themekey_error'] = array(
+            'title' => $t('Domain ThemeKey'),
+            'description' => $t('Your rule chain contains properties provided by the !module_link sub-module. You have to enable it to get your chain to work correctly.', array('!module_link' => l('Domain ThemeKey', 'https://www.drupal.org/project/domain_themekey'))),
+            'value' => $t('Not installed'),
+            'severity' => REQUIREMENT_WARNING,
+          );
+        }
+      }
+      break;
+  }
+
+  return $requirements;
+}
 
 /**
  * Implements hook_update_N().
@@ -569,6 +608,15 @@ function themekey_update_7104() {
  * Rebuild ThemeKey's internal property registry.
  */
 function themekey_update_7301() {
+  // moved themekey_rebuild() to themekey_update_7302()
+
+  return t('Update of ThemeKey ran successfully');
+}
+
+/**
+ * Rebuild ThemeKey's internal property registry.
+ */
+function themekey_update_7302() {
   module_load_include('inc', 'themekey', 'themekey_base');
   module_load_include('inc', 'themekey', 'themekey_build');
   themekey_rebuild();

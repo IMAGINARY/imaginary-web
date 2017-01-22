@@ -22,7 +22,7 @@ module_load_include('inc', 'imagecache_actions', 'utility-color');
 
 // There is no way to specify a file in hook_image_effect_info,
 // so placing this here for the time being.
-module_load_include('inc', 'imagecache_coloractions', 'transparency');
+include_once dirname(__FILE__) . '/transparency.inc';
 
 /**
  * Implements hook_image_effect_info().
@@ -98,6 +98,24 @@ function imagecache_coloractions_image_effect_info() {
     'summary theme' => 'coloractions_alpha_summary',
   );
 
+  $effects['imagecache_adjustlevels'] = array(
+    'label' => t('Adjust Levels'),
+    'help' => t('Adjust the color levels of the image.'),
+    'effect callback' => 'coloractions_adjustlevels_effect',
+    'dimensions passthrough' => TRUE,
+    'form callback' => 'coloractions_adjustlevels_form',
+    'summary theme' => 'coloractions_adjustlevels_summary',
+
+  );
+
+  $effects['imagecache_desaturatealpha'] = array(
+    'label' => t('Desaturate Alpha'),
+    'help' => t('Desaturate the image while retaining transparency.'),
+    'effect callback' => 'coloractions_desaturatealpha_effect',
+    'dimensions passthrough' => TRUE,
+    'summary theme' => 'coloractions_desaturatealpha_summary',
+  );
+
   return $effects;
 }
 
@@ -127,9 +145,50 @@ function imagecache_coloractions_theme() {
       'variables' => array('data' => NULL),
       'file' => 'transparency.inc',
     ),
+    'coloractions_adjustlevels_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+    'coloractions_desaturatealpha_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
   );
 }
 
+/**
+ * Implements hook_image_style_flush().
+ *
+ * This hook checks if the style contains a change format image effect and, if
+ * so, creates an .htaccess file in the root of the derivative folder that
+ * forces the correct Content-Type header on images served from that folder.
+ *
+ * @param array $style
+ */
+function imagecache_coloractions_image_style_flush($style) {
+  if (!is_array($style)) {
+    // See [#2190759].
+    return;
+  }
+  // Error in core: the old style + set of effects is passed in. This means
+  // that when a convert effect is added or deleted we won't notice. So we
+  // "change" the order of execution by duplicating these lines from
+  // image_style_flush():
+  // Clear image style and effect caches.
+  cache_clear_all('image_styles', 'cache');
+  cache_clear_all('image_effects:', 'cache', TRUE);
+  drupal_static_reset('image_styles');
+  drupal_static_reset('image_effects');
+
+  // Now load the current state of our style.
+  $new_style = image_style_load(isset($style['name']) ? $style['name'] : NULL, isset($style['isid']) ? $style['isid'] : NULL);
+
+  // If the style is flushed because it is being deleted it might be gone.
+  if (is_array($new_style)) {
+    // Now back to our actual work: determine if we have to crate an .htaccess
+    // file.
+    include_once dirname(__FILE__) . '/imagecache_coloractions.htaccess_creator.inc';
+    imagecache_coloractions_create_htaccess_for_style($new_style);
+  }
+}
 
 /**
  * Image effect form callback for the color shift effect.
@@ -442,13 +501,13 @@ function image_imagemagick_brightness(stdClass $image, array $data) {
  *
  * This effect has no parameters.
  *
- * @param array $data
+ * param array $data
  *   The current configuration for this image effect.
  *
  * @return array
  *   The form definition for this effect.
  */
-function coloractions_invert_form(array $data) {
+function coloractions_invert_form(/*array $data*/) {
   $form = array();
   return $form;
 }
@@ -470,13 +529,13 @@ function coloractions_invert_effect(stdClass $image, array $data) {
  * GD toolkit specific implementation of the image invert effect.
  *
  * @param stdClass $image
- * @param array $data
+ *  param array $data
  *   The parameters for this effect.
  *
  * @return bool
  *   true on success, false otherwise.
  */
-function image_gd_invert(stdClass $image, array $data) {
+function image_gd_invert(stdClass $image/*, array $data*/) {
   if (!function_exists('imagefilter')) {
     module_load_include('inc', 'imagecache_actions', 'imagefilter');
   }
@@ -486,14 +545,14 @@ function image_gd_invert(stdClass $image, array $data) {
 /**
  * Imagemagick toolkit specific implementation of the image invert effect.
  *
- * @param stdClass $image
- * @param array $data
+ * param stdClass $image
+ * param array $data
  *   The parameters for this effect.
  *
  * @return bool
  *   true on success, false otherwise.
  */
-function image_imagemagick_invert(stdClass $image, array $data) {
+function image_imagemagick_invert(/*stdClass $image, array $data*/) {
   // @todo
   return FALSE;
 }
@@ -587,14 +646,14 @@ function coloractions_convert_effect(stdClass $image, array $data) {
 /**
  * GD toolkit specific implementation of the convert image format effect.
  *
- * @param stdClass $image
- * @param array $data
+ * param stdClass $image
+ * param array $data
  *   The parameters for this effect.
  *
  * @return bool
  *   true on success, false otherwise.
  */
-function image_gd_convert($image, $data) {
+function image_gd_convert(/*stdClass $image, array $data*/) {
   return TRUE;
 }
 
@@ -638,7 +697,6 @@ function imagecache_coloractions_imagemagick_arguments_alter(&$args, &$context) 
 /**
  * Mini mime-type list
  *
- * @todo: can we use IMAGETYPE_xxx constants in combination with
  * image_type_to_extension and image_type_to_mime_type?
  */
 function coloractions_file_formats() {
@@ -698,7 +756,7 @@ function theme_coloractions_posterize_summary(array $variables) {
  */
 function coloractions_posterize_effect(stdClass $image, array $data) {
   if (!image_toolkit_invoke('posterize', $image, array($data['colors']))) {
-    watchdog('image_posterize', 'Image posterize failed using the %toolkit toolkit on %path (%mimetype, %dimensions)', array(
+    watchdog('imagecache_actions', 'Image posterize failed using the %toolkit toolkit on %path (%mimetype, %dimensions)', array(
       '%toolkit' => $image->toolkit,
       '%path' => $image->source,
       '%mimetype' => $image->info['mime_type'],
@@ -766,4 +824,279 @@ function image_imagemagick_posterize(stdClass $image, $colors) {
   // Turn dithering off on older versions of ImageMagick for consistency.
   $image->ops[] = ' +dither -posterize ' . (int) $colors;
   return TRUE;
+}
+
+/**
+ * Image effect form callback for the brightness effect.
+ *
+ * Settings for color level adjustment actions.
+ *
+ * @param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return array
+ *   The form definition for this effect.
+ */
+function coloractions_adjustlevels_form(array $data) {
+
+  $defaults = array(
+    'independent_colors' => FALSE,
+    'all_colors' => array(
+      'low' => 0,
+      'high' => 1,
+    ),
+    'per_color' => array(
+      'low_red' => 0,
+      'high_red' => 1,
+      'low_green' => 0,
+      'high_green' => 1,
+      'low_blue' => 0,
+      'high_blue' => 1,
+    ),
+  );
+  $data = array_merge($defaults, $data);
+
+  $form = array(
+    '#type' => 'container',
+    'help' => array(
+      '#type' => 'markup',
+      '#markup' => t("<p>Adjusting color levels scales the given channels to a range specified by the 'low' and 'high' values.
+      These 'low' and 'high' values can be any value between 0 and 1.
+      E.g. assume that 'low' is 0.2 and 'high' is 0.9.
+      Pixels that had a value of 0, will get a value of 0.2 * 255 = 51 and pixels that had a value of 255, will get a value of 0.9 * 255 = 229.</p>
+      <p>Note that color level adjustment is a mathematical filter and a such doesn't do automatic balancing.</p>"),
+    ),
+    '#element_validate' => array('coloractions_validate_form'),
+  ) ;
+
+  $form['independent_colors'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Set each color independently'),
+    '#default_value' => $data['independent_colors'],
+  );
+
+  $form['all_colors'] = array(
+    '#type' => 'container',
+    '#tree' => TRUE,
+    '#title' => t('All colors range'),
+    '#required' => !$data['independent_colors'],
+    '#states' => array(
+      'visible' => array(':input[name="data[independent_colors]"]' => array('checked' => FALSE)),
+      'required' => array(':input[name="data[independent_colors]"]' => array('checked' => FALSE)),
+    ),
+  );
+  $form['all_colors'] += coloractions_adjustlevels_form_helper(array(
+    'low' => array('title' => t('Low'), 'default' => $data['all_colors']['low']),
+    'high' => array('title' => t('High'), 'default' => $data['all_colors']['high']),
+  ));
+
+  $form['per_color'] = array(
+    '#type' => 'container',
+    '#tree' => TRUE,
+    '#title' => t('Individual Color Ranges'),
+    '#required' => $data['independent_colors'],
+    '#states' => array(
+      'visible' => array(':input[name="data[independent_colors]"]' => array('checked' => TRUE)),
+      'required' => array(':input[name="data[independent_colors]"]' => array('checked' => TRUE)),
+    ),
+  );
+  $form['per_color'] += coloractions_adjustlevels_form_helper(array(
+    'low_red' => array('title' => t('Red Low'), 'default' => $data['per_color']['low_red']),
+    'high_red' => array('title' => t('Red High'), 'default' => $data['per_color']['high_red']),
+    'low_green' => array('title' => t('Green Low'), 'default' => $data['per_color']['low_green']),
+    'high_green' => array('title' => t('Green High'), 'default' => $data['per_color']['high_green']),
+    'low_blue' => array('title' => t('Blue Low'), 'default' => $data['per_color']['low_blue']),
+    'high_blue' => array('title' => t('Blue High'), 'default' => $data['per_color']['high_blue']),
+  ));
+
+  return $form;
+}
+
+/**
+ * Helper function to create the form for the color level adjustment effect.
+ *
+ * @param array $data
+ *   Array containing the form elements
+ *   names as keys for array elements containing title and default value.
+ *
+ * @return array
+ */
+function coloractions_adjustlevels_form_helper(array $data) {
+  $form = array();
+
+  foreach ($data as $name => $value) {
+    $form[$name] = array(
+      '#type' => 'textfield',
+      '#title' => $value['title'],
+      '#default_value' => $value['default'],
+      '#size' => 5,
+      '#element_validate' => array('coloractions_validate_scale_0_1'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Form element validation handler for elements that should contain a number
+ * between 0 and 1.
+ */
+function coloractions_validate_scale_0_1($element/*, &$form_state*/) {
+  $value = $element['#value'];
+  if ($value != '' && (!is_numeric($value) || (float) $value > 1.0 || (float) $value < 0.0)) {
+    form_error($element, t('%name must be a value between 0 and 1.', array('%name' => $element['#title'])));
+  }
+}
+
+/**
+ * Form element validation handler that compares low and high values.
+ */
+function coloractions_validate_form($element/*, &$form_state*/) {
+  $independent_colors = !empty($element['independent_colors']['#value']);
+  if (!$independent_colors) {
+    // Compare low and high.
+    coloractions_validate_low_and_high($element, 'all_colors', '');
+  }
+  else {
+    // Compare low and high per color
+    coloractions_validate_low_and_high($element, 'per_color', '_red');
+    coloractions_validate_low_and_high($element, 'per_color', '_green');
+    coloractions_validate_low_and_high($element, 'per_color', '_blue');
+  }
+}
+
+function coloractions_validate_low_and_high($element, $fieldset, $suffix) {
+  if ((float) $element[$fieldset]["low$suffix"]['#value'] > (float) $element[$fieldset]["high$suffix"]['#value']) {
+    form_error($element[$fieldset]["high$suffix"], t('%name-high must be higher then %name-low.',
+      array('%name-high' => $element[$fieldset]["high$suffix"]['#title'], '%name-low' => $element[$fieldset]["low$suffix"]['#title'])));
+  }
+
+}
+
+/**
+ * Implements theme_hook() for the adjust color levels effect summary.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_coloractions_adjustlevels_summary(array $variables) {
+  $data = $variables['data'];
+  if (empty($data['independent_colors'])) {
+    return t('@range',
+      array('@range' => "[{$data['all_colors']['low']} - {$data['all_colors']['high']}]"));
+  }
+  else {
+    return t('red: @red-range, green: @green-range, blue: @blue-range',
+      array('@red-range' => "[{$data['per_color']['low_red']} - {$data['per_color']['high_red']}]",
+      '@green-range' => "[{$data['per_color']['low_green']} - {$data['per_color']['high_green']}]",
+      '@blue-range' => "[{$data['per_color']['low_blue']} - {$data['per_color']['high_blue']}]"));
+  }
+}
+
+/**
+ * Image effect callback for the adjust levels effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function coloractions_adjustlevels_effect(stdClass $image, array $data) {
+  return image_toolkit_invoke('adjustlevels', $image, array($data));
+}
+
+/**
+ * GD toolkit specific implementation of the adjust levels effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *   The parameters for this effect.
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function image_gd_adjustlevels(stdClass $image, array $data) {
+
+  $width = $image->info['width'];
+  $height = $image->info['height'];
+
+  if ($data['independent_colors']) {
+    $lower_r = $data['per_color']['low_red'] * 255;
+    $factor_r = ($data['per_color']['high_red'] * 255 - $lower_r) / 255;
+    $lower_g = $data['per_color']['low_green'] * 255;
+    $factor_g = ($data['per_color']['high_green'] * 255 - $lower_g) / 255;
+    $lower_b = $data['per_color']['low_blue'] * 255;
+    $factor_b = ($data['per_color']['high_blue'] * 255 - $lower_b) / 255;
+  }
+  else {
+    $lower_r = $lower_g = $lower_b = $data['all_colors']['low'] * 255;
+    $factor_r = $factor_g = $factor_b = ($data['all_colors']['high'] * 255 - $lower_r) / 255;
+  }
+
+  for ($y = 0; $y < $height; $y++) {
+    for ($x = 0; $x < $width; $x++) {
+      $rgb    = imagecolorat($image->resource, $x, $y);
+      $source = imagecolorsforindex($image->resource, $rgb);
+
+      $final_r = $lower_r + $factor_r * $source['red'];
+      $final_g = $lower_g + $factor_g * $source['green'];
+      $final_b = $lower_b + $factor_b * $source['blue'];
+
+      $final_colour = imagecolorallocatealpha($image->resource, $final_r, $final_g, $final_b, $source['alpha']);
+      imagesetpixel($image->resource, $x, $y, $final_colour);
+    }
+  }
+
+  return TRUE;
+}
+
+/**
+ * Implements theme_hook() for the desaturate alpha effect summary.
+ *
+ * param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_coloractions_desaturatealpha_summary(/*array $variables*/) {
+  return t(': Desaturates the image while retaining transparency.');
+}
+
+/**
+ * Image effect callback for the desaturate alpha effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function coloractions_desaturatealpha_effect(stdClass $image, array $data) {
+  return image_toolkit_invoke('desaturatealpha', $image, array($data));
+}
+
+/**
+ * GD toolkit specific implementation of the adjust levels effect.
+ *
+ * @param stdClass $image
+ *  param array $data
+ *   The parameters for this effect.
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function image_gd_desaturatealpha(stdClass $image/*, array $data*/) {
+  imagealphablending($image->resource, FALSE);
+  $result = imagefilter($image->resource, IMG_FILTER_GRAYSCALE);
+  imagealphablending($image->resource, TRUE);
+  return $result;
 }

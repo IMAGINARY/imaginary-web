@@ -188,7 +188,7 @@ function boost_menu() {
 function boost_permission() {
   return array(
     'boost flush pages' => array(
-      'title' => t('Flush pages from Boost cache'), 
+      'title' => t('Flush pages from Boost cache'),
       'description' => t('Allow users to flush individual pages from the Boost cache using the Boost status block.'),
     ),
   );
@@ -199,7 +199,7 @@ function boost_permission() {
  */
 function boost_block_info() {
   $blocks['status'] = array(
-    'info' => t('Boost: Pages cache status'), 
+    'info' => t('Boost: Pages cache status'),
     'cache' => DRUPAL_NO_CACHE,
   );
 
@@ -261,6 +261,17 @@ function boost_init() {
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function boost_form_alter(&$form, &$form_state, $form_id) {
+  global $_boost;
+
+  if (! empty($_boost['cache_this'])) {
+    $form['#immutable'] = TRUE;
+  }
+}
+
+/**
  * Implements hook_drupal_goto_alter().
  */
 function boost_drupal_goto_alter(&$path, &$options, &$http_response_code) {
@@ -274,6 +285,12 @@ function boost_drupal_goto_alter(&$path, &$options, &$http_response_code) {
  */
 function boost_exit($destination = NULL) {
   global $_boost;
+
+  // Bypass caching on redirects (issues #1176534 and #1957532).
+  if(!empty($destination)) {
+    $_boost['is_cacheable'] = FALSE;
+  }
+
   // Bail out of caching.
   if (!isset($_boost['cache_this'])) {
     if (!isset($_boost['is_cacheable'])) {
@@ -322,11 +339,19 @@ function boost_exit($destination = NULL) {
     // Attach extension to filename.
     $_boost['filename'] .= '.' . $_boost['matched_header_info']['extension'];
     // Write to file.
+    $_boost['filename'] = str_ireplace('%2F', '/', $_boost['filename']);
+
+    // If the filename includes URL encoded characters create an extra copy of
+    // the file with the characters decoded.
+    if (rawurldecode($_boost['filename']) != $_boost['filename']) {
+      boost_write_file(rawurldecode($_boost['filename']), $data);
+    }
+
     boost_write_file($_boost['filename'], $data);
 
     // Gzip support.
     if (BOOST_GZIP && $_boost['matched_header_info']['gzip']) {
-      // #1416214
+      // #1416214 https://drupal.org/node/1416214#comment-7225650
       // boost_write_file($_boost['filename'] . '.gz', gzencode($data, 9));
     }
   }
@@ -374,30 +399,46 @@ function boost_flush_caches() {
 /**
  * Implements hook_expire_cache (from the 'expire' module)
  */
-function boost_expire_cache($urls) {
+function boost_expire_cache($urls, $wildcards, $object_type, $object) {
   global $base_root;
 
-  foreach ($urls as $url) {
+  foreach ($urls as $key => $url) {
     // Check if the URL to be flushed matches our base URL
-    if (strpos($base_root, $url) == 0) {
-      $boost = boost_transform_url($url);
+    // base_root: http://www.example.org
+    // url: http://www.example.org/node/123
+    if (strpos($url, $base_root) === 0) {
+      // Decode the url since it may have a query string that has been encoded
+      $boost = boost_transform_url(urldecode($url));
 
       // We need the extention for the filename
       $boost['header_info'] = boost_get_header_info();
       $boost['matched_header_info'] = boost_match_header_attributes($boost['header_info']);
 
-      $filename = (isset($boost['filename']) ? $boost['filename'] . '.' . $boost['matched_header_info']['extension'] : NULL);
+      // Issue #2135835 Cache may not be enabled for this type (html/xml/ajax)
+      if (! $boost['matched_header_info']['enabled']) {
+        continue;
+      }
 
-      if ($filename && file_exists($filename)) {
-        if (unlink($filename)) {
-          boost_log('Removed !file from the boost cache.', array('!file' => $filename), WATCHDOG_DEBUG);
-        }
-        else {
-          boost_log('Could not delete !file from the boost cache. Check file permissions.', array('!file' => $filename), WATCHDOG_WARNING);
-        }
+      // If wildcards are enabled, we'll need to create a wildcard pattern for globbing
+      if ($wildcards[$key]) {
+        $pattern = (isset($boost['filename']) ? $boost['filename'] . '*.' . $boost['matched_header_info']['extension'] : NULL);
       }
       else {
-        boost_log('Could not delete the cache for !url, file !file does not exist.', array('!url' => $url, '!file' => $filename), WATCHDOG_DEBUG);
+        $pattern = (isset($boost['filename']) ? $boost['filename'] . '.' . $boost['matched_header_info']['extension'] : NULL);
+      }
+
+      // Remove the files
+      $files = glob($pattern, GLOB_NOSORT);
+
+      if ($files) {
+        foreach ($files as $filename) {
+          if (unlink($filename)) {
+            boost_log('Removed !file from the boost cache.', array('!file' => $filename), WATCHDOG_DEBUG);
+          }
+          else {
+            boost_log('Could not delete the cache for !url, file !file does not exist.', array('!url' => $url, '!file' => $filename), WATCHDOG_DEBUG);
+          }
+        }
       }
     }
   }
@@ -1163,10 +1204,11 @@ function boost_boost_storage_types() {
       'application/rss+xml',
     ),
   );
+  // #1219484
   $types['text/javascript'] = array(
-    'title'           => t('AJAX/JSON'),
-    'description'     => t('JSON output, usually a response to a AJAX request'),
-    'extension'       => 'json',
+    'title'           => t('text/javascript'),
+    'description'     => t('Javascript output, usually a response to a AJAX request'),
+    'extension'       => 'js',
     'enabled'         => FALSE,
     'gzip'            => TRUE,
     'lifetime_max'    => 3600,
@@ -1175,6 +1217,31 @@ function boost_boost_storage_types() {
     'comment_end'    => ' */',
     'variants'        => array(),
   );
+  $types['application/javascript'] = array(
+    'title'           => t('AJAX/JavaScript'),
+    'description'     => t('Javascript output, usually a response to a AJAX request'),
+    'extension'       => 'json',
+    'enabled'         => FALSE,
+    'gzip'            => TRUE,
+    'lifetime_max'    => 3600,
+    'lifetime_min'    => 0,
+    'comment_start'  => '',
+    'comment_end'    => '',
+    'variants'        => array(),
+  );
+  $types['application/json'] = array(
+    'title'           => t('AJAX/JSON'),
+    'description'     => t('JSON output, usually a response to a AJAX request'),
+    'extension'       => 'json',
+    'enabled'         => FALSE,
+    'gzip'            => TRUE,
+    'lifetime_max'    => 3600,
+    'lifetime_min'    => 0,
+    'comment_start'  => '',
+    'comment_end'    => '',
+    'variants'        => array(),
+  );
+
   return $types;
 }
 

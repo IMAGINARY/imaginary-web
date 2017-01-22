@@ -13,7 +13,7 @@ Installation
 modules directory for your site and enable it on the `admin/build/modules` page.
 2. Go to admin/config/user-interface/rename-admin-paths and configure how to 
 override admin paths.
-
+3. Clear your cache
 
 Drupal 6
 --------

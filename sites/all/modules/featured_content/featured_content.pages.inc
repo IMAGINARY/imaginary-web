@@ -6,6 +6,7 @@
  */
 
 /**
+ * Implements hook_help_text.
  */
 function featured_content_help_text($path, $arg) {
   $output = '';

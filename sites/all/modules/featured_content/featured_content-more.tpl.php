@@ -14,7 +14,6 @@
  * -- $block_settings['footer']
  * -- $block_settings['links']
  * -- $block_settings['full_nodes']
- * -- $block_settings['teasers']
  * -- $block_settings['rss-link']
  * -- $block_settings['style']
  *
@@ -24,14 +23,14 @@
 ?>
 <?php if ($block_settings['links']): ?>
   <div class="featured-content-more <?php print $more_classes; ?>">
-    <?php if ($block_settings['header']): ?>
+    <?php if (isset($block_settings['header']) && ! empty($block_settings['header'])): ?>
       <div class="featured-content-block-header">
       <?php print $block_settings['header']; ?>
       </div>
     <?php endif; ?>
-    <?php if (! empty($block_settings['full_nodes']) || ! empty($block_settings['teasers'])): ?>
+    <?php if (! empty($block_settings['full_nodes'])): ?>
       <div class="featured-content-more-content">
-        <?php $node_views = ! empty($block_settings['full_nodes']) ? $block_settings['full_nodes'] : $block_settings['teasers']; ?>
+        <?php $node_views = $block_settings['full_nodes']; ?>
         <?php foreach ($node_views as $node_view): ?>
           <?php print $node_view; ?><br/>
         <?php endforeach; ?>
@@ -51,12 +50,12 @@
         </<?php print $block_settings['style']; ?>>
       <?php endif; ?>
     <?php endif; ?>
-    <?php if ($block_settings['footer']): ?>
+    <?php if (isset($block_settings['footer']) && ! empty($block_settings['footer'])): ?>
       <div class="featured-content-block-footer">
       <?php print $block_settings['footer']; ?>
       </div>
     <?php endif; ?>
-    <?php if ($block_settings['rss-link']): ?>
+    <?php if (isset($block_settings['rss-link']) && ! empty($block_settings['rss-link'])): ?>
       <div class="featured-content-more-rss-link">
       <?php print $block_settings['rss-link']; ?>
       </div>

@@ -25,6 +25,8 @@ function icon_menu_defaults() {
   return array(
     'bundle' => '',
     'icon' => '',
+    'wrapper' => '',
+    'wrapper_class' => '',
     'breadcrumb' => FALSE,
     'position' => 'title_before',
     'title_wrapper' => 0,
@@ -53,7 +55,7 @@ function icon_menu_menu_breadcrumb_alter(&$active_trail, &$item) {
 function icon_menu_preprocess_link(&$variables) {
   if (!empty($variables['options']) && !empty($variables['options']['icon']) && !empty($variables['options']['icon']['bundle']) && !empty($variables['options']['icon']['icon']) && (empty($variables['options']['icon']['processed']) || !($variables['options']['icon']['processed']))) {
     $settings = $variables['options']['icon'];
-    if ($icon = theme('icon', array('bundle' => $settings['bundle'], 'icon' => $settings['icon']))) {
+    if ($icon = theme('icon', $settings)) {
       // Force link to render HTML.
       $variables['options']['html'] = TRUE;
       if ($settings['title_wrapper']) {
@@ -66,6 +68,14 @@ function icon_menu_preprocess_link(&$variables) {
 
         case 'title_after':
           $variables['text'] .= $icon;
+          break;
+
+        case 'title_invisible':
+          $variables['text'] = $icon . '<span class="element-invisible element-focusable">' . $variables['text'] . '</span>';
+          break;
+
+        case 'title_replace':
+          $variables['text'] = $icon;
           break;
       }
       $variables['options']['icon']['processed'] = TRUE;
@@ -131,6 +141,8 @@ function _icon_menu_form_alter(array &$form, array $item = array(), array &$comp
     '#type' => 'icon_selector',
     '#default_bundle' => $defaults['bundle'],
     '#default_icon' => $defaults['icon'],
+    '#default_wrapper' => $defaults['wrapper'],
+    '#default_wrapper_class' => $defaults['wrapper_class'],
   );
   // Additional configuration on where to place the icon in the block.
   $icon_state = array('invisible' => array(':input[name="' . $parents . '[icon]"]' => array('value' => '')));
@@ -142,6 +154,8 @@ function _icon_menu_form_alter(array &$form, array $item = array(), array &$comp
     '#options' => array(
       'title_before' => t('Before title'),
       'title_after' => t('After title'),
+      'title_invisible' => t('Invisible title'),
+      'title_replace' => t('Replace title'),
     ),
     '#default_value' => $defaults['position'],
     '#states' => $icon_state,

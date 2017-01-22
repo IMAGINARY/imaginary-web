@@ -13,7 +13,6 @@
  * -- $block_settings['footer']
  * -- $block_settings['links']
  * -- $block_settings['full_nodes']
- * -- $block_settings['teasers']
  * -- $block_settings['more-link']
  * -- $block_settings['rss-link']
  * -- $block_settings['style']
@@ -28,9 +27,9 @@
     <?php print $block_settings['header']; ?>
     </div>
   <?php endif; ?>
-  <?php if (! empty($block_settings['full_nodes']) || ! empty($block_settings['teasers'])): ?>
+  <?php if (! empty($block_settings['full_nodes'])): ?>
     <div class="featured-content-block-content">
-      <?php $node_views = ! empty($block_settings['full_nodes']) ? $block_settings['full_nodes'] : $block_settings['teasers']; ?>
+      <?php $node_views = $block_settings['full_nodes']; ?>
       <?php foreach ($node_views as $node_view): ?>
       <?php print $node_view; ?><br/>
       <?php endforeach; ?>

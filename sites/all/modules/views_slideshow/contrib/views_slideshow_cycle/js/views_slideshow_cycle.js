@@ -151,7 +151,6 @@
               case "fastOnEvent":
               case "fit":
               case "fx":
-              case "height":
               case "manualTrump":
               case "metaAttr":
               case "next":
@@ -175,10 +174,25 @@
               case "startingSlide":
               case "sync":
               case "timeout":
-              case "width":
                 var optionValue = advancedOptions[option];
                 optionValue = Drupal.viewsSlideshowCycle.advancedOptionCleanup(optionValue);
                 settings.opts[option] = optionValue;
+                break;
+
+              // If width is set we need to disable resizing.
+              case "width":
+                var optionValue = advancedOptions["width"];
+                optionValue = Drupal.viewsSlideshowCycle.advancedOptionCleanup(optionValue);
+                settings.opts["width"] = optionValue;
+                settings.opts["containerResize"] = 0;
+                break;
+
+              // If height is set we need to set fixed_height to true.
+              case "height":
+                var optionValue = advancedOptions["height"];
+                optionValue = Drupal.viewsSlideshowCycle.advancedOptionCleanup(optionValue);
+                settings.opts["height"] = optionValue;
+                settings.fixed_height = 1;
                 break;
 
               // These process options that look like {top:50, bottom:20}
@@ -289,7 +303,10 @@
                 var timeoutFnValue = advancedOptions[option];
                 timeoutFnValue = Drupal.viewsSlideshowCycle.advancedOptionCleanup(timeoutFnValue);
                 settings.opts[option] = function(currSlideElement, nextSlideElement, options, forwardFlag) {
+                  // Set a sane return value unless function overrides it.
+                  var returnVal = settings.timeout;
                   eval(timeoutFnValue);
+                  return returnVal;
                 }
                 break;
 
@@ -348,7 +365,10 @@
   Drupal.viewsSlideshowCycle.advancedOptionCleanup = function(value) {
     value = $.trim(value);
     value = value.replace(/\n/g, '');
-    if (!isNaN(parseInt(value))) {
+    if (value.match(/^[\d.]+%$/)) {
+      // noop
+    }
+    else if (!isNaN(parseInt(value))) {
       value = parseInt(value);
     }
     else if (value.toLowerCase() == 'true') {
@@ -563,7 +583,7 @@
       // is larger than the allowed percent.
       // Otherwise check to see if the amount of px shown is larger than the
       // allotted amount.
-      if (amountVisible.indexOf('%')) {
+      if (typeof amountVisible === 'string' && amountVisible.indexOf('%')) {
         return (((verticalShowing/elemHeight)*100) >= parseInt(amountVisible));
       }
       else {
@@ -577,7 +597,7 @@
       // is larger than the allowed percent.
       // Otherwise check to see if the amount of px shown is larger than the
       // allotted amount.
-      if (amountVisible.indexOf('%')) {
+      if (typeof amountVisible === 'string' && amountVisible.indexOf('%')) {
         return (((horizontalShowing/elemWidth)*100) >= parseInt(amountVisible));
       }
       else {
@@ -591,7 +611,7 @@
       // is larger than the allowed percent.
       // Otherwise check to see if the amount of px shown is larger than the
       // allotted amount.
-      if (amountVisible.indexOf('%')) {
+      if (typeof amountVisible === 'string' && amountVisible.indexOf('%')) {
         return (((areaShowing/elemArea)*100) >= parseInt(amountVisible));
       }
       else {

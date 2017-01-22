@@ -3,13 +3,11 @@ description = Display PDF file in Drupal without external readers and plugins.
 
 core = 7.x
 dependencies[] = file
-dependencies[] = libraries
+dependencies[] = libraries (>=2.x)
 
-files[] = includes/pdf.field.inc
-
-; Information added by Drupal.org packaging script on 2014-06-27
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2016-04-26
+version = "7.x-1.8"
 core = "7.x"
 project = "pdf"
-datestamp = "1403884428"
+datestamp = "1461686438"
 
