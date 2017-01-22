@@ -126,7 +126,7 @@ function smart_trim_field_formatter_view($entity_type, $entity, $field, $instanc
         $uri = entity_uri($entity_type, $entity);
         // But wait! Don't add a more link if the field ends in <!--break-->
         if ($uri && $settings['more_link'] && strpos(strrev($output), strrev('<!--break-->')) !== 0) {
-          $extension .= l(t('@more_text', array('@more_text' => $settings['more_text'])), $uri['path'], array('html' => TRUE, 'attributes' => array('class' => array('more-link'))));
+          $extension .= l(t($settings['more_text']), $uri['path'], array('html' => TRUE, 'attributes' => array('class' => array('more-link'))));
         }
 
         $output_appended = preg_replace('#^(.*)(\s?)(</[^>]+>)$#Us', '$1' . $extension . '$3', $output);
