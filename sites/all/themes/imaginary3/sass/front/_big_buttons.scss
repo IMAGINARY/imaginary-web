@@ -63,7 +63,8 @@
 
   .galleries,
   .entdeckerbox,
-  .mathlapse {
+  .mathlapse,
+  .mpe {
     margin: 0 12px;
   }
 
@@ -131,7 +132,7 @@
       @include clearfix;
     }
 
-    .galleries, .entdeckerbox, .mathlapse {
+    .galleries, .entdeckerbox, .mathlapse, .mpe {
       margin-left: 0;
       margin-right: 0;
     }

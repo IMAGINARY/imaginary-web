@@ -91,17 +91,17 @@ $size = ' width="400" height="220" ';
       </div>
     </a>
 
-    <a href="<?php print url('films/mathlapse') ?>">
-      <div class="big-button mathlapse">
+    <a href="<?php print url('node/344') ?>">
+      <div class="big-button big-button-darkbg mpe">
         <div class="inner">
           <div class="text">
-            <h2><?php print t('MathLapse'); ?></h2>
+            <h2><?php print t('MPE'); ?></h2>
 
-            <p><?php print t('watch math movies'); ?></p>
+            <p><?php print t('submit your module'); ?></p>
           </div>
           <div class="background-image">
-            <img src="<?php echo $themePath; ?>films-2.jpg"
-                 alt="image1"<?php echo $size; ?>></div>
+            <img src="<?php echo $themePath; ?>mpe.jpg"
+                 alt="Mathematics of Planet Earth"<?php echo $size; ?>></div>
         </div>
       </div>
     </a>
