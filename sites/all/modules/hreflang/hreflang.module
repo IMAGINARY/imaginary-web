@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Adds hreflang link elements to the header of each page.
+ */
+
+/**
  * Implements hook_page_build().
  */
 function hreflang_page_build(&$page) {
@@ -31,7 +36,7 @@ function hreflang_page_build(&$page) {
     $attributes = array(
       'href' => url($link['href'], $link),
       'rel' => 'alternate',
-      'hreflang' => $langcode,
+      'hreflang' => $link['attributes']['hreflang'],
     );
     drupal_add_html_head_link($attributes);
   }

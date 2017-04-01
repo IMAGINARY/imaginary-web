@@ -8,7 +8,7 @@
 /**
  * Views Slideshow: Theme the main frame wrapper.
  *
- * @ingroup themeable
+ * @ingroup vss_theme
  */
 function template_preprocess_views_slideshow_cycle_main_frame(&$vars) {
   $settings = $vars['settings'];
@@ -80,6 +80,22 @@ function template_preprocess_views_slideshow_cycle_main_frame(&$vars) {
       drupal_add_js($json_path . '/json2.js');
     }
 
+    // Add hover intent library.
+    if ($settings['pause']) {
+      $hoverIntent_path = libraries_get_path('jquery.hoverIntent');
+      if (!empty($hoverIntent_path) && file_exists($hoverIntent_path . '/jquery.hoverIntent.js')) {
+        drupal_add_js($hoverIntent_path . '/jquery.hoverIntent.js');
+      }
+    }
+
+    // Add jquery easing library.
+    if (strstr($settings['advanced_options'], '"eas')) {
+      $easing_path = libraries_get_path('jquery.easing');
+      if (!empty($easing_path) && file_exists($easing_path . '/jquery.easing.1.3.js')) {
+        drupal_add_js($easing_path . '/jquery.easing.1.3.js');
+      }
+    }
+
     // Load our cycle js.
     $module_path = drupal_get_path('module', 'views_slideshow_cycle');
     drupal_add_js($module_path . '/js/views_slideshow_cycle.js');
@@ -94,17 +110,6 @@ function template_preprocess_views_slideshow_cycle_main_frame(&$vars) {
   drupal_add_css($module_path . '/views_slideshow_cycle.css', 'file');
 
   drupal_add_js(array('viewsSlideshowCycle' => array('#views_slideshow_cycle_main_' . $vss_id => $settings)), 'setting');
-
-  // Add hover intent library.
-  if ($settings['pause']) {
-    if (module_exists('libraries')) {
-      // Load jQuery hoverIntent.
-      $hoverIntent_path = libraries_get_path('jquery.hoverIntent');
-      if (!empty($hoverIntent_path) && file_exists($hoverIntent_path . '/jquery.hoverIntent.js')) {
-        drupal_add_js($hoverIntent_path . '/jquery.hoverIntent.js');
-      }
-    }
-  }
 
   // Add the slideshow elements.
   $vars['classes_array'][] = 'views_slideshow_cycle_teaser_section';
@@ -132,9 +137,19 @@ function template_preprocess_views_slideshow_cycle_main_frame(&$vars) {
 
   $vars['items_per_slide'] = $items_per_slide;
 
+  $widgets = $vars['options']['widgets'];
+  if (isset($options['top']['views_slideshow_pager']['enabled']) && $options['top']['views_slideshow_pager']['enabled']) {
+    $aria = "aria-labelledby='views_slideshow_pager_field_item_top_${vss_id}_";
+  }
+  else {
+    $aria = "aria-labelledby='views_slideshow_pager_field_item_bottom_${vss_id}_";
+  }
+
+
   $items = array();
   $slideshow_count = 0;
   $rendered_rows = '';
+  $last_slide = ceil(count($rows) / $items_per_slide);
   foreach ($rows as $count => $item) {
     $items[] = $item;
     if (count($items) == $items_per_slide || $count == (count($rows) - 1)) {
@@ -143,6 +158,8 @@ function template_preprocess_views_slideshow_cycle_main_frame(&$vars) {
         'items' => $items,
         'count' => $slideshow_count,
         'view' => $vars['view'],
+        'aria' => $aria . $slideshow_count . "'",
+        'last_slide' => $last_slide,
       ));
       $items = array();
       $slideshow_count++;
@@ -155,7 +172,7 @@ function template_preprocess_views_slideshow_cycle_main_frame(&$vars) {
 /**
  * Views Slideshow slideshow rows.
  *
- * @ingroup themeable
+ * @ingroup vss_theme
  */
 function template_preprocess_views_slideshow_cycle_main_frame_row(&$vars) {
   $current = $vars['count'] + 1;
@@ -164,6 +181,12 @@ function template_preprocess_views_slideshow_cycle_main_frame_row(&$vars) {
 
   if ($vars['count']) {
     $vars['classes_array'][] = 'views_slideshow_cycle_hidden';
+    if ($current == $vars['last_slide']) {
+      $vars['classes_array'][] = 'views-row-last';
+    }
+  }
+  else {
+    $vars['classes_array'][] = 'views-row-first';
   }
   $vars['classes_array'][] = ($vars['count'] % 2) ? 'views-row-even' : 'views-row-odd';
 
@@ -174,17 +197,19 @@ function template_preprocess_views_slideshow_cycle_main_frame_row(&$vars) {
       'item_count' => $item_count,
       'count' => $vars['count'],
       'view' => $vars['view'],
-      'length' => count($vars['view']->result),
+      'length' => count($vars['items']),
     ));
   }
 }
 
 /**
  * Implements hook_preprocess_views_slideshow_cycle_main_frame_row_item().
+ *
+ * @ingroup vss_theme
  */
 function template_preprocess_views_slideshow_cycle_main_frame_row_item(&$vars) {
-  $vars['classes_array'][] = 'views-row views-row-' . $vars['count'];
-  $vars['classes_array'][] = ($vars['count'] % 2) ? 'views-row-even' : 'views-row-odd';
+  $vars['classes_array'][] = 'views-row views-row-' . $vars['item_count'];
+  $vars['classes_array'][] = ($vars['item_count'] % 2) ? 'views-row-even' : 'views-row-odd';
   if ($vars['count'] == 0) {
     $vars['classes_array'][] = 'views-row-first';
   }
@@ -200,6 +225,8 @@ function template_preprocess_views_slideshow_cycle_main_frame_row_item(&$vars) {
 
 /**
  * Implements hook_preprocess_views_slideshow_pager_fields().
+ *
+ * @ingroup vss_theme
  */
 function views_slideshow_cycle_preprocess_views_slideshow_pager_fields(&$vars) {
   $slide_count = count($vars['view']->result);
@@ -238,10 +265,51 @@ function views_slideshow_cycle_preprocess_views_slideshow_pager_fields(&$vars) {
 
 /**
  * Implements hook_preprocess_views_slideshow_slide_counter().
+ *
+ * @ingroup vss_theme
  */
 function views_slideshow_cycle_preprocess_views_slideshow_slide_counter(&$vars) {
   if ($vars['view']->style_options['slideshow_type'] == 'views_slideshow_cycle') {
     $vars['slide_count'] = $vars['slide_count'] / $vars['view']->style_options['views_slideshow_cycle']['items_per_slide'];
     $vars['slide_count'] = ceil($vars['slide_count']);
   }
+}
+
+/**
+ * Backwards compatability wrapper.
+ *
+ * @deprecated Removed in 3.5 when the hook_theme() implementation was fixed.
+ *
+ * @see template_preprocess_views_slideshow_cycle_main_frame().
+ *
+ * @ingroup vss_theme
+ */
+function _views_slideshow_cycle_preprocess_views_slideshow_cycle_main_frame(&$vars) {
+  template_preprocess_views_slideshow_cycle_main_frame($vars);
+}
+
+/**
+ * Backwards compatability wrapper.
+ *
+ * @deprecated Removed in 3.5 when the hook_theme() implementation was fixed.
+ *
+ * @see template_preprocess_views_slideshow_cycle_main_frame_row().
+ *
+ * @ingroup vss_theme
+ */
+function _views_slideshow_cycle_preprocess_views_slideshow_cycle_main_frame_row(&$vars) {
+  template_preprocess_views_slideshow_cycle_main_frame_row($vars);
+}
+
+/**
+ * Backwards compatability wrapper.
+ *
+ * @deprecated Removed in 3.5 when the hook_theme() implementation was fixed.
+ *
+ * @see template_preprocess_views_slideshow_cycle_main_frame_row_item().
+ *
+ * @ingroup vss_theme
+ */
+function _views_slideshow_cycle_preprocess_views_slideshow_cycle_main_frame_row_item(&$vars) {
+  template_preprocess_views_slideshow_cycle_main_frame_row_item($vars);
 }

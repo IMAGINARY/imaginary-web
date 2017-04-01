@@ -1,9 +1,18 @@
 <?php
 
 /**
+ * @file
+ * Functional tests for Alternate hreflang.
+ */
+
+/**
  * Functional tests for Alternate hreflang.
  */
 class HreflangTest extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Alternate hreflang',
@@ -12,7 +21,10 @@ class HreflangTest extends DrupalWebTestCase {
     );
   }
 
-  function setUp() {
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
     parent::setUp('hreflang', 'locale');
 
     // User to add language.
@@ -30,7 +42,7 @@ class HreflangTest extends DrupalWebTestCase {
   /**
    * Test that hreflang link tags are added with URL detection.
    */
-  function testHreflangMarkup() {
+  public function testHreflangMarkup() {
     global $base_url;
 
     // Enable language detection.
@@ -52,7 +64,7 @@ class HreflangTest extends DrupalWebTestCase {
   /**
    * Test that hreflang link tags are added with session detection.
    */
-  function testHreflangMarkupSession() {
+  public function testHreflangMarkupSession() {
     global $base_url;
 
     // Enable language detection.
@@ -75,12 +87,17 @@ class HreflangTest extends DrupalWebTestCase {
     $this->assertRaw('<link href="' . $url . $french . '" rel="alternate" hreflang="fr" />', 'French hreflang found on French page.');
     $this->assertRaw('<link href="' . $url . $english . '" rel="alternate" hreflang="en" />', 'English hreflang found on French page.');
   }
+
 }
 
 /**
  * Functional tests for Alternate hreflang with Content translation.
  */
 class HreflangContentTranslationTest extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Alternate hreflang with Content translation',
@@ -89,14 +106,17 @@ class HreflangContentTranslationTest extends DrupalWebTestCase {
     );
   }
 
-  function setUp() {
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
     parent::setUp('hreflang', 'locale', 'translation');
   }
 
   /**
    * Test that Content translation doesn't trigger an exception.
    */
-  function testHreflangContentTranslation() {
+  public function testHreflangContentTranslation() {
     global $base_url;
 
     // User to add language.
@@ -130,4 +150,5 @@ class HreflangContentTranslationTest extends DrupalWebTestCase {
     $edit['language'] = 'fr';
     $this->drupalPost('node/add/page', $edit, t('Save'));
   }
+
 }
