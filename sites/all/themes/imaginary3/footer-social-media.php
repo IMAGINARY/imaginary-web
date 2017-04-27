@@ -4,7 +4,7 @@
 	</div>
 
 	<div class="social twitter">
-		<a href="https://twitter.com/imaginaryex"><i class="fa fa-twitter"></i></a>
+		<a href="https://twitter.com/imaginary_math"><i class="fa fa-twitter"></i></a>
 	</div>
 
 </div>
