@@ -105,3 +105,29 @@ html.js fieldset.collapsed {
     }
   }
 }
+
+div.field-group-tabs-wrapper div.field-type-datetime fieldset,
+.date-combo {
+  padding: 10px;
+
+  .fieldset-description {
+    margin: 0;
+  }
+
+  .date-float, .date-no-float {
+    margin: 0;
+    float: none;
+  }
+
+  .form-item {
+    margin: 0;
+  }
+}
+
+fieldset:not(.collapsible) > legend > .fieldset-legend {
+  display: block;
+  margin: 10px 0px;
+  padding: 10px 0;
+  font-family: $font-stack-futura;
+  font-size: 18px;
+}

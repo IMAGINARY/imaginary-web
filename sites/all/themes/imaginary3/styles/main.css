@@ -6790,6 +6790,28 @@ html.js fieldset.collapsed {
     overflow: hidden;
     display: block; } }
 
+div.field-group-tabs-wrapper div.field-type-datetime fieldset,
+.date-combo {
+  padding: 10px; }
+  div.field-group-tabs-wrapper div.field-type-datetime fieldset .fieldset-description,
+  .date-combo .fieldset-description {
+    margin: 0; }
+  div.field-group-tabs-wrapper div.field-type-datetime fieldset .date-float, div.field-group-tabs-wrapper div.field-type-datetime fieldset .date-no-float,
+  .date-combo .date-float,
+  .date-combo .date-no-float {
+    margin: 0;
+    float: none; }
+  div.field-group-tabs-wrapper div.field-type-datetime fieldset .form-item,
+  .date-combo .form-item {
+    margin: 0; }
+
+fieldset:not(.collapsible) > legend > .fieldset-legend {
+  display: block;
+  margin: 10px 0px;
+  padding: 10px 0;
+  font-family: FuturaPTMedium-Reg, sans-serif;
+  font-size: 18px; }
+
 .page-node-add-gallery .fieldset-description {
   font-family: FuturaPTMedium-Reg, sans-serif;
   margin: 1em 0 1em 0; }
