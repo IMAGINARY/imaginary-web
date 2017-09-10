@@ -1,0 +1,250 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function imaginary_event_permission() {
+  return array(
+    'administer imaginary_event settings' => array(
+      'title' => t('Administer IMAGINARY Event settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function imaginary_event_menu() {
+
+  $items['events/map'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_imaginary_event_map_page',
+    'access callback' => TRUE,
+  );
+
+  $items['events/new'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_imaginary_event_new_page',
+    'access callback' => TRUE,
+  );
+
+  $items['api/events/locations.json'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_imaginary_event_location_json',
+    'access callback' => TRUE,
+  );
+
+  $items['api/events.json'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_imaginary_event_json',
+    'access callback' => TRUE,
+  );
+
+  $items['admin/config/development/imaginary/event/maps'] = array(
+    'title' => 'Event map settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imaginary_event_config'),
+    'access arguments' => array('administer imaginary_event settings'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+function imaginary_event_config() {
+  $form = array();
+
+  $form['imaginary_event_google_api_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Google Maps API Key'),
+    '#default_value' => variable_get('imaginary_event_google_api_key', ''),
+    '#size' => 60,
+    '#maxlength' => 60,
+    '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Renders a map with Imaginary Event locations
+ *
+ * @param array $options Rendering options
+ * @return string
+ */
+function imaginary_event_map_render($options = array()) {
+
+  $module_path = drupal_get_path('module', 'imaginary_event');
+  $apiKey = variable_get('imaginary_event_google_api_key', '');
+  if(empty($apiKey)) {
+    drupal_set_message("Google API Key not set. " .
+      l("Configure it", 'admin/settings/imaginary/event/maps'));
+  }
+
+  drupal_add_js(array('imaginaryEvent' => array(
+    'clustererImages' => file_create_url("{$module_path}/img/m"),
+  )), 'setting');
+
+  drupal_add_js("https://maps.googleapis.com/maps/api/js?key={$apiKey}&amp;sensor=true", array(
+    'scope' => 'footer',
+    'requires_jquery' => FALSE,
+    'defer' => TRUE,
+  ));
+
+  drupal_add_js("{$module_path}/js/markerclusterer.js", array(
+    'scope' => 'footer',
+    'requires_jquery' => FALSE,
+    'defer' => TRUE,
+  ));
+
+  drupal_add_js("{$module_path}/js/imaginary_event.js", array(
+    'scope' => 'footer',
+    'requires_jquery' => TRUE,
+    'defer' => TRUE,
+  ));
+
+  $output = array();
+
+  $output['map'] = array(
+    '#markup' => "<div class='imaginary_event-map'></div>",
+  );
+
+  return drupal_render($output);
+}
+
+/**
+ * JSON output handler that returns event data
+ */
+function _imaginary_event_json() {
+  $output = array(
+    'events' => array(),
+  );
+
+  $nodes = node_load_multiple(array(), array(
+    'type' => 'event',
+    'status' => 1,
+  ));
+
+  $countries = countries_get_countries();
+
+  foreach($nodes as $node) {
+    $time_place_id = field_get_items('node', $node, 'field_time_place');
+    $time_place = field_collection_item_load($time_place_id[0]['value']);
+    $coordinates = field_get_items('field_collection_item', $time_place, 'field_event_coordinates');
+    $venue = field_get_items('field_collection_item', $time_place, 'field_event_venue');
+    $date = field_get_items('field_collection_item', $time_place, 'field_event_date');
+    $permanent = field_get_items('field_collection_item', $time_place, 'field_permanent_event_');
+
+    $output['events'][] = array(
+      'country' => $countries[$venue[0]['country']]->name,
+      'city' => $venue[0]['locality'],
+      'dateFrom' => $date[0]['value'],
+      'dateTo' => $date[0]['value2'],
+      'permanent' => $permanent[0]['value'],
+      'lat' => $coordinates[0]['lat'],
+      'lon' => $coordinates[0]['lon'],
+      'title' => $node->title,
+      'url' => url("node/{$node->nid}", array('absolute' => TRUE)),
+    );
+  }
+
+  function sortByDate($a, $b) {
+    return strcmp($a['dateFrom'], $b['dateFrom']);
+  }
+
+  usort($output['events'], 'sortByDate');
+
+  drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
+  print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
+  exit;
+}
+
+/**
+ * JSON output handler that returns event location data
+ */
+function _imaginary_event_location_json() {
+
+  $output = array(
+    'events' => array(),
+  );
+
+  $nodes = node_load_multiple(array(), array(
+    'type' => 'event',
+    'status' => 1,
+  ));
+
+  foreach($nodes as $node) {
+    $time_place_id = field_get_items('node', $node, 'field_time_place');
+    $time_place = field_collection_item_load($time_place_id[0]['value']);
+    $coordinates = field_get_items('field_collection_item', $time_place, 'field_event_coordinates');
+
+    $output['events'][] = array(
+      'lat' => $coordinates[0]['lat'],
+      'lon' => $coordinates[0]['lon'],
+      'title' => $node->title,
+      'url' => url("node/{$node->nid}", array('absolute' => TRUE)),
+    );
+  }
+
+  drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
+  print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
+  exit;
+}
+
+/**
+ * Event Map page handler
+ */
+function _imaginary_event_map_page() {
+
+  return imaginary_event_map_render();
+}
+
+function _imaginary_event_new_page() {
+
+  $module_path = drupal_get_path('module', 'imaginary_event');
+
+  drupal_add_js("{$module_path}/js/imaginary_event.js", array(
+    'scope' => 'footer',
+    'requires_jquery' => TRUE,
+    'defer' => TRUE,
+  ));
+
+  drupal_add_js("{$module_path}/js/vendors.min.js", array(
+    'scope' => 'footer',
+    'requires_jquery' => TRUE,
+    'defer' => TRUE,
+  ));
+
+  drupal_add_js("{$module_path}/js/imaginary_event_components.js", array(
+    'scope' => 'footer',
+    'requires_jquery' => TRUE,
+    'defer' => TRUE,
+  ));
+
+  $output = array();
+
+  $output['events_by_year'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'data-component' =>'year-grouped-event-list',
+      'data-url' => url("api/events.json"),
+    ),
+    'loader' => array(
+      '#markup' => "<div class='loader'></div>",
+    ),
+  );
+
+  $output['events_by_country'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'data-component' =>'country-grouped-event-list',
+      'data-url' => url("api/events.json"),
+    ),
+    'loader' => array(
+      '#markup' => "<div class='loader'></div>",
+    ),
+  );
+
+
+  return $output;
+}

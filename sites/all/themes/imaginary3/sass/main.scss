@@ -21,6 +21,7 @@ $font-stack-futura: FuturaPTMedium-Reg, sans-serif;
 @import 'lib/chosen';
 @import 'lib/slicebox';
 @import 'lib/arrow_icons';
+@import 'lib/loader';
 @import 'lib/util';
 @import 'lib/responsive_utils';
 
@@ -84,6 +85,7 @@ $font-stack-futura: FuturaPTMedium-Reg, sans-serif;
 @import 'sections/user_page';
 @import 'sections/events';
 @import 'sections/events_related';
+@import 'sections/event_navigator';
 @import 'sections/texts';
 @import 'sections/galleries';
 @import 'sections/galleries_related';
