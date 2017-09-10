@@ -37,24 +37,14 @@ $(function(){
     });
   }
 
-  $('.imaginary_event-map').each(function(){
-
-    var mapContainer = this;
-
-    $.ajax(Drupal.absoluteUrl('/api/events/locations.json'),{
-      dataType: 'json',
-      success: function(data, textStatus, jqXHR) {
-        displayMap(mapContainer, data);
-      },
-      error: function(jqXHR, textStatus, error) {
-        console.log("Error querying event location data: " + textStatus);
-      }
-    });
-  });
-
   $.ajax(Drupal.absoluteUrl(Drupal.settings.api.events), {
       dataType: 'json',
       success: function(data) {
+
+        $('.imaginary_event-map').each(function() {
+          displayMap(this, data);
+        });
+
         $('[data-component=year-grouped-event-list]').each(function(){
           window.IMAGINARY.YearGroupedEventList(this, data.events);
         });

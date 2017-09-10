@@ -28,12 +28,6 @@ function imaginary_event_menu() {
     'access callback' => TRUE,
   );
 
-  $items['api/events/locations.json'] = array(
-    'type' => MENU_CALLBACK,
-    'page callback' => '_imaginary_event_location_json',
-    'access callback' => TRUE,
-  );
-
   $items['api/events.json'] = array(
     'type' => MENU_CALLBACK,
     'page callback' => '_imaginary_event_json',
@@ -103,6 +97,11 @@ function imaginary_event_map_render($options = array()) {
     'defer' => TRUE,
   ));
 
+
+  drupal_add_js(array('api' => array(
+    'events' => url("/api/events.json")
+  )), 'setting');
+
   $output = array();
 
   $output['map'] = array(
@@ -154,38 +153,6 @@ function _imaginary_event_json() {
   }
 
   usort($output['events'], 'sortByDate');
-
-  drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
-  print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
-  exit;
-}
-
-/**
- * JSON output handler that returns event location data
- */
-function _imaginary_event_location_json() {
-
-  $output = array(
-    'events' => array(),
-  );
-
-  $nodes = node_load_multiple(array(), array(
-    'type' => 'event',
-    'status' => 1,
-  ));
-
-  foreach($nodes as $node) {
-    $time_place_id = field_get_items('node', $node, 'field_time_place');
-    $time_place = field_collection_item_load($time_place_id[0]['value']);
-    $coordinates = field_get_items('field_collection_item', $time_place, 'field_event_coordinates');
-
-    $output['events'][] = array(
-      'lat' => $coordinates[0]['lat'],
-      'lon' => $coordinates[0]['lon'],
-      'title' => $node->title,
-      'url' => url("node/{$node->nid}", array('absolute' => TRUE)),
-    );
-  }
 
   drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
   print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
