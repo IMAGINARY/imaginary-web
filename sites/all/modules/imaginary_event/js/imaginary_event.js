@@ -2,6 +2,37 @@
   "use strict";
 $(function(){
 
+  var markerClickHandler = function(ev) {
+
+    window.location.href = this.url;
+  };
+
+  var added = {};
+
+  function addMarker(map, event) {
+
+    var lat = Number(event.lat);
+    var lon = Number(event.lon);
+    var key = event.lat + "," + event.lon;
+    if(added[key] !== undefined) {
+      lat = lat + (Math.random() - 0.5) / 1500;
+      lon = lon + (Math.random() - 0.5) / 1500;
+    } else {
+      added[key] = true;
+    }
+
+    var marker = new google.maps.Marker({
+      position: {lat: lat, lng: lon},
+      map: map,
+      title: event.title,
+      url: event.url
+    });
+
+    marker.addListener('click', markerClickHandler);
+
+    return marker;
+  }
+
   function displayMap(container, markerData) {
 
     var map = new google.maps.Map(container, {
@@ -12,24 +43,10 @@ $(function(){
 
     window.myMap = map;
 
-    var markerClickHandler = function(ev) {
-      window.location.href = this.url;
-    };
-
     var markers = [];
-    for (var i = 0; i != markerData.events.length ; i++) {
+    for (var i = 0; i !== markerData.events.length ; i++) {
 
-      var event = markerData.events[i];
-
-      var marker = new google.maps.Marker({
-        position: {lat: Number(event.lat), lng: Number(event.lon)},
-        map: map,
-        title: event.title,
-        url: event.url
-      });
-
-      markers.push(marker);
-      marker.addListener('click', markerClickHandler);
+      markers.push(addMarker(map, markerData.events[i]));
     }
 
     var markerCluster = new MarkerClusterer(map, markers, {
