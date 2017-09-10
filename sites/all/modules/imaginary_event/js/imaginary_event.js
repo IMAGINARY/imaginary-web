@@ -52,7 +52,7 @@ $(function(){
     });
   });
 
-  $.ajax(Drupal.absoluteUrl('/api/events.json'), {
+  $.ajax(Drupal.absoluteUrl(Drupal.settings.api.events), {
       dataType: 'json',
       success: function(data) {
         $('[data-component=year-grouped-event-list]').each(function(){

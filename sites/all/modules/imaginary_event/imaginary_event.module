@@ -116,6 +116,7 @@ function imaginary_event_map_render($options = array()) {
  * JSON output handler that returns event data
  */
 function _imaginary_event_json() {
+
   $output = array(
     'events' => array(),
   );
@@ -221,13 +222,16 @@ function _imaginary_event_new_page() {
     'defer' => TRUE,
   ));
 
+  drupal_add_js(array('api' => array(
+    'events' => url("api/events.json")
+  )), 'setting');
+
   $output = array();
 
   $output['events_by_year'] = array(
     '#type' => 'container',
     '#attributes' => array(
       'data-component' =>'year-grouped-event-list',
-      'data-url' => url("api/events.json"),
     ),
     'loader' => array(
       '#markup' => "<div class='loader'></div>",
@@ -238,7 +242,6 @@ function _imaginary_event_new_page() {
     '#type' => 'container',
     '#attributes' => array(
       'data-component' =>'country-grouped-event-list',
-      'data-url' => url("api/events.json"),
     ),
     'loader' => array(
       '#markup' => "<div class='loader'></div>",
