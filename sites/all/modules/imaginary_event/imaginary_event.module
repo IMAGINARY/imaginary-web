@@ -116,6 +116,25 @@ function imaginary_event_map_render($options = array()) {
  */
 function _imaginary_event_json() {
 
+  global $language;
+
+  $cid = "api.events.{$language->language}";
+
+  if($cached = cache_get($cid, 'cache_page'))  {
+    $output = $cached->data;
+  }
+  if(empty($output)) {
+    $output = _imaginary_event_json_build();
+    cache_set($cid, $output,'cache_page', CACHE_TEMPORARY);
+  }
+
+  drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
+  print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
+  exit;
+}
+
+function _imaginary_event_json_build() {
+
   $output = array(
     'events' => array(),
   );
@@ -154,9 +173,7 @@ function _imaginary_event_json() {
 
   usort($output['events'], 'sortByDate');
 
-  drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
-  print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
-  exit;
+  return $output;
 }
 
 /**
