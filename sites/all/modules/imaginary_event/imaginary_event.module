@@ -108,7 +108,7 @@ function imaginary_event_map_render($options = array()) {
     '#markup' => "<div class='imaginary_event-map'></div>",
   );
 
-  return drupal_render($output);
+  return $output;
 }
 
 /**
@@ -153,18 +153,29 @@ function _imaginary_event_json_build() {
     $venue = field_get_items('field_collection_item', $time_place, 'field_event_venue');
     $date = field_get_items('field_collection_item', $time_place, 'field_event_date');
     $permanent = field_get_items('field_collection_item', $time_place, 'field_permanent_event_');
-
-    $output['events'][] = array(
+    $images_id = field_get_items('node', $node, 'field_image_collection');
+    if(count($images_id)) {
+      $image_coll = field_collection_item_load($images_id[0]['value']);
+      $image = field_get_items('field_collection_item', $image_coll, 'field_image');
+      $thumbnail = image_style_url('slideshow_630_cropped', $image[0]['uri']);
+    } else {
+      $thumbnail = null;
+    }
+    $event = array(
       'country' => $countries[$venue[0]['country']]->name,
       'city' => $venue[0]['locality'],
       'dateFrom' => $date[0]['value'],
       'dateTo' => $date[0]['value2'],
-      'permanent' => $permanent[0]['value'],
+      'permanent' => $permanent[0]['value'] !== "0",
       'lat' => $coordinates[0]['lat'],
       'lon' => $coordinates[0]['lon'],
       'title' => $node->title,
       'url' => url("node/{$node->nid}", array('absolute' => TRUE)),
     );
+    if($thumbnail !== null) {
+      $event['thumbnail'] = $thumbnail;
+    }
+    $output['events'][] = $event;
   }
 
   function sortByDate($a, $b) {
@@ -181,7 +192,7 @@ function _imaginary_event_json_build() {
  */
 function _imaginary_event_map_page() {
 
-  return imaginary_event_map_render();
+  return drupal_render(imaginary_event_map_render());
 }
 
 function _imaginary_event_new_page() {
@@ -200,7 +211,7 @@ function _imaginary_event_new_page() {
     'defer' => TRUE,
   ));
 
-  drupal_add_js("{$module_path}/js/imaginary_event_components.js", array(
+  drupal_add_js("{$module_path}/js/imaginary_event_components.min.js", array(
     'scope' => 'footer',
     'requires_jquery' => TRUE,
     'defer' => TRUE,
@@ -212,7 +223,81 @@ function _imaginary_event_new_page() {
 
   $output = array();
 
-  $output['events_by_year'] = array(
+  $output['title'] = array(
+    '#prefix' => "<h2 id='current' class='large'>",
+    '#suffix' => "</h2>",
+    '#markup' => t('Events'),
+  );
+
+  $output['intro'] = array(
+    '#prefix' => "<div class='big-text'><div class='pane-content'>",
+    '#suffix' => "</div></div>",
+    '#markup' => t("Events are actual exhibitions, workshops, talks, museum installations, conferences, school projects, etc. – everything that really happens and has a concrete date and venue. In the timeline you find all events, further down the ongoing, upcoming and permanent events and a list of all past events.") . "<br><br>",
+  );
+
+  $output['current'] = array(
+    'title' => array(
+      '#prefix' => "<h2 id='current' class='pane-title'>",
+      '#suffix' => "</h2>",
+      '#markup' => t('Current Events'),
+    ),
+    'list' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'data-component' =>'event-grid',
+        'data-category' =>'current',
+      ),
+      'loader' => array(
+        '#markup' => "<div class='loader'></div>",
+      ),
+    ),
+  );
+
+  $output['upcoming'] = array(
+    'title' => array(
+      '#prefix' => "<h2 id='upcoming' class='pane-title'>",
+      '#suffix' => "</h2>",
+      '#markup' => t('Upcoming Events'),
+    ),
+    'list' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'data-component' =>'event-grid',
+        'data-category' =>'future',
+      ),
+      'loader' => array(
+        '#markup' => "<div class='loader'></div>",
+      ),
+    ),
+  );
+
+  $output['permanent'] = array(
+    'title' => array(
+      '#prefix' => "<h2 id='permanent' class='pane-title'>",
+      '#suffix' => "</h2>",
+      '#markup' => t('Permanent Events'),
+    ),
+    'list' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'data-component' =>'event-grid',
+        'data-category' =>'permanent',
+      ),
+      'loader' => array(
+        '#markup' => "<div class='loader'></div>",
+      ),
+    ),
+  );
+
+  $output['all'] = array(
+    'title' => array(
+      '#prefix' => "<h2 id='past' class='pane-title'>",
+      '#suffix' => "</h2>",
+      '#markup' => t('All IMAGINARY Events'),
+    ),
+  );
+
+  $output['all']['events_by_year'] = array(
     '#type' => 'container',
     '#attributes' => array(
       'data-component' =>'year-grouped-event-list',
@@ -222,7 +307,11 @@ function _imaginary_event_new_page() {
     ),
   );
 
-  $output['events_by_country'] = array(
+  $output['all']['map'] = array(
+    'content' => imaginary_event_map_render($options = array()),
+  );
+
+  $output['all']['events_by_country'] = array(
     '#type' => 'container',
     '#attributes' => array(
       'data-component' =>'country-grouped-event-list',
@@ -232,6 +321,72 @@ function _imaginary_event_new_page() {
     ),
   );
 
+
+  return $output;
+}
+
+function imaginary_event_render_teaser($node) {
+
+  $url = url("node/{$node->nid}");
+
+  $countries = countries_get_countries();
+
+  $time_place_id = field_get_items('node', $node, 'field_time_place');
+  $time_place = field_collection_item_load($time_place_id[0]['value']);
+  $venue = field_get_items('field_collection_item', $time_place, 'field_event_venue');
+  $date = field_get_items('field_collection_item', $time_place, 'field_event_date');
+  $permanent = field_get_items('field_collection_item', $time_place, 'field_permanent_event_');
+
+  $country = $countries[$venue[0]['country']]->name;
+  $city = $venue[0]['locality'];
+
+  $dateFrom = $date[0]['value'];
+  $dateTo = $date[0]['value2'];
+  $isPermanent = $permanent[0]['value'];
+
+  if($isPermanent) {
+    $dateInfo = t("Since @date", array(
+      '@date' => ''
+    ));
+  } else {
+    $dateInfo = t("@dateFrom to @dateTo", array(
+      '@dateFrom' => '',
+      '@dateTo' => '',
+    ));
+  }
+
+  $output = array(
+    '#prefix' => "<a class='im-event-teaser' href='{$url}'>",
+    '#suffix' => '</a>',
+  );
+
+  $output['thumbnail'] = array(
+    '#prefix' => "<div class='im-event-thumbnail'>",
+    '#suffix' => "</div>",
+    '#markup' => '',
+    '#weight' => 100,
+  );
+
+  $output['location'] = array(
+    '#prefix' => "<div class='im-event-location'>",
+    '#suffix' => "</div>",
+    '#markup' => join(', ', array_filter(array($country, $city))),
+    '#weight' => 200,
+  );
+
+  $output['name'] = array(
+    '#prefix' => "<div class='im-event-name'>",
+    '#suffix' => "</div>",
+    '#markup' => check_plain($node->title),
+    '#weight' => 300,
+  );
+
+  $output['date'] = array(
+    '#prefix' => "<div class='im-event-date'>",
+    '#suffix' => "</div>",
+    '#markup' => '',
+    '#weight' => 400,
+  );
 
   return $output;
 }

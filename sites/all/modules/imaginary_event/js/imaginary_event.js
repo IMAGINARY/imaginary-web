@@ -61,9 +61,34 @@ function displayMap(container, events) {
 $.ajax(Drupal.absoluteUrl(Drupal.settings.api.events), {
     dataType: 'json',
     success: function(data) {
+      var futureEvents = [];
+      var currentEvents = [];
+      var permamentEvents = [];
+
+      var now = new Date();
+      for(var i=0; i !== data.events.length; i++) {
+        if(data.events[i].permanent) {
+          permamentEvents.push(data.events[i]);
+        } else if(new Date(data.events[i].dateFrom) > now) {
+          futureEvents.push(data.events[i]);
+        } else if(new Date(data.events[i].dateTo) > now) {
+          currentEvents.push(data.events[i]);
+        }
+      }
 
       $('.imaginary_event-map').each(function() {
         displayMap(this, data.events);
+      });
+
+      $('[data-component=event-grid]').each(function(){
+        var category = $(this).attr('data-category');
+        if(category === 'permanent') {
+          window.IMAGINARY.EventGrid(this, permamentEvents, Drupal.t('There are no permanent events'));
+        } else if(category === 'future') {
+          window.IMAGINARY.EventGrid(this, futureEvents, Drupal.t('There are no upcoming events. Check back soon.'));
+        } else if(category === 'current') {
+          window.IMAGINARY.EventGrid(this, currentEvents, Drupal.t('There are no ongoing events.'));
+        }
       });
 
       $('[data-component=year-grouped-event-list]').each(function(){

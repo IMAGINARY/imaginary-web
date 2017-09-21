@@ -26,6 +26,17 @@ h1 {
   padding-top: 1em;
 }
 
+h2.large {
+  width: 75%;
+  margin: 0 auto 20px;
+  font-size: 42px;
+  line-height: 46px;
+  text-align: center;
+  font-family: FuturaPTMedium-Reg,sans-serif;
+  font-weight: normal;
+  color: $color-black;
+}
+
 h2.block-title {
   font-family: $font-stack-futura;
   font-size: 1em;
