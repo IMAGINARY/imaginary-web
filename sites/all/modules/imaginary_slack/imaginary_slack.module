@@ -1,0 +1,274 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function imaginary_slack_permission() {
+  return array(
+    'administer imaginary_slack settings' => array(
+      'title' => t('Administer IMAGINARY Slack settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function imaginary_slack_menu() {
+
+  $items['admin/config/development/imaginary/slack'] = array(
+    'title' => 'Slack settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imaginary_slack_config'),
+    'access arguments' => array('administer imaginary_event settings'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Configuration form callback
+ */
+function imaginary_slack_config() {
+  $form = array();
+
+  $form['imaginary_slack_webhook'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Slack Incoming Webhook URL'),
+    '#default_value' => variable_get('imaginary_slack_webhook', ''),
+    '#size' => 100,
+    '#maxlength' => 100,
+    '#required' => TRUE,
+  );
+
+  $form['ntypes'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Node types to notify'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Tick content types to notify through Slack.'),
+  );
+
+  foreach (node_type_get_types() as $type => $object) {
+    $form['ntypes']['imaginary_slack_ntype_' . $type] = array(
+      '#type' => 'checkbox',
+      '#title' => $object->name,
+      '#return_value' => 1,
+      '#default_value' => variable_get('imaginary_slack_ntype_' . $type, 0),
+    );
+  }
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_cron().
+ */
+function imaginary_slack_cron() {
+
+  imaginary_slack_process_queue();
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function imaginary_slack_node_insert($node) {
+
+  if(variable_get('imaginary_slack_ntype_' . $node->type, 0)) {
+    $types = node_type_get_types();
+    $body = field_get_items('node', $node, 'body', $node->language);
+    $notification = array();
+    $notification['text'] = "New *" . $types[$node->type]->name . "* submitted";
+    $notification['attachments'] = array();
+    $notification['attachments'][] = array(
+      "title" => check_plain($node->title),
+      "title_link" => url("node/{$node->nid}", array('absolute' => TRUE)),
+      "text" => strip_tags(text_summary($body[0]['value'], $body[0]['format'], 250)),
+    );
+    imaginary_slack_send($notification);
+  }
+}
+
+/**
+ * Sends a message to Slack (or rather queues it)
+ *
+ * @param array|string $message
+ *  Either a text message or an associative array with a structured message
+ */
+function imaginary_slack_send($message) {
+
+  if(is_array($message)) {
+    $data = json_encode($message);
+  } else {
+    $data = json_encode(array('text' => $message));
+  }
+
+  imaginary_slack_queue($data);
+}
+
+
+/**
+ * Sends a message to Slack (really does it)
+ *
+ * Sends via POST using the Slack HTTP API. Logs errors via watchdog.
+ * The endpoint is obtained from the 'imaginary_slack_webhook' variable. If
+ * it's not set this function will return TRUE (/dev/null).
+ *
+ * @param string $data
+ *  JSON Slack structured message (see below)
+ * @return bool
+ *  TRUE if the message was sent succesfully
+ * @see https://api.slack.com/docs/message-attachments
+ */
+function imaginary_slack_do_send($data) {
+
+  $endpoint = variable_get('imaginary_slack_webhook', '');
+  if(empty($endpoint)) {
+    return TRUE;
+  }
+
+  $ch = curl_init();
+
+  curl_setopt($ch, CURLOPT_URL,$endpoint);
+  curl_setopt($ch, CURLOPT_POST, true);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+  $server_output = curl_exec($ch);
+
+  $rc = FALSE;
+  if ($server_output == "ok") {
+    $rc = TRUE;
+  } else if($server_output === FALSE) {
+    watchdog(
+      'imaginary_slack',
+      "Slack POST error: @description", array(
+      '@description' => curl_error($ch),
+      WATCHDOG_WARNING
+    ));
+  } else {
+    watchdog(
+      'imaginary_slack',
+      "Slack POST response: @description", array(
+      '@description' => $server_output,
+      WATCHDOG_WARNING
+    ));
+  }
+
+  curl_close($ch);
+  return $rc;
+}
+
+/**
+ * Add a message to the slack send queue
+ *
+ * @param $message
+ *  JSON Slack structured message (see below)
+ *
+ * @see https://api.slack.com/docs/message-attachments
+ */
+function imaginary_slack_queue($message) {
+
+  db_insert('ima_slack_queue')
+    ->fields(array(
+      'message' => $message,
+      'timestamp' => time(),
+    ))
+    ->execute();
+}
+
+/**
+ * Remove a message from the slack queue
+ *
+ * @param $queue_entry
+ */
+function imaginary_slack_remove_from_queue($queue_entry) {
+  db_delete('ima_slack_queue')
+    ->condition('id', $queue_entry->id)
+    ->execute();
+}
+
+/**
+ * Updates a Slack queue entry marking a failed attempt to send
+ *
+ * @param $queue_entry
+ */
+function imaginary_slack_mark_retry($queue_entry) {
+  db_update('ima_slack_queue')
+    ->fields(array(
+      'retry_last' => time(),
+      'retry_count' => $queue_entry->retry_count + 1
+    ))
+    ->condition('id', $queue_entry->id)
+    ->execute();
+}
+
+/**
+ * Loads the full Slack queue
+ */
+function imaginary_slack_queue_load_elegible() {
+
+  $queue = array();
+
+  $recordset = db_select('ima_slack_queue', 'q')
+    ->fields('q')
+    ->orderBy('q.timestamp')
+    ->execute();
+
+  foreach($recordset as $record) {
+    $queue[] = $record;
+  }
+
+  return $queue;
+}
+
+/**
+ * Process the Slack queue
+ *
+ * Fetches elegible messages and sends them, removing them from the queue
+ * or updating the retry data as appropriate.
+ *
+ * @param int $max_sends
+ *  Maximum number of messages to send per run
+ */
+function imaginary_slack_process_queue($max_sends = 20) {
+
+  // Fetch elegible messages
+  $queue = imaginary_slack_queue_load_elegible();
+
+  $sent = 0;
+  foreach($queue as $entry) {
+    // It should be at least 5 minutes since the last attempt
+    if(time() - $entry->retry_last < 5 * 60 * 60)  {
+      continue;
+    }
+
+    // Send at most $max_sends pero run
+    $sent += 1;
+    if($sent > $max_sends) {
+      break;
+    }
+    // Attempt to send a queued message
+    if(imaginary_slack_do_send($entry->message)) {
+      // Success, remove from the queue
+      imaginary_slack_remove_from_queue($entry);
+    } else {
+      // Quit after 300 retries or 24 hours
+      if(($entry->retry_count > 300) || ((time() - $entry->timestamp) > 24 * 60 * 60)) {
+        watchdog(
+          'imaginary_slack',
+          "Giving up on message @id after @count retries.", array(
+            '@id' => $entry->id,
+            '@count' => $entry->retry_count,
+            WATCHDOG_WARNING
+        ));
+        imaginary_slack_remove_from_queue($entry);
+      } else {
+        imaginary_slack_mark_retry($entry);
+      }
+    }
+  }
+}

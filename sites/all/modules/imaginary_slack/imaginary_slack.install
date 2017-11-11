@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function imaginary_slack_schema() {
+
+  $schema['ima_slack_queue'] = array(
+    'description' => 'Slack message queue',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Unique ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'message' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp when the message was added to the queue.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'retry_last' => array(
+        'description' => 'The Unix timestamp of the last attempt to send the message.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'retry_count' => array(
+        'description' => 'Number of attempts to send the message.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'ix_timestamp' => array('timestamp'),
+      'ix_last' => array('retry_last'),
+    ),
+  );
+
+  return $schema;
+}

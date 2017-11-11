@@ -1,0 +1,5 @@
+name = Imaginary Slack
+description = Live updates to Slack
+core = 7.x
+version = 7.x-1.0
+package = Imaginary
