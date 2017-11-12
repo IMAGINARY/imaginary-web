@@ -26,7 +26,7 @@ function pdf_field_formatter_info() {
       ),
     ),
     'pdf_pages' => array(
-      'label' => t('PDF: Continuous scroll'),
+      'label' => t('PDF: Continuous scroll (experimental)'),
       'description' => 'Don\'t use this to display big PDF file.',
       'field types' => array('file'),
       'settings' => array('scale' => 1),
@@ -168,7 +168,7 @@ function theme_pdf_formatter_default($variables) {
   }
   $file_url = file_create_url($variables['file']->uri);
   $module_path = drupal_get_path('module', 'pdf');
-  $library_path = libraries_get_path('pdf.js');
+  $library_path = libraries_get_path('pdf.js', 'viewer');
   $iframe_src = file_create_url($library_path . '/web/viewer.html') . '?file=' . rawurlencode($file_url);
   $force_pdfjs = $variables['keep_pdfjs'];
   $html = array(
@@ -203,7 +203,7 @@ function theme_pdf_formatter_thumbnail($variables) {
     return 'Please download and install ' . l($library['name'], $library['download url']) . '!';
   }
 
-  $worker_loader = file_create_url(libraries_get_path('pdf.js') . '/build/pdf.worker.js');
+  $worker_loader = file_create_url(libraries_get_path('pdf.js') . '/build/pdf.worker.js') . "?v={$library['version']}";
   $js = "PDFJS.workerSrc = '$worker_loader';";
   $module_path = drupal_get_path('module', 'pdf');
   //drupal_add_css($module_path . '/css/pdf.css');
@@ -244,7 +244,7 @@ function theme_pdf_formatter_pages($variables) {
     drupal_set_message($library['error message'], 'error');
     return 'Please download and install ' . l($library['name'], $library['download url']) . '!';
   }
-  $worker_loader = file_create_url(libraries_get_path('pdf.js') . '/build/pdf.worker.js');
+  $worker_loader = file_create_url(libraries_get_path('pdf.js') . '/build/pdf.worker.js') . "?v={$library['version']}";
   $js = "PDFJS.workerSrc = '$worker_loader';";
   drupal_add_js($js, array('type' => 'inline'));
   //drupal_add_js($module_path . '/js/pdf.js');

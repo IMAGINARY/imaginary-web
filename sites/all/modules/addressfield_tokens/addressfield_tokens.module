@@ -4,9 +4,12 @@
  * Main components.
  */
 
+/**
+ * Implements hook_menu().
+ */
 function addressfield_tokens_menu() {
   $items = array();
-  
+
   $items['admin/config/regional/address'] = array(
     'title' => 'Addresses',
     'description' => 'Settings for address fields and tokens',
@@ -16,7 +19,7 @@ function addressfield_tokens_menu() {
     'file' => 'addressfield_tokens.admin.inc',
     'type' => MENU_NORMAL_ITEM,
   );
-  
+
   return $items;
 }
 
@@ -34,19 +37,31 @@ function addressfield_tokens_theme($existing, $type, $theme, $path) {
       'file' => 'addressfield_tokens.theme.inc',
     ),
     'addressfield_formatter__linear' => array(
-      'variables' => array('address' => NULL, 'premise' => TRUE, 'organisation_name' => TRUE, 'name_line' => TRUE),
+      'variables' => array(
+        'address' => NULL,
+        'premise' => TRUE,
+        'organisation_name' => TRUE,
+        'name_line' => TRUE,
+      ),
       'file' => 'addressfield_tokens.theme.inc',
     ),
     'addressfield_formatter__components' => array(
       'variables' => array(
         'address' => NULL,
-        'components' => array('thoroughfare', 'premise', 'locality', 'administrative_area', 'postal_code', 'country'),
+        'components' => array(
+          'thoroughfare',
+          'premise',
+          'locality',
+          'administrative_area',
+          'postal_code',
+          'country',
+        ),
         'separator' => ', ',
       ),
       'file' => 'addressfield_tokens.theme.inc',
     ),
   );
-  
+
   return $theme;
 }
 
@@ -75,7 +90,14 @@ function addressfield_tokens_field_formatter_info() {
       'label' => t('Address components'),
       'field types' => array('addressfield'),
       'settings' => array(
-        'components' => array('thoroughfare', 'premise', 'locality', 'administrative_area', 'postal_code', 'country'),
+        'components' => array(
+          'thoroughfare',
+          'premise',
+          'locality',
+          'administrative_area',
+          'postal_code',
+          'country',
+        ),
         'separator' => ', ',
       ),
     ),
@@ -103,7 +125,7 @@ function addressfield_tokens_field_formatter_settings_form($field, $instance, $v
     $element['separator'] = array(
       '#type' => 'textfield',
       '#title' => t('Separator'),
-      '#description' => t('The separator to use between components. Use \n for a line break.'),
+      '#description' => t('The separator to use between components. Use br tag for a line break.'),
       '#default_value' => $settings['separator'],
     );
   }
@@ -132,7 +154,7 @@ function addressfield_tokens_field_formatter_settings_summary($field, $instance,
  */
 function addressfield_tokens_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
-  
+
   switch ($display['type']) {
     case 'addressfield_citystate':
       $theme = array('addressfield_formatter__citystate', 'addressfield_formatter');
@@ -147,7 +169,7 @@ function addressfield_tokens_field_formatter_view($entity_type, $entity, $field,
         );
       }
       break;
-      
+
     case 'addressfield_linear':
       $theme = array('addressfield_formatter__linear', 'addressfield_formatter');
 
@@ -161,7 +183,7 @@ function addressfield_tokens_field_formatter_view($entity_type, $entity, $field,
         );
       }
       break;
-      
+
     case 'addressfield_country':
       foreach ($items as $delta => $item) {
         if (!empty($item['country'])) {
@@ -175,7 +197,7 @@ function addressfield_tokens_field_formatter_view($entity_type, $entity, $field,
         }
       }
       break;
-      
+
     case 'addressfield_state':
       foreach ($items as $delta => $item) {
         if (!empty($item['country']) && !empty($item['administrative_area'])) {
@@ -189,19 +211,19 @@ function addressfield_tokens_field_formatter_view($entity_type, $entity, $field,
         }
       }
       break;
-      
+
     case 'addressfield_components':
       $theme = array('addressfield_formatter__components', 'addressfield_formatter');
       $settings = $display['settings'];
       foreach ($items as $delta => $item) {
         if (!empty($item['country'])) {
           array_unshift($theme, 'addressfield_formatter__components__' . $item['country']);
-        }      
+        }
         $element[$delta] = array(
           '#theme' => $theme,
           '#address' => array_map('filter_xss', $item),
           '#components' => $settings['components'],
-          '#separator' => filter_xss($settings['separator']),
+          '#separator' => filter_xss($settings['separator'], array('br')),
         );
       }
       break;
@@ -230,11 +252,31 @@ function addressfield_tokens_property_names() {
   return $names;
 }
 
+/**
+ * Generates token components.
+ *
+ * @return mixed
+ *   Array of components.
+ */
 function addressfield_tokens_components() {
   $comps = &drupal_static(__FUNCTION__, array());
   if (empty($comps)) {
     $names = addressfield_tokens_property_names();
-    foreach (array('first_name', 'last_name', 'name_line', 'organisation_name', 'thoroughfare', 'premise', 'locality', 'dependent_locality', 'administrative_area', 'sub_administrative_area', 'postal_code', 'country') as $key) {
+    $fields = array(
+      'first_name',
+      'last_name',
+      'name_line',
+      'organisation_name',
+      'thoroughfare',
+      'premise',
+      'locality',
+      'dependent_locality',
+      'administrative_area',
+      'sub_administrative_area',
+      'postal_code',
+      'country',
+    );
+    foreach ($fields as $key) {
       $comps[$key] = $names[$key];
       if (in_array($key, array('administrative_area', 'country'))) {
         $comps[$key . '_full'] = t('@name (full)', array(
@@ -248,14 +290,15 @@ function addressfield_tokens_components() {
 
 /**
  * Gets the list of countries from the locale settings in Drupal.
- * 
- * @return array An array of countries.  The keys are the 2-letter 
+ *
+ * @return array
+ *   An array of countries. The keys are the 2-letter
  *   abbreviations and the values are the full country names.
  */
 function _addressfield_tokens_countries() {
   $countries = &drupal_static(__FUNCTION__);
   if (empty($countries)) {
-    include_once('includes/locale.inc');
+    require_once DRUPAL_ROOT . '/includes/locale.inc';
     $countries = country_get_list();
   }
   return $countries;
@@ -263,14 +306,17 @@ function _addressfield_tokens_countries() {
 
 /**
  * Gets the name of the country with the given abbreviation.
- * 
- * @param string $country The 2-letter abbreviation of the country.
- * @return string The name of the country, or FALSE.
+ *
+ * @param string $country
+ *   The 2-letter abbreviation of the country.
+ *
+ * @return string
+ *   The name of the country, or FALSE.
  */
 function _addressfield_tokens_country($country) {
   $countries = _addressfield_tokens_countries();
-  
-  // Country abbreviations will always be two uppercase letters. 
+
+  // Country abbreviations will always be two uppercase letters.
   $country = drupal_strtoupper($country);
   if (!empty($country) && isset($countries[$country])) {
     return check_plain($countries[$country]);
@@ -279,11 +325,12 @@ function _addressfield_tokens_country($country) {
 }
 
 /**
- * Gets the abbreviation of the country with the given name
- * 
- * @param string
+ * Gets the abbreviation of the country with the given name.
+ *
+ * @param string $country
  *   The name of the country.
- * @return string $country
+ *
+ * @return string
  *   The 2-letter abbreviation of the country, or FALSE.
  */
 function _addressfield_tokens_country_abbr($country) {
@@ -297,55 +344,63 @@ function _addressfield_tokens_country_abbr($country) {
 
 /**
  * Gets the list of states in the given country.
- * 
- * @param string $country The 2-letter abbreviation of the country.
- * 
- * @return array An array of countries.  The keys are the 2-letter 
+ *
+ * @param string $country
+ *   The 2-letter abbreviation of the country.
+ *
+ * @return array
+ *   An array of countries. The keys are the 2-letter
  *   abbreviations and the values are the full country names.
  */
 function _addressfield_tokens_states($country) {
+  global $language;
+  $langcode = $language->language;
   $states = &drupal_static(__FUNCTION__);
   $country = drupal_strtoupper($country);
   if (!isset($states[$country])) {
-    $cache = cache_get('addressfield_tokens_states');
+    $cache = cache_get('addressfield_tokens_states:' . $langcode);
     if ($cache) {
       $states = $cache->data;
     }
   }
   if (!isset($states[$country])) {
     $format = addressfield_generate(array('country' => $country), array('address'), array('mode' => 'render'));
-    
+
     if (isset($format['locality_block']['administrative_area']['#options'])) {
       $states[$country] = $format['locality_block']['administrative_area']['#options'];
     }
     else {
       $states[$country] = array();
     }
-    cache_set('addressfield_tokens_states', $states);
+    cache_set('addressfield_tokens_states:' . $langcode, $states);
   }
   return $states[$country];
 }
 
 /**
  * Gets the name of the state with the given abbreviation.
- * 
- * @param string $country The 2-letter abbreviation of the country.
- * @param string $state The 2-letter abbreviation of the state.
- * @return string The name of the state, or FALSE.
+ *
+ * @param string $country
+ *    The 2-letter abbreviation of the country.
+ * @param string $state
+ *   The 2-letter abbreviation of the state.
+ *
+ * @return string
+ *   The name of the state, or FALSE.
  */
 function _addressfield_tokens_state($country, $state) {
   $states = _addressfield_tokens_states($country);
-  
-  // State abbreviations will usually be two uppercase letters. 
-  $state = drupal_strtoupper($state);
-  if (!empty($state) && !empty($states[$state])) {
+
+  // State abbreviations will usually be two uppercase letters.
+  $state_upper = drupal_strtoupper($state);
+  if (!empty($state_upper) && !empty($states[$state_upper])) {
     return check_plain($states[$state]);
   }
   return check_plain($state);
 }
 
-/** 
- * Implements hook_webform_component_info(). 
+/**
+ * Implements hook_webform_component_info().
  */
 function addressfield_tokens_webform_component_info() {
   $components = array();
@@ -387,6 +442,15 @@ function addressfield_tokens_webform_component_info() {
   return $components;
 }
 
+/**
+ * Retrieves node components based on Node ID.
+
+ * @param int $nid
+ *   Node ID.
+ *
+ * @return mixed
+ *   Components.
+ */
 function _addressfield_tokens_webform_components($nid) {
   $components = &drupal_static(__FUNCTION__, array());
   if (!isset($components[$nid])) {
@@ -406,9 +470,9 @@ function _addressfield_tokens_webform_components($nid) {
 function addressfield_tokens_webform_submission_load(&$submissions) {
   $submissions_reset = reset($submissions);
   $nid = $submissions_reset->nid;
-  
+
   $components = _addressfield_tokens_webform_components($nid);
-    
+
   foreach ($submissions as $sid => $submission) {
     foreach ($components as $cid => $component) {
       if (!empty($submission->data[$cid])) {
@@ -421,17 +485,39 @@ function addressfield_tokens_webform_submission_load(&$submissions) {
           $data = empty($data) ? array() : unserialize($data);
           $addresses[$delta] = $data;
         }
-        drupal_array_set_nested_value($submission->data, $parents, $addresses);
+        if (count($addresses)) {
+          drupal_array_set_nested_value($submission->data, $parents, $addresses);
+        }
       }
     }
   }
 }
 
-/** 
- * Implements hook_webform_validator_alter(). 
+/**
+ * Implements hook_webform_validator_alter().
  */
 function addressfield_tokens_webform_validator_alter(&$validators) {
   $validators['unique']['component_types'][] = 'addressfield';
   $validators['oneoftwo']['component_types'][] = 'addressfield';
   $validators['oneofseveral']['component_types'][] = 'addressfield';
+}
+
+/**
+ * Implements hook_webform_hints_element_alter().
+ */
+function addressfield_tokens_webform_hints_element_alter(&$element, &$required_label)
+{
+  if ($element['#type'] == 'addressfield_container' || $element['#type'] == 'fieldset') {
+    $addressfield_tokens_fields_info = addressfield_tokens_field_formatter_info();
+    foreach ($addressfield_tokens_fields_info['addressfield_components']['settings']['components'] as $component) {
+      if (isset($element[$component])) {
+        if (isset($element[$component]['#options'])) {
+          $element[$component]['#empty_option'] = '- ' . $element[$component]['#title'] . $required_label . ' -';
+        }
+
+        $element[$component]['#attributes']['placeholder'] = $element[$component]['#title'] . $required_label;
+        $element[$component]['#title_display'] = 'invisible';
+      }
+    }
+  }
 }

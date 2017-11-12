@@ -1633,7 +1633,7 @@ function httprl_send_request($results = NULL) {
           // Get stream data.
           $info = stream_get_meta_data($r);
           $alive = !$info['eof'] && !feof($r) && !$info['timed_out'] && strlen($chunk);
-          if (!$alive) {
+          if (!$alive && $responses[$id]->status !== 'Request sent, waiting for response.') {
             if ($responses[$id]->status == 'Connecting.') {
               $responses[$id]->error = $t('Connection refused by destination. TCP.');
               $responses[$id]->code = HTTPRL_CONNECTION_REFUSED;

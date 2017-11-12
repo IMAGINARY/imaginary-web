@@ -1,36 +1,37 @@
 <?php
+
 /**
- * @file Provides token replacements for address fields.
-*/
+ * @file
+ * Provides token replacements for address fields.
+ */
 
 /**
  * Implements hook_token_info_alter().
- * 
- * Attaches tokens to all addressfield properties.  The default names of each 
- * addressfield component can be altered by administrators according to the site's locale.
- * 
- * @param array $info The existing token info.
+ *
+ * Attaches tokens to all addressfield properties. The default names of each
+ * addressfield component can be altered by administrators according to the
+ * site's locale.
  */
 function addressfield_tokens_token_info_alter(&$info) {
-  // Define the address field token types 
+  // Define the address field token types.
   $info['types']['addressfield'] = array(
     'name' => t('Address field'),
     'description' => t('An address associated with an entity.'),
     'needs-data' => 'addressfield',
   );
-  
-  // Add tokens for each component of the address
-  $info['tokens'] += array( 'addressfield' => array() );
-  
+
+  // Add tokens for each component of the address.
+  $info['tokens'] += array('addressfield' => array());
+
   $props = addressfield_data_property_info();
   $names = addressfield_tokens_property_names();
   $params = array(
     '@default_country' => addressfield_tokens_default_country(),
   );
-  
+
   foreach ($props as $field => $data) {
     $fieldtoken = str_replace('_', '-', $field);
-    
+
     if (!empty($names[$field])) {
       $name = $names[$field];
       $descr = $data['label'];
@@ -38,7 +39,7 @@ function addressfield_tokens_token_info_alter(&$info) {
     else {
       $name = $data['label'];
       $descr = $name;
-      
+
       $matches = array();
       if (preg_match('/^(.*)\s+\(i\.e\.\s+(.*)\)$/', $name, $matches)) {
         $name = $matches[1];
@@ -54,7 +55,7 @@ function addressfield_tokens_token_info_alter(&$info) {
   }
   $info['tokens']['addressfield']['administrative-area']['name'] .= ' (abbreviation)';
   $info['tokens']['addressfield']['country']['name'] .= ' (abbreviation)';
-  
+
   // Add tokens for the formatted address and text-only version.
   $info['tokens']['addressfield'] += array(
     'full' => array(
@@ -83,7 +84,7 @@ function addressfield_tokens_token_info_alter(&$info) {
       'type' => 'text',
     ),
   );
-  
+
   // Add user tokens that are useful for MailChimp.
   if (module_exists('mailchimp')) {
     $info['tokens']['addressfield'] += array(
@@ -95,9 +96,23 @@ function addressfield_tokens_token_info_alter(&$info) {
     );
   }
 
-  // Attach tokens to all address fields
+  // Add extra text to webform submission values help.
+  if (array_key_exists('submission', $info['tokens'])) {
+    $info['tokens']['submission']['values']['description'] .= '
+      <div>
+      ' . t('For addressfield components you can also choose individual elements of the address using the syntax field_key:element, For example:') . '
+      <ul>
+        <li>[submission:values:address:thoroughfare]</li>
+        <li>[submission:values:address:locality]</li>
+        <li>[submission:values:address:administrative_area]</li>
+        <li>[submission:values:address:postal_code]</li>
+        <li>[submission:values:address:country]</li>
+      </ul>
+    </div>';
+  }
+
+  // Attach tokens to all address fields.
   $valid_types = entity_token_types();
-  $entity_info = entity_get_info();
 
   foreach ($valid_types as $token_type => $type) {
     foreach (entity_get_all_property_info($type) as $name => $property) {
@@ -116,14 +131,6 @@ function addressfield_tokens_token_info_alter(&$info) {
 
 /**
  * Implements hook_tokens().
- * 
- * @param string $type The type of tokens to replace.  We are looking for 'addressfield', but can also chain 
- *   addressfields onto entities that have addressfields as properties.
- * @param array $tokens The tokens to replace.
- * @param array $data The data to use as replacements.  We are looking for an 'addressfield' property.
- * @param array $options Additional options for the tokenizer.
- * 
- * @return array The replaced values.
  */
 function addressfield_tokens_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $url_options = array();
@@ -140,27 +147,46 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
   $replacements = array();
   $last_original = NULL;
 
-  // Process address field tokens
-  if ($type == 'addressfield' && !empty($data['addressfield'])) {
+  // Process webform submission addressfield tokens.
+  if ($type == 'submission' && !empty($data['webform-submission'])) {
+    $submission = $data['webform-submission'];
+    $node = isset($data['node']) ? $data['node'] : node_load($submission->nid);
+    $value_tokens = token_find_with_prefix($tokens, 'values');
+    // Loop through the components of the webform looking for addressfield
+    // components with the expected form_key.
+    foreach ($node->webform['components'] as $cid => $component) {
+      if ($component['type'] == 'addressfield' && isset($submission->data[$cid][0]['addressfield'])) {
+        $address = $submission->data[$cid][0]['addressfield'];
+        $address_tokens = token_find_with_prefix($value_tokens, $component['form_key']);
+        foreach ($address_tokens as $token => $original) {
+          if (isset($address[$token])) {
+            $replacements[$original] = $sanitize ? filter_xss($address[$token]) : $address[$token];
+          }
+        }
+      }
+    }
+  }
+  // Process address field tokens.
+  elseif ($type == 'addressfield' && !empty($data['addressfield'])) {
     foreach ($tokens as $name => $original) {
       $last_original = $original;
       $name = str_replace('-', '_', $name);
       $address = $data['addressfield'];
-      
+
       // If the address field exists, use it.
       if (isset($address[$name])) {
         $replacements[$original] = $sanitize ? filter_xss($address[$name]) : $address[$name];
       }
       else {
-        // Otherwise, it's a special token
+        // Otherwise, it's a special token.
         switch ($name) {
           case 'full':
             $render = addressfield_generate($address, array('address'), array(
-              'mode' => 'render', 
+              'mode' => 'render',
             ));
             $replacements[$original] = $sanitize ? filter_xss(drupal_render($render)) : drupal_render($render);
             break;
-            
+
           case 'text':
             $out = array();
             if (!empty($address['thoroughfare'])) {
@@ -182,7 +208,7 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
             }
             $replacements[$original] = $sanitize ? filter_xss(implode("\n", $out)) : implode("\n", $out);
             break;
-            
+
           case 'city_state':
             $out = array();
             if (!empty($address['locality'])) {
@@ -194,9 +220,9 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
             if (!empty($address['country']) && $address['country'] != addressfield_tokens_default_country()) {
               $out[] = _addressfield_tokens_country($address['country']);
             }
-            $replacements[$original] = $sanitize ? filter_xss(implode(", ", $out)) : implode(", ", $out); 
+            $replacements[$original] = $sanitize ? filter_xss(implode(", ", $out)) : implode(", ", $out);
             break;
-            
+
           case 'state_name':
             if (!empty($address['administrative_area']) && !empty($address['country'])) {
               if ($sanitize) {
@@ -207,7 +233,7 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
               }
             }
             break;
-            
+
           case 'country_name':
             if (!empty($address['country'])) {
               if ($sanitize) {
@@ -218,16 +244,23 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
               }
             }
             break;
-          
+
           case 'mc_address':
-            $address_components = array('thoroughfare', 'premise', 'locality', 'administrative_area', 'postal_code', 'country');
+            $address_components = array(
+              'thoroughfare',
+              'premise',
+              'locality',
+              'administrative_area',
+              'postal_code',
+              'country',
+            );
             $mc_address = array();
             foreach ($address_components as $component) {
               if (!empty($address[$component])) {
                 $mc_address[] = check_plain($address[$component]);
               }
             }
-            // MailChimp requires the address to be a string of double-space 
+            // MailChimp requires the address to be a string of double-space
             // delimited address fields. (http://kb.mailchimp.com/article/how-do-i-set-up-the-address-field-type-for-import)
             $replacements[$original] = !empty($mc_address) ? implode('  ', $mc_address) : '';
             break;
@@ -242,7 +275,7 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
     $token_types = entity_token_types();
     $info = token_info();
     if (isset($info['tokens'][$type])) {
-      // Otherwise, chain address fields attached to other entities
+      // Otherwise, chain address fields attached to other entities.
       foreach ($info['tokens'][$type] as $name => $token_info) {
         if (isset($token_info['type']) && $token_info['type'] == 'addressfield') {
           if ($chained_tokens = token_find_with_prefix($tokens, $name)) {
@@ -261,6 +294,6 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
       }
     }
   }
-  
+
   return $replacements;
 }

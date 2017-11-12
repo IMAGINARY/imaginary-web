@@ -2,7 +2,9 @@
 
 /**
  * @file
- * Main file for the Save Draft module, which adds a 'Save as draft' button to content types.
+ * Main file for the Save Draft module, which adds a 'Save as draft' button
+ *
+ * to content types.
  */
 
 /**
@@ -115,7 +117,7 @@ function save_draft_draft_button_submit($form, &$form_state) {
 }
 
 /**
- * Handles save draft form validation
+ * Handles save draft form validation.
  */
 function save_draft_validate($form, &$form_state) {
   // Set the node to be published or unpublished depending on which button was
@@ -164,7 +166,9 @@ function save_draft_form_node_type_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Returns TRUE if the currently logged in user has permission to choose the published state for the node being edited.
+ * Returns TRUE if the currently logged in user has permission to choose the
+ *
+ * published state for the node being edited.
  */
 function save_draft_access($form, &$form_state) {
   // Determine if the user has access to publish / unpublish this node via the
@@ -226,7 +230,7 @@ function save_draft_node_type_delete($info) {
  * @return array
  *   An associative array containing the structure of a form element.
  */
-function save_draft_form_after_build($element, &$form_state) {
+function save_draft_form_after_build(array $element, array &$form_state) {
   // Check that the form has been submitted.
   if ($form_state['process_input']) {
     // If the save draft button was pressed.
@@ -246,7 +250,7 @@ function save_draft_form_after_build($element, &$form_state) {
  * @param array $elements
  *   An associative array containing the structure of a form.
  */
-function _save_draft_remove_required(&$elements) {
+function _save_draft_remove_required(array &$elements) {
   // Recurse through all children.
   foreach (element_children($elements) as $key) {
     if (isset($elements[$key]) && $elements[$key]) {

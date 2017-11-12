@@ -1,9 +1,5 @@
-.pdf-canvas {
+.pdf-canvas, .pdf-content canvas {
   border:1px solid black;
-}
-
-.pdf-content canvas {
-  box-shadow: black 0 0 10px;
 }
 
 /* CSS classes used by TextLayerBuilder to style the text layer divs */

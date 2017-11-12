@@ -39,7 +39,7 @@ function theme_addressfield_formatter__citystate($vars) {
   
   // If there's no location, render an alternate
   if (empty($out)) {
-    $out[] = 'Undefined';
+    return '';
   }
   
   // Render the location components
@@ -56,6 +56,18 @@ function theme_addressfield_formatter__citystate($vars) {
 function theme_addressfield_formatter__linear($vars) {
   $loc = $vars['address'];
   
+  // If single line name is empty, construct it from first and last name.
+  if (empty($loc['name_line'])) {
+    $parts = array();
+    if (!empty($loc['first_name'])) {
+      $parts[] = $loc['first_name'];
+    }
+    if (!empty($loc['last_name'])) {
+      $parts[] = $loc['last_name'];
+    }
+    $loc['name_line'] = join(' ', $parts);
+  }
+
   // Determine which location components to render
   $out = array();
   if (!empty($loc['name_line']) && $vars['name_line']) {

@@ -47,8 +47,8 @@ function pdf_libraries_info() {
     'download url' => 'http://mozilla.github.io/pdf.js/getting_started/#download',
     'version arguments' => array(
       'file' => 'build/pdf.js',
-      'pattern' => '/ersion\s=\s\'(.*)\'/',
-      'lines' => 32,
+      'pattern' => '/ersion\s(.*)\s/',
+      'lines' => 3500,
     ),
     'files' => array(
       'js' => array(
@@ -60,6 +60,7 @@ function pdf_libraries_info() {
         'files' => array(
           'js' => array(
             'build/pdf.js',
+            'web/l10n.js',
             'web/viewer.js',
           ),
         ),
