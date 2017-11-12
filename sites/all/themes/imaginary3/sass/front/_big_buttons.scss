@@ -1,12 +1,13 @@
 #big-buttons {
   font-family: $font-stack-futura;
+  margin-right: -12px;
 
   .big-button {
     width: 305px;
     height: 180px;
     float: left;
     position: relative;
-
+    margin: 0 12px 0 0;
     &:hover {
       img{
         opacity: 0.8;
@@ -59,21 +60,6 @@
     color: black;
     text-align: center;
     margin: 0;
-  }
-
-  .galleries,
-  .entdeckerbox,
-  .mathlapse,
-  .mpe {
-    margin: 0 12px;
-  }
-
-  .random,
-  .hands-on,
-  .exhibitions,
-  .africa,
-  .snapshots {
-    float: right;
   }
 
   .register,

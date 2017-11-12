@@ -53,43 +53,9 @@ $size = ' width="400" height="220" ';
       </div>
     </a>
 
-    <a href="<?php print url('exhibitions') ?>">
-      <div class="big-button exhibitions random hidden">
-        <div class="inner">
-          <div class="text">
-            <h2><?php print t('EXHIBITIONS'); ?></h2>
-
-            <p><?php print t('organize your own math exhibitions'); ?></p>
-          </div>
-          <div class="background-image">
-            <img src="<?php echo $themePath; ?>exhibitions.jpg"
-              alt="image1"<?php echo $size; ?>></div>
-        </div>
-      </div>
-    </a>
-
   </div>
 
   <div class="row">
-
-    <a href="<?php print url('node/1184') ?>">
-      <div class="big-button big-button-darkbg math_creations">
-
-        <div class="inner">
-          <div class="text">
-            <h2><?php print t('Math Creations'); ?></h2>
-
-            <p><?php print t('join the math art contest'); ?></p>
-          </div>
-
-          <div class="background-image">
-            <img src="<?php echo $themePath; ?>math_creations.jpg"
-                 alt="image1"<?php echo $size; ?>>
-          </div>
-        </div>
-
-      </div>
-    </a>
 
     <a href="<?php print url('node/344') ?>">
       <div class="big-button big-button-darkbg mpe">
@@ -118,6 +84,21 @@ $size = ' width="400" height="220" ';
             <img src="<?php echo $themePath; ?>snapshots.jpg"
               alt="image1"<?php echo $size; ?>>
           </div>
+        </div>
+      </div>
+    </a>
+
+    <a href="<?php print url('exhibitions') ?>">
+      <div class="big-button exhibitions">
+        <div class="inner">
+          <div class="text">
+            <h2><?php print t('EXHIBITIONS'); ?></h2>
+
+            <p><?php print t('organize your own math exhibitions'); ?></p>
+          </div>
+          <div class="background-image">
+            <img src="<?php echo $themePath; ?>exhibitions.jpg"
+                 alt="image1"<?php echo $size; ?>></div>
         </div>
       </div>
     </a>

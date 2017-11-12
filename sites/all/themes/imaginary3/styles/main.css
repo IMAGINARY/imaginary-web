@@ -2149,12 +2149,14 @@ iframe {
     margin-bottom: 2em; } }
 
 #big-buttons {
-  font-family: FuturaPTMedium-Reg, sans-serif; }
+  font-family: FuturaPTMedium-Reg, sans-serif;
+  margin-right: -12px; }
   #big-buttons .big-button {
     width: 305px;
     height: 180px;
     float: left;
-    position: relative; }
+    position: relative;
+    margin: 0 12px 0 0; }
     #big-buttons .big-button:hover img {
       opacity: 0.8; }
   #big-buttons .inner {
@@ -2192,17 +2194,6 @@ iframe {
     color: black;
     text-align: center;
     margin: 0; }
-  #big-buttons .galleries,
-  #big-buttons .entdeckerbox,
-  #big-buttons .mathlapse,
-  #big-buttons .mpe {
-    margin: 0 12px; }
-  #big-buttons .random,
-  #big-buttons .hands-on,
-  #big-buttons .exhibitions,
-  #big-buttons .africa,
-  #big-buttons .snapshots {
-    float: right; }
   #big-buttons .register h2,
   #big-buttons .register p,
   #big-buttons .big-button-darkbg h2,
