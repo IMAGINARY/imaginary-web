@@ -43,14 +43,15 @@ function entity_translation_node_menu_alter(&$items, $backup) {
     $callback['file'] = $item['file'];
     $callback['module'] = $item['module'];
     $access_arguments = array_merge(array(1, $item['access callback']), $item['access arguments']);
+    $page_arguments = array_merge(array('node', 1, $callback), $item['page arguments']);
   }
   else {
-    $callback = FALSE;
     $access_arguments = array(1);
+    $page_arguments = array('node', 1);
   }
 
   $items['node/%node/translate']['page callback'] = 'entity_translation_overview';
-  $items['node/%node/translate']['page arguments'] = array('node', 1, $callback);
+  $items['node/%node/translate']['page arguments'] = $page_arguments;
   $items['node/%node/translate']['access arguments'] = $access_arguments;
   $items['node/%node/translate']['access callback'] = 'entity_translation_node_tab_access';
   $items['node/%node/translate']['file'] = 'entity_translation.admin.inc';
@@ -248,4 +249,25 @@ function entity_translation_query_comment_filter_alter(QueryAlterableInterface $
       );
     }
   }
+}
+
+/**
+ * Implements hook_node_update_index().
+ *
+ * Add translated node content to search index.
+ */
+function entity_translation_node_update_index($node) {
+  $text = '';
+  $langcodes = array_keys(language_list());
+  $translations = entity_translation_get_handler('node', $node)->getTranslations();
+  foreach ($langcodes as $langcode) {
+    // Skip the default language (already indexed by search.module).
+    if ($GLOBALS[LANGUAGE_TYPE_CONTENT]->language != $langcode && isset($translations->data[$langcode])) {
+      // Render the node in each language.
+      node_build_content($node, 'search_index', $langcode);
+      $rendered = drupal_render($node->content);
+      $text .= '<h1>' . check_plain($node->title) . '</h1>' . $rendered;
+    }
+  }
+  return $text;
 }

@@ -16,6 +16,24 @@ class EntityTranslationTaxonomyTermHandler extends EntityTranslationDefaultHandl
   }
 
   /**
+   * @see EntityTranslationDefaultHandler::getLanguage()
+   */
+  public function getLanguage() {
+    if (isset($this->entity->vid) && module_exists('i18n_taxonomy')) {
+      $mode = i18n_taxonomy_vocabulary_mode($this->entity->vid);
+      // We support also terms having no translation enabled, since they can
+      // just be language-aware.
+      if ($mode == I18N_MODE_NONE || $mode == I18N_MODE_ENTITY_TRANSLATION) {
+        $translations = $this->getTranslations();
+        if (!empty($translations->original)) {
+          return $translations->original;
+        }
+      }
+    }
+    return parent::getLanguage();
+  }
+
+  /**
    * @see EntityTranslationDefaultHandler::entityForm()
    */
   public function entityForm(&$form, &$form_state) {
@@ -32,4 +50,5 @@ class EntityTranslationTaxonomyTermHandler extends EntityTranslationDefaultHandl
       );
     }
   }
+
 }
