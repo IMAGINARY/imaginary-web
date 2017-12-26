@@ -34,7 +34,7 @@ function imaginary3_preprocess_html(&$variables) {
   drupal_add_js('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML', 'external');
 
   // Font Awesome
-  drupal_add_css('https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', 'external');
+  drupal_add_js('https://use.fontawesome.com/a192f4d575.js', 'external');
 
   $viewport = array(
     '#tag' => 'meta',
