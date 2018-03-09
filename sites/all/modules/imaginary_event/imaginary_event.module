@@ -162,11 +162,12 @@ function _imaginary_event_json_build() {
     } else {
       $thumbnail = null;
     }
+
     $event = array(
       'country' => $countries[$venue[0]['country']]->name,
       'city' => $venue[0]['locality'],
-      'dateFrom' => $date[0]['value'],
-      'dateTo' => $date[0]['value2'],
+      'dateFrom' => date('c', strtotime($date[0]['value'])),
+      'dateTo' => date('c', strtotime($date[0]['value2'])),
       'permanent' => $permanent[0]['value'] !== "0",
       'lat' => $coordinates[0]['lat'],
       'lon' => $coordinates[0]['lon'],
