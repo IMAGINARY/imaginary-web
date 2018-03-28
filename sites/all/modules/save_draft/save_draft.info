@@ -1,11 +1,11 @@
 name = Save Draft
-description = Adds a 'Save as Draft' button to content types
+description = Adds a 'Save as Draft' button to content types.
 core = 7.x
 files[] = save_draft.test
 
-; Information added by Drupal.org packaging script on 2017-08-02
-version = "7.x-1.4+17-dev"
+; Information added by Drupal.org packaging script on 2018-01-08
+version = "7.x-1.4+21-dev"
 core = "7.x"
 project = "save_draft"
-datestamp = "1501671246"
+datestamp = "1515387494"
 

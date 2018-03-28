@@ -3,7 +3,6 @@
 /**
  * @file
  * Main file for the Save Draft module, which adds a 'Save as draft' button
- *
  * to content types.
  */
 
@@ -111,6 +110,12 @@ function save_draft_form_node_form_alter(&$form, &$form_state) {
  * Calls all submit handlers on the save button.
  */
 function save_draft_draft_button_submit($form, &$form_state) {
+  if (variable_get('save_draft_show_message_' . $form['#node']->type, FALSE)) {
+    if ($form_state['triggering_element']['#value'] == $form['actions']['draft']['#value']) {
+      drupal_set_message(t('Saved as draft.'));
+    }
+  }
+
   foreach ($form['actions']['submit']['#submit'] as $submit) {
     $submit($form, $form_state);
   }
@@ -162,6 +167,13 @@ function save_draft_form_node_type_form_alter(&$form, &$form_state) {
     '#type' => 'checkbox',
     '#description' => t('Allow users to save a draft without having entered a value for required fields. If unchecked, all required fields must be filled before a draft can be saved.'),
     '#default_value' => variable_get('save_draft_skip_required_' . $form['#node_type']->type, FALSE),
+  );
+
+  $form['save_draft']['save_draft_show_message'] = array(
+    '#title' => t('Show message'),
+    '#type' => 'checkbox',
+    '#description' => t('Display a "Saved as draft" message to the user when they use the save draft button.'),
+    '#default_value' => variable_get('save_draft_show_message_' . $form['#node_type']->type, FALSE),
   );
 }
 

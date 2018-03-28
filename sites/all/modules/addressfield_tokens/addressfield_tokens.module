@@ -201,7 +201,7 @@ function addressfield_tokens_field_formatter_view($entity_type, $entity, $field,
     case 'addressfield_state':
       foreach ($items as $delta => $item) {
         if (!empty($item['country']) && !empty($item['administrative_area'])) {
-          $state = _addressfield_tokens_state($item['country'], $item['administrative_area']);
+          $state = addressfield_tokens_state($item['country'], $item['administrative_area']);
           $element[$delta] = array(
             '#type' => 'markup',
             '#markup' => filter_xss($state),
@@ -352,7 +352,7 @@ function _addressfield_tokens_country_abbr($country) {
  *   An array of countries. The keys are the 2-letter
  *   abbreviations and the values are the full country names.
  */
-function _addressfield_tokens_states($country) {
+function addressfield_tokens_states($country) {
   global $language;
   $langcode = $language->language;
   $states = &drupal_static(__FUNCTION__);
@@ -388,8 +388,8 @@ function _addressfield_tokens_states($country) {
  * @return string
  *   The name of the state, or FALSE.
  */
-function _addressfield_tokens_state($country, $state) {
-  $states = _addressfield_tokens_states($country);
+function addressfield_tokens_state($country, $state) {
+  $states = addressfield_tokens_states($country);
 
   // State abbreviations will usually be two uppercase letters.
   $state_upper = drupal_strtoupper($state);

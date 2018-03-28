@@ -10,6 +10,20 @@ class SaveDraftTestCase extends DrupalWebTestCase {
   protected $admin_user;
   protected $save_draft_user;
 
+  protected $title_key;
+
+  protected $body_key;
+
+  /**
+   * Button text variables.
+   */
+  private $button_unpublish;
+  private $button_publish;
+  private $button_save_draft;
+  private $button_save;
+  private $button_preview;
+  private $button_delete;
+
   /**
    * Return a basic info array .
    */
@@ -26,14 +40,26 @@ class SaveDraftTestCase extends DrupalWebTestCase {
    */
   public function setUp() {
     parent::setUp(array('save_draft'));
-    $this->admin_user = $this->drupalCreateUser(array('administer nodes', 'bypass node access'));
+    $this->admin_user = $this->drupalCreateUser(array(
+      'administer nodes',
+      'bypass node access',
+    ));
     $this->save_draft_user = $this->drupalCreateUser(array(
-      'create article content', 'edit any article content',
-      'view own unpublished content', 'save draft'),
-    );
+      'create article content',
+      'edit any article content',
+      'view own unpublished content',
+      'save draft',
+    ));
     $langcode = LANGUAGE_NONE;
     $this->title_key = "title";
     $this->body_key = "body[$langcode][0][value]";
+
+    $this->button_unpublish = t('Unpublish');
+    $this->button_publish = t('Publish');
+    $this->button_save_draft = t('Save as draft');
+    $this->button_save = t('Save');
+    $this->button_preview = t('Preview');
+    $this->button_delete = t('Delete');
   }
 
   /**
@@ -53,60 +79,63 @@ class SaveDraftTestCase extends DrupalWebTestCase {
     // Log in as a user who should see the save draft button.
     $this->drupalLogin($this->save_draft_user);
 
-    // Make sure save draft is enabled for articles.
+    // Testing with drafts enabled.
     variable_set('save_draft_enabled_article', SAVE_DRAFT_ENABLED);
-    $unpublish = t('Unpublish');
-    $save_draft = t('Save as draft');
-    $save = t('Save');
-    // Make sure the save draft button is present when adding a node and drafts
-    // are enabled.
+
+    // Make sure the publish and save as draft buttons are present when adding a
+    // node.
     $this->drupalGet('node/add/article');
-    $this->assertRaw('<input type="submit" id="edit-draft" name="op" value="' . $save_draft . '" class="form-submit" />', t('Save draft enabled successfully on node create.'));
+    $this->assertRaw('<input type="submit" id="edit-submit" name="op" value="' . $this->button_publish . '" class="form-submit" />', t('Publish button visible on node create.'));
+    $this->assertRaw('<input type="submit" id="edit-draft" name="op" value="' . $this->button_save_draft . '" class="form-submit" />', t('Save as draft button visible on node create.'));
     // Publish a node, and make sure it's published.
     $edit = $this->getNodeArray();
-    $this->drupalPost('node/add/article', $edit, t('Publish'));
+    $this->drupalPost('node/add/article', $edit, $this->button_publish);
     $node = $this->drupalGetNodeByTitle($edit[$this->title_key]);
     $this->assertEqual($node->status, NODE_PUBLISHED, t('Node saved correctly.'));
 
-    // Make sure the unpublish button is present when on a published node and
-    // drafts are enabled.
+    // Make sure the save and unpublish buttons are present when on a published
+    // node.
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $this->assertRaw('<input type="submit" id="edit-draft" name="op" value="' . $unpublish . '" class="form-submit" />', t('Save draft enabled successfully on published node edit.'));
+    $this->assertRaw('<input type="submit" id="edit-submit" name="op" value="' . $this->button_save . '" class="form-submit" />', t('Save button visible on published node edit.'));
+    $this->assertRaw('<input type="submit" id="edit-draft" name="op" value="' . $this->button_unpublish . '" class="form-submit" />', t('Unpublish button visible on published node edit.'));
     // Unpublish it, and make sure it's unpublished.
-    $this->drupalPost('node/' . $node->nid . '/edit', array(), t('Unpublish'));
+    $this->drupalPost('node/' . $node->nid . '/edit', array(), $this->button_unpublish);
     $node = node_load($node->nid, NULL, TRUE);
     $this->assertEqual($node->status, NODE_NOT_PUBLISHED, t('Node unpublished correctly.'));
 
     // Save a new node as a draft, and make sure it's unpublished.
     $edit = $this->getNodeArray();
-    $this->drupalPost('node/add/article', $edit, t('Save as draft'));
+    $this->drupalPost('node/add/article', $edit, $this->button_save_draft);
     $node = $this->drupalGetNodeByTitle($edit[$this->title_key]);
     $this->assertEqual($node->status, NODE_NOT_PUBLISHED, t('Node saved correctly as draft.'));
 
-    // Make sure the unpublish button is present when on a draft node and
-    // drafts are enabled.
+    // Make sure the publish and save draft buttons are present when on an
+    // unpublished draft.
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $this->assertRaw('<input type="submit" id="edit-draft" name="op" value="' . $save . '" class="form-submit" />', t('Save draft enabled successfully on draft node edit.'));
+    $this->assertRaw('<input type="submit" id="edit-submit" name="op" value="' . $this->button_publish . '" class="form-submit" />', t('Publish button visible on draft node edit.'));
+    $this->assertRaw('<input type="submit" id="edit-draft" name="op" value="' . $this->button_save_draft . '" class="form-submit" />', t('Save draft button visible on draft node edit.'));
     // Publish the node, and make sure it's published.
-    $this->drupalPost('node/' . $node->nid . '/edit', array(), t('Publish'));
+    $this->drupalPost('node/' . $node->nid . '/edit', array(), $this->button_publish);
     $node = node_load($node->nid, NULL, TRUE);
     $this->assertEqual($node->status, NODE_PUBLISHED, t('Node published correctly.'));
 
-    // Make sure save draft is disabled for articles.
+    // Testing with drafts disabled.
     variable_set('save_draft_enabled_article', SAVE_DRAFT_DISABLED);
 
     // Make sure the save draft button is not present when adding a node and
     // drafts are disabled.
     $this->drupalGet('node/add/article');
-    $this->assertNoRaw('<input type="submit" id="edit-draft" name="op" value="' . $save_draft . '" class="form-submit" />', t('Save draft disabled successfully on node create.'));
+    $this->assertRaw('<input type="submit" id="edit-submit" name="op" value="' . $this->button_save . '" class="form-submit" />', t('Save button visible on node create.'));
+    $this->assertNoRaw('<input type="submit" id="edit-draft" name="op" value="' . $this->button_save_draft . '" class="form-submit" />', t('Save draft button not visible on node create.'));
     // Publish a node and edit it again.
     $edit = $this->getNodeArray();
-    $this->drupalPost('node/add/article', $edit, t('Save'));
+    $this->drupalPost('node/add/article', $edit, $this->button_save);
     $node = $this->drupalGetNodeByTitle($edit[$this->title_key]);
     // Make sure the unpublish button is present when on a published node and
     // drafts are disabled.
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $this->assertNoRaw('<input type="submit" id="edit-draft" name="op" value="' . $unpublish . '" class="form-submit" />', t('Save draft disabled successfully on published node edit.'));
+    $this->assertRaw('<input type="submit" id="edit-submit" name="op" value="' . $this->button_save . '" class="form-submit" />', t('Save button visible on published node edit.'));
+    $this->assertNoRaw('<input type="submit" id="edit-draft" name="op" value="' . $this->button_unpublish . '" class="form-submit" />', t('Save draft disabled successfully on published node edit.'));
   }
 
   /**
@@ -117,13 +146,16 @@ class SaveDraftTestCase extends DrupalWebTestCase {
     // button and also edit the node's author.
     $this->drupalLogin($this->admin_user);
 
+    // Enable save draft functionality.
+    variable_set('save_draft_enabled_article', SAVE_DRAFT_ENABLED);
+
     // Test with & without required validation.
     foreach (array(TRUE, FALSE) as $skip_required_validation) {
       debug('Skip required validation: ' . ($skip_required_validation ? 'true' : 'false'));
       variable_set('save_draft_skip_required_article', $skip_required_validation);
 
       // Test clicking all the different buttons on the node add page.
-      foreach (array(t('Publish'), t('Save as draft'), t('Preview')) as $button_value) {
+      foreach (array($this->button_publish, $this->button_save_draft, $this->button_preview) as $button_value) {
         debug('Node add. Button value: ' . $button_value);
         // Try to create a node with a nonexistent author.
         $edit = $this->getNodeArray();
@@ -140,7 +172,7 @@ class SaveDraftTestCase extends DrupalWebTestCase {
         // which case title should be required.
         // t() functions are like this to replicate how the string would
         // normally be created.
-        if (!$skip_required_validation || $button_value == t('Publish')) {
+        if (!$skip_required_validation || $button_value == $this->button_publish) {
           $this->assertRaw(t('!name field is required.', array('!name' => t('Title'))));
         }
         else {
@@ -149,10 +181,10 @@ class SaveDraftTestCase extends DrupalWebTestCase {
       }
       // Test clicking all the different buttons on the node edit page of a
       // published node.
-      foreach (array(t('Save'), t('Unpublish'), t('Preview'), t('Delete')) as $button_value) {
+      foreach (array($this->button_save, $this->button_unpublish, $this->button_preview, $this->button_delete) as $button_value) {
         debug('Published node edit. Button value: ' . $button_value);
         $edit = $this->getNodeArray();
-        $this->drupalPost('node/add/article', $edit, t('Publish'));
+        $this->drupalPost('node/add/article', $edit, $this->button_publish);
         $node = $this->drupalGetNodeByTitle($edit[$this->title_key]);
         // Remove the title, which is a required field.
         $edit[$this->title_key] = '';
@@ -166,7 +198,7 @@ class SaveDraftTestCase extends DrupalWebTestCase {
         // which case title should be required.
         // t() functions are like this to replicate how the string would
         // normally be created.
-        if (!$skip_required_validation || $button_value == t('Save')) {
+        if (!$skip_required_validation || $button_value == $this->button_save) {
           $this->assertRaw(t('!name field is required.', array('!name' => t('Title'))));
         }
         else {
@@ -175,10 +207,10 @@ class SaveDraftTestCase extends DrupalWebTestCase {
       }
       // Test clicking all the different buttons on the node edit page of a
       // draft node.
-      foreach (array(t('Save'), t('Publish'), t('Preview'), t('Delete')) as $button_value) {
+      foreach (array($this->button_save_draft, $this->button_publish, $this->button_preview, $this->button_delete) as $button_value) {
         debug('Draft node edit. Button value: ' . $button_value);
         $edit = $this->getNodeArray();
-        $this->drupalPost('node/add/article', $edit, t('Save as draft'));
+        $this->drupalPost('node/add/article', $edit, $this->button_save_draft);
         $node = $this->drupalGetNodeByTitle($edit[$this->title_key]);
         // Remove the title, which is a required field.
         $edit[$this->title_key] = '';
@@ -192,7 +224,7 @@ class SaveDraftTestCase extends DrupalWebTestCase {
         // which case title should be required.
         // t() functions are like this to replicate how the string would
         // normally be created.
-        if (!$skip_required_validation || $button_value == t('Publish')) {
+        if (!$skip_required_validation || $button_value == $this->button_publish) {
           $this->assertRaw(t('!name field is required.', array('!name' => t('Title'))));
         }
         else {

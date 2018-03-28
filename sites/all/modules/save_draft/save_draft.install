@@ -12,5 +12,6 @@ function save_draft_uninstall() {
   foreach (node_type_get_names('names') as $type => $type_name) {
     variable_del('save_draft_enabled_' . $type);
     variable_del('save_draft_skip_required_' . $type);
+    variable_del('save_draft_show_message_' . $type);
   }
 }

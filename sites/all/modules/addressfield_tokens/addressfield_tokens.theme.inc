@@ -11,6 +11,9 @@
  */
 function theme_addressfield_formatter($vars) {
   $address = $vars['address'];
+  if (isset($address['addressfield'])) {
+    $address = $address['addressfield'];
+  }
   $handlers = $vars['handlers'];
   
   $out = addressfield_generate($address, $handlers, array('mode' => 'render'));
@@ -115,7 +118,7 @@ function theme_addressfield_formatter__components($vars) {
       $out[$key] = _addressfield_tokens_country($loc['country']);
     }
     elseif ($key == 'administrative_area_full' && !empty($loc['country']) && !empty($loc['administrative_area'])) {
-      $out[$key] = _addressfield_tokens_state($loc['country'], $loc['administrative_area']);
+      $out[$key] = addressfield_tokens_state($loc['country'], $loc['administrative_area']);
     }
   }
   

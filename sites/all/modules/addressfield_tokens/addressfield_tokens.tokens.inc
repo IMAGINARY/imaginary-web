@@ -226,10 +226,10 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
           case 'state_name':
             if (!empty($address['administrative_area']) && !empty($address['country'])) {
               if ($sanitize) {
-                $replacements[$original] = filter_xss(_addressfield_tokens_state($address['country'], $address['administrative_area']));
+                $replacements[$original] = filter_xss(addressfield_tokens_state($address['country'], $address['administrative_area']));
               }
               else {
-                $replacements[$original] = _addressfield_tokens_state($address['country'], $address['administrative_area']);
+                $replacements[$original] = addressfield_tokens_state($address['country'], $address['administrative_area']);
               }
             }
             break;
