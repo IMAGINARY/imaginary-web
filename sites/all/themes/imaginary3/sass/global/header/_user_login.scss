@@ -12,6 +12,7 @@
 
   .get-access {
     text-align: right;
+    cursor: pointer;
   }
 
   ul, #edit-name, #edit-name--1, #edit-name--2 {
@@ -25,8 +26,6 @@
   #edit-pass, #edit-pass--1, #edit-pass--2 {
     width: 140px;
     float: left;
-    margin: 0;
-    padding: 0;
   }
 
   #edit-actions, #edit-actions--1, #edit-actions--2, #edit-submit, #edit-submit--1, #edit-submit--2 {
@@ -53,7 +52,8 @@
 
     li {
       float: left;
-      font-size: 0.7em;
+      font-size: 1em;
+      line-height: 1.4;
       list-style: none;
       padding-right: 10px;
     }

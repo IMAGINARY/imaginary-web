@@ -12,4 +12,11 @@
   .form-submit {
     @include visuallyhidden;
   }
+
+  .form-item-search-block-form {
+    @include responsive($xs) {
+      display: block;
+      padding-top: 8px;
+    }
+  }
 }

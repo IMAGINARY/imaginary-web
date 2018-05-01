@@ -1262,16 +1262,15 @@ iframe {
   margin: 0;
   padding: 0; }
   #header #block-user-login .get-access {
-    text-align: right; }
+    text-align: right;
+    cursor: pointer; }
   #header #block-user-login ul, #header #block-user-login #edit-name, #header #block-user-login #edit-name--1, #header #block-user-login #edit-name--2 {
     width: 210px; }
   #header #block-user-login .form-type-textfield {
     margin-top: 10px; }
   #header #block-user-login #edit-pass, #header #block-user-login #edit-pass--1, #header #block-user-login #edit-pass--2 {
     width: 140px;
-    float: left;
-    margin: 0;
-    padding: 0; }
+    float: left; }
   #header #block-user-login #edit-actions, #header #block-user-login #edit-actions--1, #header #block-user-login #edit-actions--2, #header #block-user-login #edit-submit, #header #block-user-login #edit-submit--1, #header #block-user-login #edit-submit--2 {
     width: 60px;
     float: right;
@@ -1304,7 +1303,8 @@ iframe {
     padding-bottom: 30px; }
     #header #block-user-login .item-list li {
       float: left;
-      font-size: 0.7em;
+      font-size: 1em;
+      line-height: 1.4;
       list-style: none;
       padding-right: 10px; }
 
@@ -1445,6 +1445,10 @@ iframe {
     padding: 0;
     position: absolute;
     width: 1px; }
+  @media screen and (max-width: 767px) {
+    #block-search-form .form-item-search-block-form {
+      display: block;
+      padding-top: 8px; } }
 
 #block-menu-menu-main-menu-2 {
   position: absolute;
