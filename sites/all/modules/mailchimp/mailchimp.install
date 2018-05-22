@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the mailchimp module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function mailchimp_schema() {
+  $schema['cache_mailchimp'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_mailchimp']['description'] = 'Cache table for the MailChimp module to store a list of subscribers member info.';
+
+  return $schema;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function mailchimp_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time:
+  $t = get_t();
+
+  // Report Drupal version:
+  if (in_array($phase, array('runtime', 'update'))) {
+    // Check to see if Libraries module is being used.
+    if (module_exists('libraries')) {
+      $library = libraries_detect('mailchimp');
+    }
+    // If not we set the variable to false
+    else {
+      $library = FALSE;
+    }
+    $requirements['mailchimp'] = array(
+      'title' => $t('MailChimp'),
+    );
+
+    if ($library['installed']) {
+      $requirements['mailchimp'] += array(
+        'value' => $library['version'],
+        'description' => $t('The MailChimp MCAPI wrapper library is installed correctly.'),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+    // Check to see if the API library is being loaded by composer.
+    elseif (class_exists('Mailchimp\Mailchimp')) {
+      $requirements['mailchimp'] += array(
+        'value' => Mailchimp\Mailchimp::VERSION,
+        'description' => $t('The MailChimp MCAPI wrapper library is installed correctly.'),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+    // No API from libraries or composer, punt!
+    else {
+      $requirements['mailchimp'] += array(
+        'value' => $library['error'],
+        'description' => $library['error message'],
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function mailchimp_uninstall() {
+  variable_del('mailchimp_api_key');
+  variable_del('mailchimp_batch_limit');
+  $queue = DrupalQueue::get(MAILCHIMP_QUEUE_CRON);
+  $queue->deleteQueue();
+  $queue = DrupalQueue::get(MAILCHIMP_BATCH_QUEUE_CRON);
+  $queue->deleteQueue();
+}

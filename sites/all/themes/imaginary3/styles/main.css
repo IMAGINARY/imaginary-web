@@ -6819,6 +6819,20 @@ ul.event-grid {
     vertical-align: top;
     margin: 0; }
 
+.page-user-register #edit-group_newsletter {
+  display: block !important;
+  margin-top: 10px !important;
+  border-top: 25px solid white; }
+  .page-user-register #edit-group_newsletter .fieldset-legend {
+    margin-top: 0; }
+  .page-user-register #edit-group_newsletter .fieldset-description {
+    font-family: FuturaPTMedium-Reg, sans-serif; }
+  .page-user-register #edit-group_newsletter .form-type-checkbox input {
+    width: auto;
+    margin: -2px 5px 0 0; }
+  .page-user-register #edit-group_newsletter .form-type-checkbox label {
+    font-size: 1.3em; }
+
 .page-user-register .recaptcha_r1_c1, .page-user-register .recaptcha_r2_c1, .page-user-register .recaptcha_r2_c2, .page-user-register .recaptcha_r3_c1, .page-user-register .recaptcha_r3_c2, .page-user-register .recaptcha_r3_c3, .page-user-register .recaptcha_r4_c2, .page-user-register .recaptcha_r4_c4, .page-user-register .recaptcha_r7_c1, .page-user-register .recaptcha_r8_c1 {
   display: none; }
 

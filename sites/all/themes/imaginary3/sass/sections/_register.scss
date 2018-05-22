@@ -10,7 +10,6 @@
 
 .page-user-register {
 
-
   ul.vertical-tabs-list {
     display: none;
   }
@@ -59,6 +58,31 @@
       display: inline-block;
       vertical-align: top;
       margin: 0;
+    }
+  }
+
+  #edit-group_newsletter {
+    display: block !important;
+    margin-top: 10px !important;
+    border-top: 25px solid white;
+
+    .fieldset-legend {
+      margin-top: 0;
+    }
+
+    .fieldset-description {
+      font-family: FuturaPTMedium-Reg, sans-serif;
+    }
+
+    .form-type-checkbox {
+      input {
+        width: auto;
+        margin: -2px 5px 0 0;
+      }
+
+      label {
+        font-size: 1.3em;
+      }
     }
   }
 
