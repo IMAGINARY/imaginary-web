@@ -34,6 +34,12 @@ function imaginary_event_menu() {
     'access callback' => TRUE,
   );
 
+  $items['api/events-ems.json'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_imaginary_event_ems_json',
+    'access callback' => TRUE,
+  );
+
   $items['admin/config/development/imaginary/event/maps'] = array(
     'title' => 'Event map settings',
     'page callback' => 'drupal_get_form',
@@ -111,6 +117,25 @@ function imaginary_event_map_render($options = array()) {
   return $output;
 }
 
+function _imaginary_event_ems_json() {
+  global $language;
+
+  $cid = "api.events-ems.{$language->language}";
+
+  if($cached = cache_get($cid, 'cache_page'))  {
+    $output = $cached->data;
+  }
+  if(empty($output)) {
+    $output = _imaginary_event_json_build('ems');
+    cache_set($cid, $output,'cache_page', CACHE_TEMPORARY);
+  }
+
+  drupal_add_http_header('Content-Type', 'application/json; charset=utf-8');
+  drupal_add_http_header('Access-Control-Allow-Origin', '*');
+  print str_replace('\\/', '/', json_encode($output, JSON_PRETTY_PRINT));
+  exit;
+}
+
 /**
  * JSON output handler that returns event data
  */
@@ -134,7 +159,7 @@ function _imaginary_event_json() {
   exit;
 }
 
-function _imaginary_event_json_build() {
+function _imaginary_event_json_build($format = 'default') {
 
   $output = array(
     'events' => array(),
@@ -177,6 +202,26 @@ function _imaginary_event_json_build() {
     if($thumbnail !== null) {
       $event['thumbnail'] = $thumbnail;
     }
+
+    // Special handling for EMS Calendar
+    if($format === 'ems') {
+      unset($event['permanent']);
+      unset($event['thumbnail']);
+      $event['id'] = $node->nid;
+      $body = field_get_items('node', $node, 'body');
+      $event['description'] = check_markup($body[0]['value'], $body[0]['format']);
+      $event['venue'] = $venue[0]['name_line'];
+      $event['country'] = $venue[0]['country'];
+      $event['region'] = $venue[0]['administrative_area'] ? $venue[0]['administrative_area'] : '';
+      $event['postal_code'] = $venue[0]['postal_code'] ? $venue[0]['postal_code'] : '';
+      $event['street'] = $venue[0]['thoroughfare'];
+      $website = field_get_items('node', $node, 'field_website');
+      $event['website'] = $website[0]['url'] ? $website[0]['url'] : '';
+
+      $times = field_get_items('field_collection_item', $time_place, 'field_event_opening_exceptions');
+      $event['times'] = drupal_html_to_text($times[0]['value']);
+    }
+
     $output['events'][] = $event;
   }
 
@@ -186,7 +231,11 @@ function _imaginary_event_json_build() {
 
   usort($output['events'], 'sortByDate');
 
-  return $output;
+  if ($format === 'ems') {
+    return $output['events'];
+  } else {
+    return $output;
+  }
 }
 
 /**
