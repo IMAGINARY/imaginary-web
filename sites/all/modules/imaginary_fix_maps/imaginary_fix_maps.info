@@ -1,0 +1,5 @@
+name = Google Maps Fix
+description = Fixes google maps implemented by Geofield
+core = 7.x
+version = 7.x-1.0
+package = Imaginary
