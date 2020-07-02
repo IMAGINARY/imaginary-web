@@ -132,10 +132,10 @@ function mailchimp_automations_entity_form($form, &$form_state, MailchimpAutomat
         }
         if (!empty($options)) {
           $form['drupal_entity']['list_id'] = array(
-            '#title' => t('MailChimp List'),
+            '#title' => t('MailChimp Audience'),
             '#type' => 'select',
             '#required' => TRUE,
-            '#description' => t('Select the list that you created in MailChimp.'),
+            '#description' => t('Select the audience that you created in MailChimp.'),
             '#options' => $options,
             '#default_value' => $entitynotnull ? $mailchimp_automations_entity->list_id : 0,
             '#maxlength' => 127,
@@ -147,7 +147,7 @@ function mailchimp_automations_entity_form($form, &$form_state, MailchimpAutomat
           );
         }
         else {
-          $msg = t('You must add at least one list in MailChimp for this functionality to work.');
+          $msg = t('You must add at least one audience in MailChimp for this functionality to work.');
           drupal_set_message($msg, 'error', FALSE);
         }
 

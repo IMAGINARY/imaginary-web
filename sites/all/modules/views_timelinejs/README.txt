@@ -8,7 +8,14 @@ http://drupal.org/project/views_timelinejs
 http://drupal.org/project/libraries
 
 3. Download Timeline JS libraries from Github:
-https://github.com/VeriteCo/TimelineJS
+https://github.com/NUKnightLab/TimelineJS/releases/tag/2.26.3
+
+or clone the library with Git using the command:
+git clone --branch 2.26.3 https://github.com/NUKnightLab/TimelineJS.git timeline
+
+Warning: Later versions of the TimelineJS library do not include the build
+directory and compiled versions of the JS files.  2.26.3 is the last tag that
+will work with this module's 7.x-1.x branch.
 
 4. Place Timeline JS library into sites/all/libraries/timeline. The timeline.js and storyjs-embed.js
 files should be located in the sites/all/libraries/timeline/build/js directory.

@@ -8,9 +8,8 @@ core = 7.x
 
 files[] = views_timelinejs_plugin_style_timelinejs.inc
 
-; Information added by Drupal.org packaging script on 2015-04-26
-version = "7.x-1.0-beta1"
+; Information added by Drupal.org packaging script on 2019-11-11
+version = "7.x-1.0"
 core = "7.x"
 project = "views_timelinejs"
-datestamp = "1430075882"
-
+datestamp = "1573455186"

@@ -66,7 +66,8 @@ function mailsystem_defaults() {
 /**
  * Returns the current mail_system settings.
  *
- * @return The contents of the mail_system variable merged with its defaults.
+ * @return array
+ *   The contents of the mail_system variable merged with its defaults.
  */
 function mailsystem_get() {
   return array_merge(
@@ -104,10 +105,12 @@ function mailsystem_read_settings() {
 }
 
 /**
- * Helps other modules safely set their own key within mail_system.  This
- * function should be called from hook_enable() implementations.
+ * Helps other modules safely set their own key within mail_system.
  *
- * @param $setting  An associative array ($id => $value) where:
+ * This function should be called from hook_enable() implementations.
+ *
+ * @param array $setting
+ *   An associative array ($id => $value) where:
  *   - $id is the machine-readable module name optionally followed by '_'
  *     and a key.
  *   - $value is one of
@@ -123,7 +126,7 @@ function mailsystem_set(array $setting) {
   foreach ($setting as $key => $class) {
     variable_del("mailsystem_delegate:$key");
     if (is_array($class)) {
-      // Save the settings for our delegateer-class into a variable
+      // Save the settings for our delegateer-class into a variable.
       $setting[$key] = mailsystem_delegate_set_mailsystem_settings($key, $class);
     }
   }
@@ -131,18 +134,17 @@ function mailsystem_set(array $setting) {
 }
 
 /**
- * Helps other modules safely remove their settings from mail_system.  This
- * function should be called from the other module's hook_disable() function.
+ * Helps other modules safely remove their settings from mail_system.
  *
- * @param $setting  An associative array ($module => $classname) describing
- * a module and associated MailSystemInterface class that are being disabled.
+ * Function should be called from the other module's hook_disable() function.
+ *
+ * @param array $setting
+ *   An associative array ($module => $classname) describing
+ *   a module and associated MailSystemInterface class that are being disabled.
  *   - $module is the machine-readable module name.
  *   - $classname is a class that implements MailSystemInterface.
  *
- * If $classname is empty, only the $module entry is removed.
- *
- * @param $class
- *   The name of the class to be removed, if any.
+ *   If $classname is empty, only the $module entry is removed.
  */
 function mailsystem_clear(array $setting) {
   variable_set(
@@ -160,15 +162,18 @@ function mailsystem_clear(array $setting) {
 /**
  * Save settings for the delegate mail system for a given mail-id.
  *
- * @param $id is the machine-readable module name optionally followed by '_'
- *       and a key.
- * @param $map An associative array whose keys are the names of methods
- *       defined by MailSystemInterface and whose values are the names of
+ * @param int $id
+ *   Is the machine-readable module name optionally followed by '_'
+ *   and a key.
+ * @param array $settings
+ *   An associative array whose keys are the names of methods
+ *   defined by MailSystemInterface and whose values are the names of
  *       the class to use for that method.
  *
- * @return A string specifying the name of the delegator class.
+ * @return string
+ *   A string specifying the name of the delegator class.
  */
-function mailsystem_delegate_set_mailsystem_settings($id, $settings) {
+function mailsystem_delegate_set_mailsystem_settings($id, array $settings) {
   variable_set('mailsystem_delegate:' . $id, $settings);
   return 'MailsystemDelegateMailSystem';
 }
@@ -176,7 +181,7 @@ function mailsystem_delegate_set_mailsystem_settings($id, $settings) {
 /**
  * Returns an MailSystemInterface class instance for a given action.
  *
- *  of a class implementing the MailSystemInterface
+ *  Of a class implementing the MailSystemInterface
  * responsible for performing the given action.
  *
  * @param string $module
@@ -189,15 +194,22 @@ function mailsystem_delegate_set_mailsystem_settings($id, $settings) {
  *   - mail: Send a message composed by drupal_mail().
  *
  * @return MailSystemInterface
+ *   A mail system implementation.
  *
- * @see drupal_mail_system().
+ * @see drupal_mail_system()
  */
 function _mailsystem_delegate_get_mailsystem($module, $key, $action) {
   $instances = &drupal_static(__FUNCTION__, array());
 
+  // Try to use custom settings defined for the message's module and key.
   $settings = variable_get('mailsystem_delegate:' . $module . '_' . $key);
   if ($settings === NULL) {
+    // Try to use custom settings defined for the message's module.
     $settings = variable_get('mailsystem_delegate:' . $module);
+  }
+  if ($settings === NULL) {
+    // Try to use the configured site-wide default mail system settings.
+    $settings = variable_get('mailsystem_delegate:' . mailsystem_default_id());
   }
 
   // Use the class configured for the given action.
@@ -312,7 +324,8 @@ function mailsystem_get_classes() {
 /**
  * Return a DatabaseCondition representing the registry-whitelist.
  *
- * @return DatabaseConnection representing the whitelist conditions or NULL.
+ * @return DatabaseCondition|null
+ *   DatabaseCondition representing the whitelist conditions or NULL.
  *
  * @see mailsystem_get_classes
  */
@@ -331,7 +344,7 @@ function _mailsystem_get_registry_whitelist_condition() {
   ));
 
   if (!empty($whitelist)) {
-    $or= db_or();
+    $or = db_or();
     foreach ($whitelist as $entry) {
       if (!empty($entry['field']) && !empty($entry['value']) && !empty($entry['operator'])) {
         $or->condition($entry['field'], $entry['value'], $entry['operator']);
@@ -351,7 +364,8 @@ function _mailsystem_get_registry_whitelist_condition() {
  * is disabled. The blacklist pattern can be overridden using the variable
  * mailsystem_get_classes_blacklist.
  *
- * @return DatabaseConnection representing the blacklist conditions or NULL.
+ * @return DatabaseCondition|null
+ *   DatabaseCondition representing the blacklist conditions or NULL.
  *
  * @see mailsystem_get_classes
  */
@@ -385,18 +399,18 @@ function _mailsystem_get_registry_blacklist_condition() {
 }
 
 /**
-* Implements hook_theme_registry_alter().
-*/
+ * Implements hook_theme_registry_alter().
+ */
 function mailsystem_theme_registry_alter(&$theme_registry) {
   module_load_include('inc', 'mailsystem', 'mailsystem.theme');
   return mailsystem_theme_theme_registry_alter($theme_registry);
 }
 
 /**
-* Retrieves the key of the theme used to render the emails.
-*
-* @todo Add some kind of hook to let other modules alter this behavior.
-*/
+ * Retrieves the key of the theme used to render the emails.
+ *
+ * @todo Add some kind of hook to let other modules alter this behavior.
+ */
 function mailsystem_get_mail_theme() {
   global $theme_key;
   $theme = variable_get('mailsystem_theme', 'current');
@@ -404,9 +418,11 @@ function mailsystem_get_mail_theme() {
     case 'default':
       $theme = variable_get('theme_default', NULL);
       break;
+
     case 'current':
       $theme = $theme_key;
       break;
+
     case 'domain':
       // Fetch the theme for the current domain.
       if (module_exists('domain_theme')) {
@@ -419,4 +435,22 @@ function mailsystem_get_mail_theme() {
       break;
   }
   return $theme;
+}
+
+/**
+ * Implements hook_system_info_alter().
+ *
+ * Prevent the module from being disabled while the mail_system variable is
+ * still using the MailsystemDelegateMailSystem class.
+ */
+function mailsystem_system_info_alter(&$info, $file, $type) {
+  if ($type == 'module' && $file->name == 'mailsystem') {
+    $mail_system = mailsystem_get();
+    foreach ($mail_system as $key => $class) {
+      if ($class == 'MailsystemDelegateMailSystem') {
+        $info['required'] = TRUE;
+        $info['explanation'] = t('<em>Mail System</em> cannot be disabled until each custom setting on its <a href="@url">configure page</a> is either removed, or uses the same class for both its formatting and delivery class.', array('@url' => url('admin/config/system/mailsystem')));
+      }
+    }
+  }
 }

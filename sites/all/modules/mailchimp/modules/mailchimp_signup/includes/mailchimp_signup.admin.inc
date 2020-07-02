@@ -9,7 +9,7 @@
  * Return a form for adding/editing a MailChimp signup form.
  */
 function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
-  // Store the existing list for updating on submit.
+  // Store the existing list/audience for updating on submit.
   $form_state['signup'] = $signup;
 
   $form['title'] = array(
@@ -22,7 +22,7 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
     '#required' => TRUE,
   );
 
-  // Machine-readable list name.
+  // Machine-readable list/audience name.
   $status = isset($signup->status) && $signup->mcs_id && (($signup->status & ENTITY_IN_CODE) || ($signup->status & ENTITY_FIXED));
   $form['name'] = array(
     '#type' => 'machine_name',
@@ -33,7 +33,7 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
       'exists' => 'mailchimp_signup_load_multiple_by_name',
       'source' => array('title'),
     ),
-    '#description' => t('A unique machine-readable name for this list. It must only contain lowercase letters, numbers, and underscores.'),
+    '#description' => t('A unique machine-readable name for this audience. It must only contain lowercase letters, numbers, and underscores.'),
   );
   $form['description'] = array(
     '#type' => 'textarea',
@@ -106,7 +106,7 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
 
   $form['mc_lists_config'] = array(
     '#type' => 'fieldset',
-    '#title' => t('MailChimp List Selection & Configuration'),
+    '#title' => t('MailChimp Audience Selection & Configuration'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
@@ -117,8 +117,8 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
   }
   $form['mc_lists_config']['mc_lists'] = array(
     '#type' => 'checkboxes',
-    '#title' => t('MailChimp Lists'),
-    '#description' => t('Select which lists to show on your signup form. You can create additional lists at !MailChimp.',
+    '#title' => t('MailChimp Audiences'),
+    '#description' => t('Select which audiences to show on your signup form. You can create additional audiences at !MailChimp.',
       array('!MailChimp' => l(t('MailChimp'), 'https://admin.mailchimp.com'))),
     '#options' => $options,
     '#default_value' => is_array($signup->mc_lists) ? $signup->mc_lists : array(),
@@ -130,7 +130,7 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
       'effect' => 'fade',
       'progress' => array(
         'type' => 'throbber',
-        'message' => t('Retrieving merge fields for this list.'),
+        'message' => t('Retrieving merge fields for this audience.'),
       ),
     ),
   );
@@ -140,7 +140,7 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
     '#suffix' => '</div>',
   );
 
-  // Show merge fields if changing list field or editing existing list.
+  // Show merge fields if changing list/audiences field or editing existing list/audience.
   if (!empty($form_state['values']['mc_lists']) || !isset($signup->is_new) || !$signup->is_new) {
     $form['mc_lists_config']['mergefields'] = array(
       '#type' => 'fieldset',
@@ -165,7 +165,7 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
       $form['mc_lists_config']['mergefields'][$mergevar->tag] = array(
         '#type' => 'checkbox',
         '#title' => check_plain($mergevar->name),
-        '#default_value' => isset($signup->settings['mergefields'][$mergevar->tag]) ? !empty($signup->settings['mergefields'][$mergevar->tag]) : TRUE,
+        '#default_value' => $mergevar->required ? TRUE : (isset($signup->settings['mergefields'][$mergevar->tag]) ? !empty($signup->settings['mergefields'][$mergevar->tag]) : TRUE),
         '#required' => $mergevar->required,
         '#disabled' => $mergevar->required,
       );
@@ -199,6 +199,49 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
     '#description' => t('If set, subscribers will be able to select applicable interest groups on the signup form.'),
   );
 
+  $form['gdpr_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('GDPR Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['gdpr_settings']['gdpr_consent'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Add a GDPR consent checkbox'),
+    '#description' => t('Add a GDPR consent checkbox to the signup form that syncs with the Mailchimp marketing permission field.'),
+    '#default_value' => isset($signup->settings['gdpr_consent']) ? $signup->settings['gdpr_consent'] : FALSE,
+  );
+
+  $form['gdpr_settings']['gdpr_checkbox_label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Consent checkbox label'),
+    '#description' => t('The label to display on the GDPR consent checkbox, for example "I agree to the privacy policy".'),
+    '#default_value' => isset($signup->settings['gdpr_checkbox_label']) ? $signup->settings['gdpr_checkbox_label'] : NULL,
+    '#states' => array(
+      // Hide unless needed.
+      'visible' => array(
+        ':input[name="gdpr_consent"]' => array('checked' => TRUE),
+      ),
+      'required' => array(
+        ':input[name="gdpr_consent"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['gdpr_settings']['gdpr_consent_required'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('GDPR consent required'),
+    '#description' => t('Make the GDPR consent checkbox a required field.'),
+    '#default_value' => isset($signup->settings['gdpr_consent_required']) ? $signup->settings['gdpr_consent_required'] : FALSE,
+    '#states' => array(
+      // Hide unless needed.
+      'visible' => array(
+        ':input[name="gdpr_consent"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
   $form['save'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
@@ -221,7 +264,7 @@ function mailchimp_signup_form($form, &$form_state, MailchimpSignup $signup) {
 /**
  * AJAX callback to return fields for a given type.
  *
- * Returns the form lists configuration fields.
+ * Returns the form lists/audiences configuration fields.
  */
 function mailchimp_signup_mergefields_callback($form, $form_state) {
   return $form['mc_lists_config']['mergefields'];
@@ -258,6 +301,9 @@ function mailchimp_signup_form_submit($form, &$form_state) {
   $signup->settings['doublein'] = $form_state['values']['doublein'];
   $signup->settings['include_interest_groups'] = $form_state['values']['include_interest_groups'];
   $signup->settings['placeholder'] = $form_state['values']['placeholder'];
+  $signup->settings['gdpr_consent'] = $form_state['values']['gdpr_consent'];
+  $signup->settings['gdpr_checkbox_label'] = $form_state['values']['gdpr_checkbox_label'];
+  $signup->settings['gdpr_consent_required'] = $form_state['values']['gdpr_consent_required'];
   if ($signup->save()) {
     if (isset($form_state['values']['settings']['path'])) {
       if (!isset($prior_settings['path']) || $prior_settings['path'] != $signup->settings['path'] || !($signup->mode & MAILCHIMP_SIGNUP_PAGE)) {

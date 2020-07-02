@@ -258,7 +258,7 @@ function mailchimp_campaign_overview_page() {
       t('Title'),
       t('Subject'),
       t('Status'),
-      t('MailChimp list'),
+      t('MailChimp audience'),
       t('MailChimp template'),
       t('Created'),
       t('Actions'),
@@ -315,7 +315,7 @@ function mailchimp_campaign_save_campaign($template, $recipients, $settings, $te
     );
   }
 
-  // Test for valid list segment, if selected.
+  // Test for valid list/audience segment, if selected.
   if (isset($recipients->segment_opts)) {
     if (mailchimp_test_list_segment($recipients->list_id, $recipients->segment_opts->saved_segment_id) === NULL) {
       return NULL;
@@ -892,7 +892,7 @@ function mailchimp_campaign_get_campaigns($campaign_ids, $reset = FALSE) {
     $mc_campaigns = mailchimp_get_api_object('MailchimpCampaigns');
     try {
       if (!$mc_campaigns) {
-        throw new MailchimpException('Cannot get list without MailChimp API. Check API key has been entered.');
+        throw new MailchimpException('Cannot get audience without MailChimp API. Check API key has been entered.');
       }
 
       foreach ($to_refresh as $campaign_id) {
@@ -947,7 +947,7 @@ function mailchimp_campaign_get_list_segments($list_id, $type) {
 
   try {
     if (!$mc_lists) {
-      throw new MailchimpException('Cannot get list segments without MailChimp API. Check API key has been entered.');
+      throw new MailchimpException('Cannot get audience segments without MailChimp API. Check API key has been entered.');
     }
 
     $parameters = array(
@@ -961,7 +961,7 @@ function mailchimp_campaign_get_list_segments($list_id, $type) {
   }
   catch (Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
-    watchdog('mailchimp_campaign', 'An error occurred getting list segments for list ID %list_id: %message', array(
+    watchdog('mailchimp_campaign', 'An error occurred getting audience segments for audience ID %list_id: %message', array(
       '%list_id' => $list_id,
       '%message' => $e->getMessage(),
       ), WATCHDOG_ERROR);
@@ -970,12 +970,12 @@ function mailchimp_campaign_get_list_segments($list_id, $type) {
 }
 
 /**
- * Tests a list segment, returning the number of subscribers in the segment.
+ * Tests a list/audience segment, returning the number of subscribers in the segment.
  *
  * @param string $list_id
  *   The list ID.
  * @param string $list_segment_id
- *   The list segment ID.
+ *   The list/audience segment ID.
  *
  * @return int
  *   The number of subscribers contained in the segment.
@@ -986,7 +986,7 @@ function mailchimp_test_list_segment($list_id, $list_segment_id) {
 
   try {
     if (!$mc_lists) {
-      throw new MailchimpException('Cannot get campaign list segment without MailChimp API. Check API key has been entered.');
+      throw new MailchimpException('Cannot get campaign audience segment without MailChimp API. Check API key has been entered.');
     }
 
     $result = $mc_lists->getSegmentMembers($list_id, $list_segment_id, array('count' => 500));
@@ -995,7 +995,7 @@ function mailchimp_test_list_segment($list_id, $list_segment_id) {
   }
   catch (Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
-    watchdog('mailchimp_campaign', 'An error occurred testing a list segment: %message', array(
+    watchdog('mailchimp_campaign', 'An error occurred testing an audience segment: %message', array(
       '%message' => $e->getMessage(),
       ), WATCHDOG_ERROR);
     return NULL;

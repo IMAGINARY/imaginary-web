@@ -155,8 +155,11 @@ function addressfield_tokens_tokens($type, $tokens, array $data = array(), array
     // Loop through the components of the webform looking for addressfield
     // components with the expected form_key.
     foreach ($node->webform['components'] as $cid => $component) {
-      if ($component['type'] == 'addressfield' && isset($submission->data[$cid][0]['addressfield'])) {
-        $address = $submission->data[$cid][0]['addressfield'];
+      if ($component['type'] == 'addressfield' && isset($submission->data[$cid][0])) {
+        $address = $submission->data[$cid][0];
+        if (is_string($address)) {
+          $address = unserialize($address);
+        }
         $address_tokens = token_find_with_prefix($value_tokens, $component['form_key']);
         foreach ($address_tokens as $token => $original) {
           if (isset($address[$token])) {

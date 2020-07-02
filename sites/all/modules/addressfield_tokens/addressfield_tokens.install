@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the addressfield_tokens module.
+ */
+
+/**
+ * Set Webform format handlers for existing webform components.
+ */
+function addressfield_tokens_update_7100() {
+
+// Get all nodes with webform attached.
+  $query = db_query('SELECT nid FROM {webform}')->fetchAll();
+  $webform_nodes = array();
+  foreach($query as $node) {
+    $webform_nodes[] = $node->nid;
+  }
+  // Load all webform nodes.
+  $webforms = node_load_multiple($webform_nodes);
+
+  foreach ($webforms as $nid => $webform) {
+    // Flag to check if webform was changed.
+    $changed = FALSE;
+
+    // Skip webforms that do not have defined components.
+    if (!isset($webform->webform['components'])) {
+      continue;
+    }
+
+    // Reference the components for easy access.
+    $components =& $webform->webform['components'];
+
+    foreach ($components as $delta => $component) {
+      if ($component['type'] == 'addressfield' && empty($component['extra']['format_handlers'])) {
+        // On empty format_handlers use the default addressfield handler to
+        // avoid empty markup on webform addressfield submissions and email
+        // notifications.
+        $message = 'Updating webform "!name" - "!field" address field to use default format handler "address".';
+        drupal_set_message(t($message, array('!name' => $webform->title, '!field' => $component['form_key'])), 'warning');
+
+        $components[$delta]['extra']['format_handlers'] = array(
+          'address' => 'address',
+          'address-hide-postal-code' => 0,
+          'address-hide-street' => 0,
+          'address-hide-country' => 0,
+          'organisation' => 0,
+          'name-full' => 0,
+          'name-oneline' => 0,
+          'address-optional' => 0,
+        );
+
+        webform_component_update($components[$delta]);
+        $changed = TRUE;
+      }
+    }
+
+    // Save webform config changes if needed.
+    if ($changed) {
+      drupal_set_message(t('Saving "!name" webform changes.', array('!name' => $webform->title)));
+    }
+  }
+  drupal_set_message("Finished verification of your existing webforms addressfield format handlers.");
+}

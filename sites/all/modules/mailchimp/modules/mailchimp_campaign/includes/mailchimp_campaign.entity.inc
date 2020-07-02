@@ -55,13 +55,13 @@ class MailChimpCampaign extends Entity {
         'value' => $this->mc_data->settings->subject_line,
       ),
       'list' => array(
-        'label' => t('MailChimp List'),
+        'label' => t('MailChimp Audience'),
         'value' => l($this->list->name, 'https://admin.mailchimp.com/lists/', array(
           'attributes' => array('target' => '_blank'),
         )),
       ),
       'list_segment' => array(
-        'label' => t('List Segment'),
+        'label' => t('Audience Segment'),
         'value' => $list_segment_name,
       ),
       'from_email' => array(
@@ -77,7 +77,7 @@ class MailChimpCampaign extends Entity {
         'value' => $mc_template_name,
       ),
       'type' => array(
-        'label' => t('List type'),
+        'label' => t('Audience type'),
         'value' => $this->mc_data->type,
       ),
       'status' => array(

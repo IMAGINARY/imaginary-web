@@ -1,17 +1,12 @@
 <?php
 
 /**
- * @file
  * The Excel exporter currently is just a tab-delimited export.
- */
-
-/**
- *
  */
 class webform_exporter_excel_delimited extends webform_exporter_delimited {
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function __construct($options) {
     $options['delimiter'] = '\t';
@@ -19,7 +14,7 @@ class webform_exporter_excel_delimited extends webform_exporter_delimited {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function bof(&$file_handle) {
     $output = '';
@@ -33,9 +28,9 @@ class webform_exporter_excel_delimited extends webform_exporter_delimited {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
-  public function add_row(&$file_handle, $data, $row_count) {
+  public function add_row(&$file_handle, array $data, $row_count) {
     foreach ($data as $key => $value) {
       // Escape inner quotes and wrap all contents in new quotes.
       $data[$key] = '"' . str_replace('"', '""', $data[$key]) . '"';
@@ -53,13 +48,20 @@ class webform_exporter_excel_delimited extends webform_exporter_delimited {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function set_headers($filename) {
     drupal_add_http_header('Content-Type', 'application/x-msexcel');
-    drupal_add_http_header('Content-Disposition', "attachment; filename=$filename.xls");
+    drupal_add_http_header('Content-Disposition', 'attachment; filename=' . $this->get_filename($filename));
     drupal_add_http_header('Pragma', 'public');
     drupal_add_http_header('Cache-Control', 'max-age=0');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get_filename($filename) {
+    return $filename . '.xls';
   }
 
 }

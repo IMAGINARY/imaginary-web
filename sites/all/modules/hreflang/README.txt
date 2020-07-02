@@ -1,11 +1,11 @@
-ALTERNATE HREFLANG
-------------------
+HREFLANG
+--------
 
 Search engines use <link rel="alternate" hreflang="x" /> tags to serve the
 correct language or regional URL in search results.
 
-Alternate hreflang is a simple module that automatically adds these tags to your
-pages. It has no dependencies, but works well with Entity Translation module.
+Hreflang is a simple module that automatically adds these tags to your pages. It
+has no dependencies, but works well with Entity Translation module.
 
 More info about hreflang can be found at the article "Use hreflang for language
 and regional URLs": https://support.google.com/webmasters/answer/189077

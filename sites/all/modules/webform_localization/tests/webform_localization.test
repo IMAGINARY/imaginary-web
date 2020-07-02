@@ -78,6 +78,20 @@ class WebformLocalizationWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * @todo : We need further debug to find how to support
+   * this components or why are they breaking everything
+   */
+  public function skippedComponents() {
+    return array(
+      'select_no_default_zero',
+      'radios_zero',
+      'checkboxes_zero',
+      'grid_keyed',
+      'select_zero',
+    );
+  }
+
+  /**
    * Create a webform node with test components.
    */
   function createWebformForm() {
@@ -116,17 +130,11 @@ class WebformLocalizationWebTestCase extends DrupalWebTestCase {
     'confirmation' => 'Thanks!',
       ) + webform_node_defaults(),
     );
-    $components = $this->wtc->testWebformComponents();
+    $components = $this->wtc->webformComponents();
 
-    /*
-     *  @todo : We need further debug to find how to support
-     *  this components or why are they breaking everything
-     */
-    unset($components['select_no_default_zero']);
-    unset($components['radios_zero']);
-    unset($components['checkboxes_zero']);
-    unset($components['grid_keyed']);
-    unset($components['select_zero']);
+    foreach ($this->skippedComponents() as $skip) {
+      unset($components[$skip]);
+    }
 
     $cid = 0;
     foreach ($components as $key => $component_info) {

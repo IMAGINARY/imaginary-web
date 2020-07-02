@@ -6,9 +6,8 @@ core = 7.x
 
 files[] = mailchimp_i18n.i18n.inc
 
-; Information added by Drupal.org packaging script on 2017-12-27
-version = "7.x-5.1"
+; Information added by Drupal.org packaging script on 2019-09-25
+version = "7.x-5.6"
 core = "7.x"
 project = "mailchimp"
-datestamp = "1514410689"
-
+datestamp = "1569440314"

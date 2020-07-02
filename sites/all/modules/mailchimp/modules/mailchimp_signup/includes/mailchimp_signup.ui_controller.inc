@@ -75,7 +75,7 @@ class MailChimpSignupUIController extends EntityDefaultUIController {
     }
     $new_header[] = array_shift($render['#header']);
     $new_header[] = t('Display Mode(s)');
-    $new_header[] = t('MailChimp Lists');
+    $new_header[] = t('MailChimp Audiences');
     $new_header[] = t('Page Access');
     $render['#header'] = array_merge($new_header, $render['#header']);
     return $render;

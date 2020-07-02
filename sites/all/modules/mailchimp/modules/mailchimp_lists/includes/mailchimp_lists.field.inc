@@ -12,7 +12,7 @@ function mailchimp_lists_field_info() {
   return array(
     'mailchimp_lists_subscription' => array(
       'label' => t('MailChimp Subscription'),
-      'description' => t('Allows an entity to be subscribed to a MailChimp list.'),
+      'description' => t('Allows an entity to be subscribed to a MailChimp audience.'),
       'mc_list_id' => NULL,
       'double_opt_in' => FALSE,
       'send_welcome' => TRUE,
@@ -50,7 +50,7 @@ function mailchimp_lists_field_settings_form($this_field, $instance, $has_data) 
   }
   // Grab the fields list.
   $fields = field_info_fields();
-  // Remove options for MailChimp lists that already have fields.
+  // Remove options for MailChimp lists/audiences that already have fields.
   foreach ($fields as $field) {
     if ($field['type'] == 'mailchimp_lists_subscription') {
       if ($field['id'] != $this_field['id'] && isset($field['settings']['mc_list_id'])) {
@@ -59,18 +59,18 @@ function mailchimp_lists_field_settings_form($this_field, $instance, $has_data) 
     }
   }
 
-  // If there are no available lists, provide a warning..
+  // If there are no available lists/audiences, provide a warning..
   if (count($options)==1) {
     $warning = $lists_exist
-             ? 'All available MailChimp lists are already attached to MailChimp Subscription Fields.'
-             : 'No available MailChimp lists exist.';
-    $warning .= ' Create a new list at !mc, then !cc.';
+             ? 'All available MailChimp audiences are already attached to MailChimp Subscription Fields.'
+             : 'No available MailChimp audiences exist.';
+    $warning .= ' Create a new audience at !mc, then !cc.';
 
     drupal_set_message(t(
         $warning,
         array(
           '!mc' => l(t('MailChimp'), 'https://admin.mailchimp.com'),
-          '!cc' => l(t('clear your list cache'),
+          '!cc' => l(t('clear your audience cache'),
                  'admin/config/services/mailchimp/list_cache_clear',
                  array('query' => array('destination' => $_GET['q']))),
         )),
@@ -83,12 +83,12 @@ function mailchimp_lists_field_settings_form($this_field, $instance, $has_data) 
 
   $form['mc_list_id'] = array(
     '#type' => 'select',
-    '#title' => t('MailChimp List'),
+    '#title' => t('MailChimp Audience'),
     '#multiple' => FALSE,
-    '#description' => t('Available MailChimp lists which are not already attached to MailChimp Subscription Fields. If unavailable, make sure you have created a list at !MailChimp first, then !cacheclear.',
+    '#description' => t('Available MailChimp audiences which are not already attached to MailChimp Subscription Fields. If unavailable, make sure you have created an audience at !MailChimp first, then !cacheclear.',
                     array(
                       '!MailChimp' => l(t('MailChimp'), 'https://admin.mailchimp.com'),
-                      '!cacheclear' => l(t('clear your list cache'),
+                      '!cacheclear' => l(t('clear your audience cache'),
                                      'admin/config/services/mailchimp/list_cache_clear',
                                      array('query' => array('destination' => $_GET['q']))),
                     )),
@@ -107,10 +107,10 @@ function mailchimp_lists_field_settings_form($this_field, $instance, $has_data) 
   $form['unsubscribe_action'] = array(
     '#type' => 'radios',
     '#title' => t('Action to take when unchecking this field'),
-    '#description' => t('When this field gets unchecked you can choose if the subscriber gets unsubscribed (to keep the subscriber data in MailChimp) or completely removed from the Mailchimp list.'),
+    '#description' => t('When this field gets unchecked you can choose if the subscriber gets unsubscribed (to keep the subscriber data in MailChimp) or completely removed from the Mailchimp audience.'),
     '#options' => array(
-      'unsubscribe' => t('Unsubscribe from list'),
-      'remove' => t('Remove from list'),
+      'unsubscribe' => t('Unsubscribe from audience'),
+      'remove' => t('Remove from audience'),
     ),
     '#default_value' => isset($this_field['settings']['unsubscribe_action']) ? $this_field['settings']['unsubscribe_action'] : 'remove',
   );
@@ -133,7 +133,7 @@ function mailchimp_lists_field_instance_settings_form($field, $instance) {
     '#title' => t('Hide Subscribe Checkbox'),
     '#type' => 'checkbox',
     '#default_value' => $instance['settings']['hide_subscribe_checkbox'],
-    '#description' => t('When Interest Groups are enabled, the "subscribe" checkbox is hidden and selecting any interest group will subscribe a user to the list.'),
+    '#description' => t('When Interest Groups are enabled, the "subscribe" checkbox is hidden and selecting any interest group will subscribe a user to the audience.'),
     '#states' => array(
       'invisible' => array(
         ':input[name="instance[settings][show_interest_groups]"]' => array('checked' => FALSE),
@@ -163,7 +163,7 @@ function mailchimp_lists_field_instance_settings_form($field, $instance) {
   $form['unsubscribe_on_delete'] = array(
     '#title' => t('Unsubscribe on deletion'),
     '#type' => 'checkbox',
-    '#description' => t('Unsubscribe entities from this list when they are deleted.'),
+    '#description' => t('Unsubscribe entities from this audience when they are deleted.'),
     '#default_value' => $instance['settings']['unsubscribe_on_delete'],
   );
 
@@ -295,7 +295,7 @@ function mailchimp_lists_field_validate($entity_type, $entity, $field, $instance
       if (!$item['subscribe']) {
         $errors[$field['field_name']][$langcode][$delta][] = array(
           'error' => 'mailchimp_lists_required',
-          'message' => t('Subscription to MailChimp List %name is required.', array('%name' => $instance['label'])),
+          'message' => t('Subscription to MailChimp Audience %name is required.', array('%name' => $instance['label'])),
         );
         return FALSE;
       }
@@ -345,7 +345,7 @@ function mailchimp_lists_field_widget_form(&$form, &$form_state, $field, $instan
     '#type' => 'fieldset',
   );
 
-  // Load the MailChimp list from the field's list ID.
+  // Load the MailChimp list/audience from the field's list/audience ID.
   $mc_list = mailchimp_get_list($field['settings']['mc_list_id']);
 
   $element['subscribe'] = array(
@@ -359,7 +359,7 @@ function mailchimp_lists_field_widget_form(&$form, &$form_state, $field, $instan
   // Hide the Subscribe checkbox if:
   // - The field is configured to show interest groups.
   // - The field is configured to hide the Subscribe checkbox.
-  // - The list has at least one interest group.
+  // - The list/audience has at least one interest group.
   // This allows users to skip the redundant step of checking the Subscribe
   // checkbox when also checking interest group checkboxes.
   if ($instance['settings']['show_interest_groups'] && $instance['settings']['hide_subscribe_checkbox'] && !empty($mc_list->intgroups)) {
@@ -573,9 +573,9 @@ function mailchimp_lists_field_prepare_view($entity_type, $entities, $field, $in
  */
 function mailchimp_lists_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
   if ($form['#field']['type'] == 'mailchimp_lists_subscription') {
-    // Disable the list selector on the instance config page:
+    // Disable the list/audience selector on the instance config page:
     $form['field']['settings']['mc_list_id']['#disabled'] = TRUE;
-    $form['field']['settings']['mc_list_id']['#description'] = t("To alter this list, use the 'Field Settings' tab");
+    $form['field']['settings']['mc_list_id']['#description'] = t("To alter this audience, use the 'Field Settings' tab");
     // Hide the cardinality setting:
     $form['field']['cardinality']['#default_value'] = 1;
     $form['field']['cardinality']['#access'] = FALSE;
@@ -591,7 +591,7 @@ function mailchimp_lists_form_field_ui_field_edit_form_alter(&$form, &$form_stat
 function mailchimp_lists_form_field_ui_field_edit_form_validate(&$form, &$form_state) {
   if ($form['#field']['type'] == 'mailchimp_lists_subscription') {
     if ($form_state['values']['field']['cardinality'] !== 1) {
-      form_set_error('cardinality', t('Cardinality on MailChimp lists fields must be set to one.'));
+      form_set_error('cardinality', t('Cardinality on MailChimp audiences fields must be set to one.'));
     }
   }
 }

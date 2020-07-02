@@ -1,4 +1,4 @@
-Create pages and blocks for subscribing to MailChimp lists anywhere on your
+Create pages and blocks for subscribing to MailChimp lists/audiences anywhere on your
 Drupal site. This module requires the [Entity module](http://www.drupal.org/project/entity).
 
 ## Installation
@@ -17,7 +17,7 @@ To create a signup form:
 * You may need to clear caches to make your blocks and pages appear
 
 Merge Fields
-You will see Merge Field options based on the configuration of your list through
+You will see Merge Field options based on the configuration of your list/audience through
 MailChimp. You can expose these merge fields to the end user to complete. These
 fields are automatically set to "required" or "optional" based on Mailchimp's
 merge field settings.

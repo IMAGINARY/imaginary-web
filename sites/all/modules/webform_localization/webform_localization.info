@@ -5,7 +5,6 @@ core = 7.x
 package = Webform
 php = 5.3
 dependencies[] = locale
-dependencies[] = translation
 dependencies[] = variable
 dependencies[] = i18n_translation
 dependencies[] = i18n_string
@@ -14,10 +13,10 @@ test_dependencies[] = token
 test_dependencies[] = i18n_block
 
 files[] = tests/webform_localization.test
+files[] = tests/webform_localization.submission.test
 
-; Information added by Drupal.org packaging script on 2016-11-02
-version = "7.x-4.10"
+; Information added by Drupal.org packaging script on 2018-06-04
+version = "7.x-4.14"
 core = "7.x"
 project = "webform_localization"
-datestamp = "1478106151"
-
+datestamp = "1528148886"

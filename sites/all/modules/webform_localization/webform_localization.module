@@ -166,6 +166,10 @@ function webform_localization_webform_component_insert($component) {
   }
 
   if ($wl_options['sync_components'] && _webform_localization_sync()) {
+    if (!module_exists('translation')) {
+      // Enable the translation module as it is needed for localization sync.
+      module_enable('translation');
+    }
     // Turn Off Sync.
     _webform_localization_sync(FALSE);
     // Get all versions of the node.
@@ -205,6 +209,10 @@ function webform_localization_webform_component_presave(&$component) {
   }
 
   if ($wl_options['sync_components'] && _webform_localization_sync()) {
+    if (!module_exists('translation')) {
+      // Enable the translation module as it is needed for localization sync.
+      module_enable('translation');
+    }
     $test_node = node_load($component['nid']);
     if ($test_node->tnid > 0) {
       // Turn Off Sync.
@@ -239,6 +247,10 @@ function webform_localization_webform_component_delete($component) {
   }
 
   if ($wl_options['sync_components'] && _webform_localization_sync()) {
+    if (!module_exists('translation')) {
+      // Enable the translation module as it is needed for localization sync.
+      module_enable('translation');
+    }
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.component.sync');
     webform_localization_synchronizable_properties_delete($component);
     // Turn Off Sync.
@@ -516,6 +528,19 @@ function webform_localization_form_webform_configure_form_alter(&$form, &$form_s
     else {
       $description = t('<i>The message must be filled in before it can be translated.</i>');
     }
+
+    $form['preview']['settings']['preview_message']['#default_value'] = $form['#node']->webform['preview_message'];
+    $name = webform_localization_i18n_string_name($form['#node']->nid, 'preview_message');
+    $string_source = i18n_string_get_string($name);
+    if (isset($string_source->lid) && $string_source->lid != FALSE) {
+      $link = l(t('here'), 'admin/config/regional/translate/edit/' . $string_source->lid, array('query' => drupal_get_destination()));
+      $description = t('Click !here to translate this string.', array('!here' => $link));
+    }
+    else {
+      $description = t('<i>The message must be filled in before it can be translated.</i>');
+    }
+    $form['preview']['settings']['preview_message']['#description'] .= ' ' . $description;
+
     $form['submission']['confirmation']['#description'] .= ' ' . $description;
   }
 
@@ -648,10 +673,10 @@ function _webform_localization_webform_configure_form_submit_i18n_tweaks($form, 
     // Webform Configure Form not in source language.
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.i18n');
     // Collect the form elements that are translatable.
-    $form_elements = array('confirmation', 'submit_text');
+    $form_elements = array('confirmation', 'submit_text', 'preview_message');
     // Add redirect url if it's not set to none or the default
     // confirmation page.
-    if (!in_array($form_state['values']['redirect_url'], array('<confirmation>', '<none>'))) {
+    if (!in_array($form_state['values']['redirect_url'], array('<confirmation>', '<none>', '<front>'))) {
       $form_elements[] = 'redirect_url';
     }
     foreach ($form_elements as $element) {
@@ -659,12 +684,12 @@ function _webform_localization_webform_configure_form_submit_i18n_tweaks($form, 
       $name = webform_localization_i18n_string_name($form['#node']->webform['nid'], $element);
       $i18n_string = i18n_string_get_string($name);
       // Get submitted value for $element (the translation).
-      $string_translation = ($element == 'confirmation' ? $form_state['values'][$element]['value'] : $form_state['values'][$element]);
+      $string_translation = ($element == 'confirmation'|| $element == 'preview_message') ? $form_state['values'][$element]['value'] : $form_state['values'][$element];
       if ($i18n_string->lid) {
         // There is an i18n string source.
         $string_source = $i18n_string->get_string();
         // We reset the source string value before saving the form.
-        if ($element == 'confirmation') {
+        if ($element == 'confirmation' || $element == 'preview_message') {
           $form_state['values'][$element]['value'] = $string_source;
         }
         else {
@@ -756,6 +781,10 @@ function webform_localization_form_webform_component_edit_form_alter(&$form, &$f
   // Gets webform localization options that match this node ID.
   $webform_localization_options = webform_localization_get_config($component['nid']);
   if ($webform_localization_options['sync_components']) {
+    if (!module_exists('translation')) {
+      // Enable the translation module as it is needed for localization sync.
+      module_enable('translation');
+    }
     module_load_include('inc', 'webform_localization', 'includes/webform_localization.component.sync');
     $select_options = webform_localization_synchronizable_properties($component);
 
@@ -820,6 +849,10 @@ function webform_localization_field_attach_prepare_translation_alter(&$entity, $
       // Copy all Webform settings over to translated versions of this node
       // if the configuration match.
       if ($webform_localization_options['sync_components']) {
+        if (!module_exists('translation')) {
+          // Enable the translation module as it is needed for localization sync.
+          module_enable('translation');
+        }
         // NOTE:
         // Perhaps could be interesting to copy only specific properties
         // but for now the entire webform make more sense.
@@ -856,7 +889,7 @@ function webform_localization_form_alter(&$form, &$form_state, $form_id) {
  * This is because each node in the translation set will still have a
  * unique client form_id (based on the nid, not the tnid), but mollom will
  * only know about one of those form_ids.
- * 
+ *
  * @see webform_localization_module_implements_alter()
  */
 function _webform_localization_mollom_form_alter(&$form, &$form_state, $form_id) {
@@ -1236,8 +1269,20 @@ function webform_localization_preprocess_webform_components_form(&$variables) {
       if (isset($row['data-cid'])) {
         $name = webform_localization_i18n_string_name($node->nid, $row['data-cid'], '#title');
         $string_source = i18n_string_get_string($name);
-        if (isset($string_source->lid)) {
+        if (isset($string_source->lid) && !empty($string_source->lid)) {
           $row_data[$key]['data'][] = l(t('Translate'), 'admin/config/regional/translate/edit/' . $string_source->lid, array('query' => drupal_get_destination()));
+        }
+        else {
+          // Markup components do not have a translatable title, look for markup instead
+          $name = webform_localization_i18n_string_name($node->nid, $row['data-cid'], '#markup');
+          $string_source = i18n_string_get_string($name);
+          if (isset($string_source->lid) && !empty($string_source->lid)) {
+            $row_data[$key]['data'][] = l(t('Translate'), 'admin/config/regional/translate/edit/' . $string_source->lid, array('query' => drupal_get_destination()));
+          }
+          else {
+            // this component does not have anything translatable, so don't show a link
+            $row_data[$key]['data'][] = '';
+          }
         }
       }
     }
@@ -1252,23 +1297,50 @@ function webform_localization_preprocess_webform_components_form(&$variables) {
  * Implements hook_js_alter().
  */
 function webform_localization_js_alter(&$javascript) {
+  global $language;
+
   // Only react on webform nodes.
   if ($node = menu_get_object()) {
-    if (!isset($node->type) || !in_array($node->type, webform_variable_get('webform_node_types'))) {
-      return FALSE;
-    }
+    if (isset($node->type) && in_array($node->type, webform_variable_get('webform_node_types'))) {
+      // Only react when we are not on the source node.
+      if ($node->nid != $node->tnid && $node->tnid > 0) {
+        // Gets webform localization options that match this node ID.
+        $webform_localization_options = webform_localization_get_config($node->tnid);
 
-    // Only react when we are not on the source node.
-    if ($node->nid != $node->tnid && $node->tnid > 0) {
-      // Gets webform localization options that match this node ID.
-      $webform_localization_options = webform_localization_get_config($node->tnid);
+        // Only react when keep a single webform across a translation set.
+        if ($webform_localization_options['single_webform'] > 0) {
+          foreach ($javascript['settings']['data'] as &$setting) {
+            if (isset($setting['webform']['conditionals']['webform-client-form-' . $node->tnid])) {
+              $setting['webform']['conditionals']['webform-client-form-' . $node->nid] = $setting['webform']['conditionals']['webform-client-form-' . $node->tnid];
+              unset($setting['webform']['conditionals']['webform-client-form-' . $node->tnid]);
+            }
+          }
+        }
+      }
 
-      // Only react when keep a single webform across a translation set.
-      if ($webform_localization_options['single_webform'] > 0) {
+
+      $do_conditionals_for_block_regular_workflow = TRUE;
+      if (module_exists('entity_translation')) {
+        //Multiple types and translation modes possible for webforms.
+        if (entity_translation_enabled_bundle('node', $node->type)) {
+          //Bundle is using entity translation, see drupal.org/node/2829894 .
+          $do_conditionals_for_block_regular_workflow = FALSE;
+        }
+      }
+      if ($do_conditionals_for_block_regular_workflow) {
+        // For cases when webform is displayed within a block, but not a page itself.
         foreach ($javascript['settings']['data'] as &$setting) {
-          if (isset($setting['webform']['conditionals']['webform-client-form-' . $node->tnid])) {
-            $setting['webform']['conditionals']['webform-client-form-' . $node->nid] = $setting['webform']['conditionals']['webform-client-form-' . $node->tnid];
-            unset($setting['webform']['conditionals']['webform-client-form-' . $node->tnid]);
+          if (isset($setting['webform']['conditionals'])) {
+            foreach ($setting['webform']['conditionals'] as $k => $data) {
+              if (preg_match("/^webform-client-form-(.*)/", $k, $matches) && isset($matches[1])) {
+                $translations = translation_node_get_translations($matches[1]);
+                $correct_translation = isset($translations[$language->language]) ? $translations[$language->language] : FALSE;
+                if (!empty($correct_translation)) {
+                  $setting['webform']['conditionals']['webform-client-form-' . $correct_translation->nid] = $setting['webform']['conditionals'][$k];
+                  unset($setting['webform']['conditionals'][$k]);
+                }
+              }
+            }
           }
         }
       }

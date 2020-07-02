@@ -1,12 +1,7 @@
 <?php
 
 /**
- * @file
  * This exporter creates an XLSX file readable by newer versions of Excel.
- */
-
-/**
- *
  */
 class webform_exporter_excel_xlsx extends webform_exporter {
   /**
@@ -17,9 +12,9 @@ class webform_exporter_excel_xlsx extends webform_exporter {
   const DATE_REGEX_TIME = '/^(([T \s]?(\d{2}))(:(\d{2}))(:(\d{2}))?)?$/';
 
   /**
-   *
+   * {@inheritdoc}
    */
-  public function add_row(&$file_handle, $data, $row_count) {
+  public function add_row(&$file_handle, array $data, $row_count) {
     $row = $row_count + 1;
     $col = 'A';
 
@@ -148,7 +143,7 @@ class webform_exporter_excel_xlsx extends webform_exporter {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function post_process(&$results) {
     // Our download file is currently a single XML sheet file. We need to add
@@ -160,7 +155,7 @@ class webform_exporter_excel_xlsx extends webform_exporter {
     $zip_filepath = drupal_realpath($zip_uri);
     $file_filepath = drupal_realpath($file_uri);
     $zip = new ZipArchive();
-    if ($zip->open($zip_filepath, ZipArchive::CREATE) === TRUE) {
+    if ($zip->open($zip_filepath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
       // Create a bare-bones Office Open XML format directory structure. This is
       // based on the sample simple XLSX file at
       // http://blogs.msdn.com/b/chrisrae/archive/2011/08/18/creating-a-simple-xlsx-from-scratch-using-the-open-xml-sdk.aspx
@@ -183,7 +178,8 @@ class webform_exporter_excel_xlsx extends webform_exporter {
       // Switch the results file name to the new zip (xlsx) file.
       unlink($file_uri);
       if (!@rename($zip_uri, $file_uri)) {
-        // The file could not be renamed, probably due to different stream wrappers during drush wfx execution.
+        // The file could not be renamed, probably due to different stream
+        // wrappers during drush wfx execution.
         copy($zip_uri, $file_uri);
         unlink($zip_uri);
       }
@@ -191,13 +187,20 @@ class webform_exporter_excel_xlsx extends webform_exporter {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function set_headers($filename) {
     drupal_add_http_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    drupal_add_http_header('Content-Disposition', "attachment; filename=$filename.xlsx");
+    drupal_add_http_header('Content-Disposition', 'attachment; filename=' . $this->get_filename($filename));
     drupal_add_http_header('Pragma', 'public');
     drupal_add_http_header('Cache-Control', 'max-age=0');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get_filename($filename) {
+    return $filename . '.xlsx';
   }
 
   /**

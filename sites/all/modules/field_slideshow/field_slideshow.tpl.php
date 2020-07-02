@@ -30,7 +30,7 @@ if (!isset($pager_position)) {
   <div class="<?php print $classes; ?>" style="<?php print $style; ?>">
     <?php foreach ($items as $num => $item) : ?>
       <div class="<?php print $item['classes']; ?>"<?php if ($num) : ?> style="display:none;"<?php endif; ?>>
-        <?php print $item['image']; ?>
+        <?php print (empty($item['image']) ? render($item['rendered_entity']) : $item['image']); ?>
         <?php if (isset($item['caption']) && $item['caption'] != '') : ?>
           <div class="field-slideshow-caption">
             <span class="field-slideshow-caption-text"><?php print $item['caption']; ?></span>

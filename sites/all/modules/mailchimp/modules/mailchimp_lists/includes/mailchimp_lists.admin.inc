@@ -6,7 +6,7 @@
  */
 
 /**
- * Administrative display showing existing lists and allowing edits/adds.
+ * Administrative display showing existing lists/audiences and allowing edits/adds.
  */
 function mailchimp_lists_overview_page() {
   $mc_lists = mailchimp_get_lists();
@@ -31,7 +31,7 @@ function mailchimp_lists_overview_page() {
       $webhook_status = t('disabled') . ' (' . l(t('enable'), 'admin/config/services/mailchimp/lists/' . $mc_list->id . '/webhook/enable') . ')';
     }
     $rows[] = array(
-      l($mc_list->name, 'https://admin.mailchimp.com/lists'),
+      l($mc_list->name, 'https://admin.mailchimp.com/lists/dashboard/overview?id=' . $mc_list->web_id, array('attributes' => array('target' => '_blank'))),
       $mc_list->stats->member_count,
       $webhook_status,
     );
@@ -45,16 +45,16 @@ function mailchimp_lists_overview_page() {
     ),
     'rows' => $rows,
   );
-  $refresh_link = l(t('Refresh lists from MailChimp'),
+  $refresh_link = l(t('Refresh audiences from MailChimp'),
     'admin/config/services/mailchimp/list_cache_clear',
     array('query' => array('destination' => 'admin/config/services/mailchimp/lists')));
   if (empty($mc_lists)) {
     $table['caption'] = $refresh_link;
-    drupal_set_message(t('You don\'t have any lists configured in your MailChimp account, (or you haven\'t configured your API key correctly on the Global Settings tab). Head over to !link and create some lists, then come back here and click "Refresh lists from MailChimp"',
+    drupal_set_message(t('You don\'t have any audiences configured in your MailChimp account, (or you haven\'t configured your API key correctly on the Global Settings tab). Head over to !link and create some audiences, then come back here and click "Refresh audiences from MailChimp"',
       array('!link' => l(t('MailChimp'), 'https://admin.mailchimp.com/lists/'))), 'warning');
   }
   else {
-    $options = t('Currently Available MailChimp lists').':<i>';
+    $options = t('Currently Available MailChimp audiences').':<i>';
     foreach ($mc_lists as $mc_list) {
       $options .= ' ' . $mc_list->name . ',';
     }
@@ -67,7 +67,7 @@ function mailchimp_lists_overview_page() {
 }
 
 /**
- * Administrative display showing existing lists and allowing edits/adds.
+ * Administrative display showing existing lists/audiences and allowing edits/adds.
  */
 function mailchimp_lists_fields_overview_page() {
   $fields = field_info_fields();
@@ -102,7 +102,7 @@ function mailchimp_lists_fields_overview_page() {
     When entities with MailChimp Subscription Fields are updated, the Merge Variables configured through Field UI are automatically updated if necessary.
     However, if you have existing subscribers on MailChimp and matching Entities on Drupal when you configure your Merge Variables, the existing values are not synced automatically,
     as this could be a slow process. You can manually force updates of all existing Merge Values to existing MailChimp subscribers for each field configuration using the 'Batch Update'
-    option on this table. The MailChimp Subscription Field is provided by the MailChimp Lists (mailchimp_lists) module.<br/><br/>
+    option on this table. The MailChimp Subscription Field is provided by the MailChimp Audiences (mailchimp_lists) module.<br/><br/>
     The following MailChimp Subscription Field instances were found:");
 
   return theme('table', $table);
@@ -178,7 +178,7 @@ function mailchimp_lists_webhook_form_submit($form, &$form_state) {
 
   }
   if ($result) {
-    drupal_set_message(t('Webhooks for list "%name" have been %action.',
+    drupal_set_message(t('Webhooks for audience "%name" have been %action.',
       array(
         '%name' => $form_state['list']->name,
         '%action' => $form_state['action'] . 'd',
@@ -186,7 +186,7 @@ function mailchimp_lists_webhook_form_submit($form, &$form_state) {
     ));
   }
   else {
-    drupal_set_message(t('Unable to perform webhook action "%action" for list "%name".',
+    drupal_set_message(t('Unable to perform webhook action "%action" for audience "%name".',
       array(
         '%name' => $form_state['list']->name,
         '%action' => $form_state['action'],

@@ -1,13 +1,13 @@
-Synchronize Drupal entities with MailChimp lists and allow anyone with access to
+Synchronize Drupal entities with MailChimp lists/audiences and allow anyone with access to
 edit entities (such as Users editing their own data) to subscribe, unsubscribe,
 and update membership information. This module requires the
 [Entity module](http://www.drupal.org/project/entity).
 
 ## Installation
 
-1. Enable the MailChimp Lists module, the Field UI module, and the Entity Module
+1. Enable the MailChimp Lists/Audiences module, the Field UI module, and the Entity Module
 
-2. To use MailChimp Lists module, you will need to install and enable the Entity
+2. To use MailChimp Lists/Audiences module, you will need to install and enable the Entity
 API module [http://drupal.org/project/entity]([http://drupal.org/project/entity)
 
 3. If you haven't done so already, add a list in your MailChimp account. Follow 

@@ -8,9 +8,10 @@ files[] = includes/mailchimp_exception.inc
 
 configure = admin/config/services/mailchimp
 
-; Information added by Drupal.org packaging script on 2017-12-27
-version = "7.x-5.1"
+test_dependencies[] = libraries
+
+; Information added by Drupal.org packaging script on 2019-09-25
+version = "7.x-5.6"
 core = "7.x"
 project = "mailchimp"
-datestamp = "1514410689"
-
+datestamp = "1569440314"

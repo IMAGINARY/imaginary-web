@@ -1,6 +1,6 @@
 View MailChimp campaign activity for any entity with a valid email address.
 Activity keys off of an email address and is cached after the initial load.
-If a list has webhooks enabled, than the cache is cleared when a new campaign
+If a list/audience has webhooks enabled, than the cache is cleared when a new campaign
 is sent.
 
 ## Installation

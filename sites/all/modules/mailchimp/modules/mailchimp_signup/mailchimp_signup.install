@@ -27,7 +27,7 @@ function mailchimp_signup_schema() {
         'not null' => TRUE,
         'size' => 'big',
         'serialize' => TRUE,
-        'description' => 'A serialized array of list IDs with list-specific configuration.',
+        'description' => 'A serialized array of audience IDs with audience-specific configuration.',
       ),
       'mode' => array(
         'type' => 'int',
@@ -39,7 +39,7 @@ function mailchimp_signup_schema() {
       'title' => array(
         'type' => 'varchar',
         'length' => 32,
-        'description' => 'The {mailchimp_lists}.label of this mailchimp_list.',
+        'description' => 'The {mailchimp_audiences}.label of this mailchimp_audience.',
         'not null' => TRUE,
         'default' => '',
       ),
@@ -48,7 +48,7 @@ function mailchimp_signup_schema() {
         'not null' => FALSE,
         'size' => 'big',
         'serialize' => TRUE,
-        'description' => 'A serialized object that stores the settings for the specific list.',
+        'description' => 'A serialized object that stores the settings for the specific audience.',
       ),
       'status' => array(
         'type' => 'int',

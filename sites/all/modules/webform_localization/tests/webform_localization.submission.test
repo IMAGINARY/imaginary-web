@@ -1,0 +1,250 @@
+<?php
+
+/**
+ * @file
+ * This file contains test classes for testing localized webform submissions.
+ */
+
+/**
+ * Abstract class that defines the actual tests.
+ *
+ * Subclasses can be created to set the specific translation method.
+ */
+abstract class WebformLocalizationSubmissionTestCase extends WebformLocalizationWebTestCase {
+
+  /**
+   * First translation node.
+   *
+   * @var object
+   */
+  protected $nodeTranslation1;
+
+  /**
+   * Second translation node.
+   *
+   * @var object
+   */
+  protected $nodeTranslation2;
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp($modules = array()) {
+    parent::setUp($modules);
+
+    // Set "Webform" content type to use multilingual support with translation.
+    $this->drupalGet('admin/structure/types/manage/webform');
+    $edit = array();
+    $edit['language_content_type'] = 2;
+    $this->drupalPost('admin/structure/types/manage/webform', $edit, t('Save content type'));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Webform')), 'Webform content type has been updated.');
+
+  }
+
+  /**
+   * Create a webform with translations, and performs some submissions.
+   */
+  public function testLocalizedSubmission() {
+    // Create the webform node.
+    $node = $this->createWebformForm();
+
+    // Set the translation method.
+    $this->setTranslationOptions();
+
+    // Create the translated nodes.
+    $this->createTranslationNodes();
+
+    // Submit in original language.
+    $this->webformSubmissionExecute($node);
+
+    // Submit translation 1.
+    $this->webformSubmissionExecute($this->nodeTranslation1);
+
+    // Submit translation 2.
+    $this->webformSubmissionExecute($this->nodeTranslation2);
+
+    // Submit translation 2.
+    $this->webformSubmissionExecute($this->nodeTranslation2);
+
+    // Submit original language once more.
+    $this->webformSubmissionExecute($node);
+  }
+
+  /**
+   * Set the translation options.
+   *
+   * The options can be set here for either string translation or localization
+   * by sync, or can be extended to set some other options.
+   */
+  abstract public function setTranslationOptions();
+
+  /**
+   * Create the translated webform nodes.
+   */
+  public function createTranslationNodes() {
+    // Create the translation nodes:
+    // Submit translation in Spanish.
+    $node_translation_title = 'Webform title in Spanish';
+    $node_translation_body = 'Content in Spanish';
+    $this->nodeTranslation1 = $this->createWebformTranslation($this->createWebformForm(), $node_translation_title, $node_translation_body, 'es');
+
+    // Submit translation in German.
+    $node_translation_title = 'Webform title in German';
+    $node_translation_body = 'Content in German';
+    $this->nodeTranslation2 = $this->createWebformTranslation($this->createWebformForm(), $node_translation_title, $node_translation_body, 'de');
+  }
+
+  /**
+   * Get values to submit to the test webform.
+   */
+  public function webformPost($value_type = 'sample') {
+    $submission_values_list = $value_type == 'sample' ? $this->wtc->webformPost() : array();
+    foreach ($submission_values_list as $submission_key => $submission_value) {
+      $skipped = FALSE;
+      foreach ($this->skippedComponents() as $skip) {
+        if (substr_count($submission_key, $skip) > 0) {
+          $skipped = TRUE;
+        }
+      }
+      if (!$skipped) {
+        $submission_values[$submission_key] = $submission_value;
+      }
+    }
+
+    return $submission_values;
+  }
+
+  /**
+   * Execute the submission test.
+   *
+   * @param object $node
+   *   The webform node used to submit the values.
+   * @param string $value_type
+   *   The values to be submitted to the webform. Either "sample" or "default".
+   */
+  public function webformSubmissionExecute($node, $value_type = 'sample') {
+    module_load_include('inc', 'webform', 'includes/webform.submissions');
+
+    $submission_values = $this->webformPost($value_type);
+
+    // Visit the node page with the "foo=bar" query, to test
+    // [current-page:query:?] default values.
+    $this->drupalGet('node/' . $node->nid, array('query' => array('foo' => 'bar')));
+    $this->assertText($node->title, t('Webform node created and accessible at !url', array('!url' => 'node/' . $node->nid)), t('Webform'));
+
+    // Submit our test data.
+    $this->drupalPost(NULL, $submission_values, 'Submit', array(), array(), 'webform-client-form-' . $node->nid);
+
+    // Confirm that the submission has been created.
+    $webform = $this->createWebformForm()->webform;
+    $this->assertText(t($webform['confirmation']), t('Confirmation message "@confirmation" received.', array('@confirmation' => t($webform['confirmation']))), t('Webform'));
+
+    // Get the SID of the new submission.
+    $matches = array();
+    preg_match('/sid=([0-9]+)/', $this->getUrl(), $matches);
+    $sid = $matches[1];
+
+    // Pull in the database submission and check the values.
+    drupal_static_reset('webform_get_submission');
+    $actual_submission = webform_get_submission($node->nid, $sid);
+
+    $component_info = $this->wtc->webformComponents();
+    foreach ($node->webform['components'] as $cid => $component) {
+      $stable_value = $value_type == 'sample' ? $component_info[$component['form_key']]['database values'] : $component_info[$component['form_key']]['database default values'];
+      $actual_value = $actual_submission->data[$cid];
+      $result = $this->assertEqual($stable_value, $actual_value, t('Component @form_key data integrity check when using @type values.', array('@form_key' => $component['form_key'], '@type' => $value_type)), t('Webform'));
+      if (!$result || $result === 'fail') {
+        $this->fail(t('Expected !expected', array('!expected' => print_r($stable_value, TRUE))) . "\n\n" . t('Received !received', array('!received' => print_r($actual_value, TRUE))), t('Webform'));
+      }
+    }
+  }
+
+}
+
+/**
+ * Test Localized webform submission (String translation)
+ */
+class WebformLocalizationStringSubmissionTestCase extends WebformLocalizationSubmissionTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Localized webform submission (String translation)'),
+      'description' => t('Submits a sample webform and checks the database integrity.'),
+      'group' => t('Webform Localization'),
+      'dependencies' => array(
+        'webform_localization',
+        'webform',
+        'views',
+        'ctools',
+        'i18n_translation',
+        'i18n_string',
+        'i18n',
+        'variable',
+      ),
+    );
+  }
+
+  /**
+   * Set options to use localization by string translation.
+   *
+   * Enables localization by string translation and reuse the single webform
+   * across the translation set.
+   */
+  public function setTranslationOptions() {
+    $node = $this->createWebformForm();
+
+    $edit = array();
+    $edit['expose_strings'] = 1;
+    $edit['single_webform'] = 1;
+    $this->drupalPost('node/' . $node->nid . '/webform/configure', $edit, t('Save configuration'));
+    $this->assertRaw(t('The form settings have been updated.'), 'Webform string translation and single webform enabled.');
+  }
+
+}
+
+/**
+ * Localized webform submission (Localization by Sync)
+ */
+class WebformLocalizationSyncSubmissionTestCase extends WebformLocalizationSubmissionTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Localized webform submission (Localization by Sync)'),
+      'description' => t('Submits a sample webform and checks the database integrity.'),
+      'group' => t('Webform Localization'),
+      'dependencies' => array(
+        'webform_localization',
+        'webform',
+        'views',
+        'ctools',
+        'i18n_translation',
+        'i18n_string',
+        'i18n',
+        'variable',
+      ),
+    );
+  }
+
+  /**
+   * Enables localization by sync: sync components, roles and emails.
+   */
+  public function setTranslationOptions() {
+    $node = $this->createWebformForm();
+
+    $edit = array();
+    $edit['sync_components'] = 1;
+    $edit['sync_roles'] = 1;
+    $edit['sync_emails'] = 1;
+
+    $this->drupalPost('node/' . $node->nid . '/webform/configure', $edit, t('Save configuration'));
+    $this->assertRaw(t('The form settings have been updated.'), 'Webform string translation and single webform enabled.');
+
+  }
+
+}

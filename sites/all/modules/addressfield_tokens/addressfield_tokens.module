@@ -132,7 +132,6 @@ function addressfield_tokens_field_formatter_settings_form($field, $instance, $v
 
   return $element;
 }
-
 /**
  * Implements hook_field_formatter_settings_summary().
  */
@@ -466,7 +465,8 @@ function _addressfield_tokens_webform_components($nid) {
 
 /**
  * Implements hook_webform_submission_load().
- */
+ * Commented out to solve issue https://www.drupal.org/project/addressfield_tokens/issues/2674752
+ *
 function addressfield_tokens_webform_submission_load(&$submissions) {
   $submissions_reset = reset($submissions);
   $nid = $submissions_reset->nid;
@@ -492,6 +492,7 @@ function addressfield_tokens_webform_submission_load(&$submissions) {
     }
   }
 }
+**/
 
 /**
  * Implements hook_webform_validator_alter().

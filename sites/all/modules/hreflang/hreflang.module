@@ -23,9 +23,9 @@ function hreflang_page_build(&$page) {
   if (empty($links->links)) {
     return;
   }
-  foreach ($links->links as $langcode => $link) {
+  foreach ($links->links as $link) {
     // Content translation module may unset the href attribute.
-    if (!isset($link['href'])) {
+    if (!isset($link['href']) || !isset($link['attributes']['hreflang'])) {
       continue;
     }
     $link['absolute'] = TRUE;
@@ -33,6 +33,10 @@ function hreflang_page_build(&$page) {
       $link['query'] = array();
     }
     $link['query'] += drupal_get_query_parameters();
+    // Remove superfluous page = (float) 0 added by comment_permalink().
+    if (isset($link['query']['page']) && $link['query']['page'] === 0.0) {
+      unset($link['query']['page']);
+    }
     $attributes = array(
       'href' => url($link['href'], $link),
       'rel' => 'alternate',

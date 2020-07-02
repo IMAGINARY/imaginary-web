@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Test class and methods for the Mailchimp Lists module.
+ * Test class and methods for the Mailchimp Lists/Audiences module.
  */
 
 class MailchimpListsTestCase extends DrupalWebTestCase {
@@ -15,7 +15,7 @@ class MailchimpListsTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     // Note: getInfo() strings are not translated with t().
     return array(
-      'name' => 'MailChimp Lists',
+      'name' => 'MailChimp Audiences',
       'description' => 'Test Lists Logic.',
       'group' => 'MailChimp',
     );
@@ -155,8 +155,8 @@ class MailchimpListsTestCase extends DrupalWebTestCase {
     $this->assertEqual($member_info->id, md5($email), 'Tested new user subscription.');
 
     $this->assertEqual($member_info->merge_fields->EMAIL, $email);
-    $this->assertEqual($member_info->interests->{$interest_ids[0]}, TRUE);
-    $this->assertEqual($member_info->interests->{$interest_ids[1]}, FALSE);
+    $this->assertEqual($member_info->interests->{$interest_category_id}[$interest_ids[0]], TRUE);
+    $this->assertEqual($member_info->interests->{$interest_category_id}[$interest_ids[1]], FALSE);
   }
 
   /**

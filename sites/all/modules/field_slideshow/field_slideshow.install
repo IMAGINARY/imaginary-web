@@ -80,7 +80,7 @@ function field_slideshow_requirements($phase) {
         'title'       => $t('JQuery ImagesLoaded plugin'),
         'value'       => $t('Not found'),
         'severity'    => REQUIREMENT_WARNING,
-        'description' => $t('For best results, you should download the !name and move the downloaded js file(s) into the %path folder of your server.', array('!name' => l($t('JQuery ImagesLoaded plugin'), 'https://github.com/desandro/imagesloaded/downloads'), '%path' => $path)),
+        'description' => $t('For best results, you should download the !name 2.1.2 and move the downloaded js file(s) into the %path folder of your server.', array('!name' => l($t('JQuery ImagesLoaded plugin'), 'https://github.com/desandro/imagesloaded/archive/v2.1.2.zip'), '%path' => $path)),
       );
     }
   }

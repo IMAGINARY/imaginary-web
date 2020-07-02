@@ -159,7 +159,7 @@ function template_preprocess_webform_components_form(&$variables) {
 
   $form['components']['#attached']['library'][] = array('webform', 'admin');
 
-  // TODO: Attach these. See http://drupal.org/node/732022.
+  // @todo: Attach these. See http://drupal.org/node/732022.
   drupal_add_tabledrag('webform-components', 'order', 'sibling', 'webform-weight');
   drupal_add_tabledrag('webform-components', 'match', 'parent', 'webform-pid', 'webform-pid', 'webform-cid');
 
@@ -281,7 +281,7 @@ function _webform_components_form_rows($node, $cid, $component, $level, &$form, 
 /**
  * Theme the node components form. Use a table to organize the components.
  *
- * @return
+ * @return string
  *   Formatted HTML form, ready for display.
  */
 function theme_webform_components_form($variables) {
@@ -453,17 +453,18 @@ function webform_component_edit_form($form, $form_state, $node, $component, $clo
     '#weight' => 8,
   );
   if (webform_component_feature($component['type'], 'title_display')) {
-    if (webform_component_feature($component['type'], 'title_inline')) {
+    $inline_option = webform_component_feature($component['type'], 'title_inline') ? array('inline' => t('Inline')) : array();
+    $internal_option = webform_component_feature($component['type'], 'title_internal') ? array('internal' => t('Inside the component')) : array();
+    if ($inline_option || $internal_option) {
       $form['display']['title_display'] = array(
         '#type' => 'select',
         '#title' => t('Label display'),
         '#default_value' => !empty($component['extra']['title_display']) ? $component['extra']['title_display'] : 'before',
-        '#options' => array(
-          'before' => t('Above'),
-          'inline' => t('Inline'),
-          'none' => t('None'),
-        ),
-        '#description' => t('Determines the placement of the component\'s label.'),
+        '#options' => array('before' => t('Above')) +
+          $inline_option +
+          $internal_option +
+          array('none' => t('None')),
+        '#description' => t("Determines the placement of the component's label."),
       );
     }
     else {
@@ -579,7 +580,7 @@ function webform_component_edit_form($form, $form_state, $node, $component, $clo
   );
 
   // Add the fields specific to this component type:
-  $additional_form_elements = (array) webform_component_invoke($component['type'], 'edit', $component);
+  $additional_form_elements = (array) webform_component_invoke($component['type'], 'edit', $component, $form, $form_state);
   if (empty($additional_form_elements)) {
     drupal_set_message(t('The webform component of type @type does not have an edit function defined.', array('@type' => $component['type'])));
   }
@@ -634,7 +635,7 @@ function webform_component_edit_form($form, $form_state, $node, $component, $clo
  * Field name validation for the webform unique key. Must be alphanumeric.
  */
 function webform_component_edit_form_validate($form, &$form_state) {
-  $node = $form['#node'];;
+  $node = $form['#node'];
 
   if (!preg_match('/^[a-z0-9_]+$/i', $form_state['values']['form_key'])) {
     form_set_error('form_key', t('The form key %form_key is invalid. Please include only lowercase alphanumeric characters and underscores.', array('%form_key' => $form_state['values']['form_key'])));
@@ -855,7 +856,7 @@ function webform_component_update($component) {
 }
 
 /**
- *
+ * Delete a Webform component.
  */
 function webform_component_delete($node, $component) {
   // Check if a delete function is available for this component. If so,
@@ -919,6 +920,9 @@ function webform_component_delete($node, $component) {
       // Delete the conditional if this component is the only source / target.
       if (empty($conditional[$field])) {
         webform_conditional_delete($node, $conditional);
+        // Also delete the conditional from the $node so it is not re-created
+        // later on in webform_node_update().
+        unset($node->webform['conditionals'][$conditional['rgid']]);
         // Loop exit.
         break;
       }
@@ -992,9 +996,11 @@ function webform_component_feature($type, $feature) {
     'email_address' => FALSE,
     'email_name' => FALSE,
     'required' => TRUE,
+    'stores_data' => TRUE,
     'title' => TRUE,
     'title_display' => TRUE,
     'title_inline' => TRUE,
+    'title_internal' => FALSE,
     'conditional' => TRUE,
     'conditional_action_set' => FALSE,
     'spam_analysis' => FALSE,
@@ -1039,6 +1045,7 @@ function webform_component_property($type, $property) {
  *   returned list of options.
  *
  * @return array
+ *   An array of options.
  */
 function webform_component_list($node, $component_filter = NULL, $prepend_group = TRUE, $pagebreak_groups = FALSE) {
   $options = array();

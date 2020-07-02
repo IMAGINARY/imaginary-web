@@ -469,7 +469,7 @@ function taxonomy_csv_line_import_localize($line, $options, $terms_count = 0) {
   // Import term then store result.
   $current_result = taxonomy_csv_term_import($term, $options['update_or_ignore']);
   if (_taxonomy_csv_line_result($result, $current_result, $terms_count)) {
-    break;
+    return $result;
   }
 
   // 2. Create localizations.

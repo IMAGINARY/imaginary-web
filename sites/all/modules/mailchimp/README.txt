@@ -15,7 +15,7 @@ Features
   * API integration
   * Support for an unlimited number of mailing lists
   * Have anonymous sign up forms to subscribe site visitors to any combination
-    of Mailchimp lists
+    of Mailchimp lists/audiences
   * Mailchimp list subscription via entity fields, allowing subscription rules
     to be governed by entity controls, permissions, and UI
   * Compatibility with Views Bulk Operations
@@ -79,7 +79,7 @@ Installation Notes
 --------------------------------------------------------------------------------
 
   * You need to have a MailChimp API Key.
-  * You need to have at least one list created in MailChimp to use the
+  * You need to have at least one list/audience created in MailChimp to use the
     mailchimp_lists module.
   * If you use a drush make workflow, see the example drush makefile:
     mailchimp.make.example.
@@ -180,7 +180,7 @@ Configuration
 Submodules
 --------------------------------------------------------------------------------
 
-  * mailchimp_signup: Create anonymous signup forms for your Mailchimp Lists,
+  * mailchimp_signup: Create anonymous signup forms for your Mailchimp Lists/Audiences,
     and display them as blocks or as standalone pages. Provide multiple-list
     subscription from a single form, include merge variables as desired, and
     optionally include Interest Group selection.

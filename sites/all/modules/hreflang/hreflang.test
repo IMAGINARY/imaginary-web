@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Functional tests for Alternate hreflang.
+ * Functional tests for Hreflang.
  */
 
 /**
- * Functional tests for Alternate hreflang.
+ * Functional tests for Hreflang.
  */
 class HreflangTest extends DrupalWebTestCase {
 
@@ -15,9 +15,9 @@ class HreflangTest extends DrupalWebTestCase {
    */
   public static function getInfo() {
     return array(
-      'name' => 'Alternate hreflang',
+      'name' => 'Hreflang',
       'description' => 'Tests for presence of the hreflang link element.',
-      'group' => 'Alternate hreflang',
+      'group' => 'Hreflang',
     );
   }
 
@@ -91,7 +91,7 @@ class HreflangTest extends DrupalWebTestCase {
 }
 
 /**
- * Functional tests for Alternate hreflang with Content translation.
+ * Functional tests for Hreflang with Content translation.
  */
 class HreflangContentTranslationTest extends DrupalWebTestCase {
 
@@ -100,9 +100,9 @@ class HreflangContentTranslationTest extends DrupalWebTestCase {
    */
   public static function getInfo() {
     return array(
-      'name' => 'Alternate hreflang with Content translation',
+      'name' => 'Hreflang with Content translation',
       'description' => 'Tests for presence of the hreflang link element on translated nodes.',
-      'group' => 'Alternate hreflang',
+      'group' => 'Hreflang',
     );
   }
 
@@ -117,8 +117,6 @@ class HreflangContentTranslationTest extends DrupalWebTestCase {
    * Test that Content translation doesn't trigger an exception.
    */
   public function testHreflangContentTranslation() {
-    global $base_url;
-
     // User to add language.
     $admin_user = $this->drupalCreateUser(array(
       'access administration pages',
@@ -149,6 +147,74 @@ class HreflangContentTranslationTest extends DrupalWebTestCase {
     $edit['body[' . LANGUAGE_NONE . '][0][value]'] = $this->randomName(16);
     $edit['language'] = 'fr';
     $this->drupalPost('node/add/page', $edit, t('Save'));
+  }
+
+}
+
+/**
+ * Functional tests for Hreflang with Comment module.
+ */
+class HreflangCommentTest extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Hreflang with comments',
+      'description' => 'Tests for presence of the hreflang link element on nodes with comments.',
+      'group' => 'Hreflang',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('hreflang', 'locale', 'comment');
+  }
+
+  /**
+   * Tests that superfluous page=0 parameter is not added to hreflang links.
+   */
+  public function testHreflangComment() {
+    // User to add language.
+    $admin_user = $this->drupalCreateUser(array(
+      'administer languages',
+      'create article content',
+    ));
+    $this->drupalLogin($admin_user);
+
+    // Add predefined language.
+    $edit = array('langcode' => 'fr');
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+
+    // Enable language detection.
+    $edit = array('language[enabled][locale-url]' => 1);
+    $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
+
+    // Create a node.
+    $edit = array(
+      'title' => $this->randomName(8),
+      'body[' . LANGUAGE_NONE . '][0][value]' => $this->randomName(16),
+    );
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+
+    // Create a comment.
+    $edit = array(
+      'subject' => $this->randomName(8),
+      'comment_body[' . LANGUAGE_NONE . '][0][value]' => $this->randomName(16),
+    );
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // Visit comment permalink page.
+    $this->clickLink(t('Permalink'));
+    $this->assertUrl('comment/1', array('fragment' => 'comment-1'));
+    drupal_static_reset('language_list');
+    drupal_static_reset('locale_url_outbound_alter');
+    $languages = language_list();
+    $this->assertRaw('<link href="' . url('node/1', array('absolute' => TRUE)) . '" rel="alternate" hreflang="en" />');
+    $this->assertRaw('<link href="' . url('node/1', array('absolute' => TRUE, 'language' => $languages['fr'])) . '" rel="alternate" hreflang="fr" />');
   }
 
 }

@@ -18,9 +18,8 @@ files[] = export/taxonomy_csv.export.admin.inc
 files[] = export/taxonomy_csv.export.api.inc
 files[] = export/taxonomy_csv.export.result.inc
 
-; Information added by drupal.org packaging script on 2013-10-19
-version = "7.x-5.10+17-dev"
+; Information added by Drupal.org packaging script on 2020-01-09
+version = "7.x-5.11"
 core = "7.x"
 project = "taxonomy_csv"
-datestamp = "1382145928"
-
+datestamp = "1578608049"

@@ -2,14 +2,11 @@
 
 /**
  * @file
- * Helper class for dispatching calls when different classes are responsible
- * for formatting and actually sending a message.
+ * Class for formatting and actually sending a message.
  */
 
-
 /**
- * Implements a MailSystemInterface which simply forwards calls to another
- * MailSystem class configured previously.
+ * A mailsystem delegate implementation that forwards to another implementation.
  */
 class MailsystemDelegateMailSystem implements MailSystemInterface {
 
@@ -26,7 +23,6 @@ class MailsystemDelegateMailSystem implements MailSystemInterface {
     return $mailsystem->format($message);
   }
 
-
   /**
    * Implements MailSystemInterface::mail().
    *
@@ -39,4 +35,5 @@ class MailsystemDelegateMailSystem implements MailSystemInterface {
     $mailsystem = _mailsystem_delegate_get_mailsystem($module, $key, 'mail');
     return $mailsystem->mail($message);
   }
+
 }

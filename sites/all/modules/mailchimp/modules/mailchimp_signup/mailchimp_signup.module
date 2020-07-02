@@ -53,6 +53,30 @@ function mailchimp_signup_menu() {
 }
 
 /**
+ * Implements hook_admin_menu_map().
+ */
+function mailchimp_signup_admin_menu_map() {
+  if (!user_access('administer mailchimp signup entities')) {
+    return;
+  }
+
+  $mailchimp_signups = mailchimp_signup_load_multiple();
+  $path = 'admin/config/services/mailchimp/signup/manage/%mailchimp_signup_name';
+  $mailchimp_signup_names = array();
+  foreach ($mailchimp_signups as $mailchimp_signup) {
+    $mailchimp_signup_names[] = $mailchimp_signup->name;
+  }
+  $map[$path] = array(
+    'parent' => 'admin/config/services/mailchimp/signup',
+    'arguments' => array(
+      array('%mailchimp_signup_name' => $mailchimp_signup_names),
+    ),
+  );
+
+  return $map;
+}
+
+/**
  * callback function for translatable title
  */
 function mailchimp_signup_title($signup_id){
@@ -150,7 +174,20 @@ function mailchimp_signup_delete_multiple($signup_ids) {
 }
 
 /**
- * Gets an array of all Signups, keyed by the list name.
+ * Gets a single Signup.
+ *
+ * @param string $name
+ *   The Mailchimp signup machine name.
+ *
+ * @return \MailchimpSignup
+ *   A single mailchimp signup object.
+ */
+function mailchimp_signup_name_load($name) {
+  return mailchimp_signup_load_multiple_by_name($name);
+}
+
+/**
+ * Gets an array of all Signups, keyed by the list/audience name.
  *
  * @param string $name
  *   If set, the signup with the given name is returned.
@@ -196,6 +233,7 @@ function mailchimp_signup_entity_info() {
       ),
       // Enable the entity API's admin UI.
       'admin ui' => array(
+        'menu wildcard' => '%mailchimp_signup_name',
         'path' => 'admin/config/services/mailchimp/signup',
         'file' => 'includes/mailchimp_signup.admin.inc',
         'controller class' => 'MailChimpSignupUIController',
@@ -254,14 +292,14 @@ function mailchimp_signup_forms($form_id, $args) {
 }
 
 /**
- * Returns a subscription form for mailchimp lists.
+ * Returns a subscription form for mailchimp lists/audiences.
  *
  * If there are multiple lists, this generates a single form for all of them.
  */
 function mailchimp_signup_subscribe_form($form, &$form_state, $signup, $type) {
   $form['#attributes'] = array('class' => array('mailchimp-signup-subscribe-form'));
   $form['description'] = array(
-    '#markup' => mailchimp_signup_tt("mailchimp_signup:mailchimp_signup:$signup->name:description", filter_xss($signup->settings['description'])),
+    '#markup' => mailchimp_signup_tt("mailchimp_signup:mailchimp_signup:$signup->name:description", filter_xss_admin($signup->settings['description'])),
     '#prefix' => '<div class="mailchimp-signup-subscribe-form-description">',
     '#suffix' => '</div>',
   );
@@ -338,6 +376,20 @@ function mailchimp_signup_subscribe_form($form, &$form_state, $signup, $type) {
     }
   }
 
+  // Include the GDPR consent checkbox if necessary
+  $gdpr_consent = $signup->settings['gdpr_consent'];
+  if ($gdpr_consent) {
+    $form['gdpr_consent'] = array(
+      '#type' => 'checkbox',
+      '#default_value' => FALSE,
+      '#title' => $signup->settings['gdpr_checkbox_label'],
+      '#prefix' => '<div class="form-checkboxes">',
+      '#suffix' => '</div>',
+      '#weight' => 10,
+      '#required' => isset($signup->settings['gdpr_consent_required']) ? $signup->settings['gdpr_consent_required'] : FALSE,
+    );
+  }
+
   $form['actions']['#type'] = 'actions';
   $form['actions']['submit'] = array(
     '#type' => 'submit',
@@ -360,12 +412,12 @@ function mailchimp_signup_subscribe_form_validate($form, &$form_state) {
         return;
       }
     }
-    form_set_error('mailchimp_lists', t("Please select at least one list to subscribe to."));
+    form_set_error('mailchimp_lists', t("Please select at least one audience to subscribe to."));
   }
 }
 
 /**
- * Submit handler to add users to lists on subscription form submission.
+ * Submit handler to add users to lists/audiences on subscription form submission.
  */
 function mailchimp_signup_subscribe_form_submit($form, &$form_state) {
   $signup = reset($form_state['build_info']['args']);
@@ -381,7 +433,7 @@ function mailchimp_signup_subscribe_form_submit($form, &$form_state) {
   }
 
   $email = $mergevars['EMAIL'];
-  // If we only have one list we won't have checkbox values to investigate:
+  // If we only have one list/audience we won't have checkbox values to investigate:
   if (count($signup->mc_lists) == 1) {
     $subscribe_lists[0] = array(
       'subscribe' => reset($signup->mc_lists),
@@ -397,7 +449,7 @@ function mailchimp_signup_subscribe_form_submit($form, &$form_state) {
     }
   }
   $successes = array();
-  // Loop through the selected lists and try to subscribe:
+  // Loop through the selected lists/audiences and try to subscribe:
   foreach ($subscribe_lists as $list_choices) {
     $list_id = $list_choices['subscribe'];
     $interest_groups = (isset($list_choices['interest_groups'])) ? $list_choices['interest_groups'] : array();
@@ -416,7 +468,7 @@ function mailchimp_signup_subscribe_form_submit($form, &$form_state) {
         $interests[$interest_group] = TRUE;
       }
     }
-    $result = mailchimp_subscribe($list_id, $email, $mergevars, $interests, $signup->settings['doublein']);
+    $result = mailchimp_subscribe($list_id, $email, $mergevars, $interests, $signup->settings['doublein'], 'html', (bool) $form_state['values']['gdpr_consent']);
     // Let other modules act on the results in hook_form_alter.
     $form_state['mailchimp_results'][$list_id] = $result;
     if (empty($result) || (isset($result->success) && $result->success === FALSE)) {
@@ -468,7 +520,7 @@ function mailchimp_signup_tt($name, $string, $langcode = NULL, $update = FALSE) 
  * Implements hook_feeds_node_processor_targets_alter().
  */
 function mailchimp_signup_feeds_processor_targets_alter(&$targets, $type, $bundle) {
-  // Create target for all MailChimp list subscription fields.
+  // Create target for all MailChimp list/audience subscription fields.
   $field_info = field_info_field_types('mailchimp_lists_subscription');
   $field_instances = field_info_instances($type, $bundle);
   foreach ($field_instances as $field_name => $field) {

@@ -30,10 +30,8 @@
             max_outerHeight = Math.max(max_outerHeight, $this.outerHeight(true));
           });
           slideshow.css({
-            'padding-right': (max_outerWidth - parseInt(slideshow.css('width'))) + 'px',
-            'padding-bottom': (max_outerHeight - parseInt(slideshow.css('height'))) + 'px'
+            'width': 'auto',
           });
-
           // Add options
           var options = {
             resizing: 0,

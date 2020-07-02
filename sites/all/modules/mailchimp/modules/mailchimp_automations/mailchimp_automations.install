@@ -52,7 +52,7 @@ function mailchimp_automations_schema() {
         'default' => '',
       ),
       'list_id' => array(
-        'description' => 'The MailChimp automation list id.',
+        'description' => 'The MailChimp automation audience id.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,

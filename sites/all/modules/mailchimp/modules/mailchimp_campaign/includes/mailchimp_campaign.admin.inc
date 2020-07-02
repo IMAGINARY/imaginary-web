@@ -29,8 +29,8 @@ function mailchimp_campaign_campaign_form($form, &$form_state, MailChimpCampaign
   $mailchimp_lists = mailchimp_get_lists();
   $form['list_id'] = array(
     '#type' => 'select',
-    '#title' => t('List'),
-    '#description' => t('Select the list this campaign should be sent to.'),
+    '#title' => t('Audience'),
+    '#description' => t('Select the audience this campaign should be sent to.'),
     '#options' => _mailchimp_campaign_build_option_list($mailchimp_lists),
     '#default_value' => ($campaign) ? $campaign->mc_data->recipients->list_id : -1,
     '#required' => TRUE,
@@ -59,8 +59,8 @@ function mailchimp_campaign_campaign_form($form, &$form_state, MailChimpCampaign
   if (!empty($list_segments)) {
     $form['list_segment_id'] = array(
       '#type' => 'select',
-      '#title' => t('List Segment'),
-      '#description' => t('Select the list segment this campaign should be sent to.'),
+      '#title' => t('Audience Tags'),
+      '#description' => t('Select the audience tags this campaign should be sent to.'),
       '#options' => _mailchimp_campaign_build_option_list($list_segments, '-- Entire list --'),
       '#default_value' => (isset($segment_id)) ? $segment_id : '',
     );
@@ -229,7 +229,7 @@ function mailchimp_campaign_template_callback($form, $form_state) {
 }
 
 /**
- * AJAX callback when changing list ID.
+ * AJAX callback when changing list/audience ID.
  */
 function mailchimp_campaign_list_segment_callback($form, $form_state) {
   $commands = array();
@@ -404,10 +404,10 @@ function mailchimp_campaign_get_entity_import_form_elements($entity_type, $secti
  * Gets form elements used in the merge vars feature.
  *
  * @param array $merge_vars
- *   Array of MailChimp merge vars for the current list.
+ *   Array of MailChimp merge vars for the current list/audience.
  * @see mailchimp_get_mergevars
  * @param string $list_name
- *   The name of the current list.
+ *   The name of the current list/audience.
  *
  * @return array
  *   Array of form elements used to display merge vars.
@@ -429,7 +429,7 @@ function mailchimp_campaign_get_merge_vars_form_elements($merge_vars, $list_name
     '#title' => t('MailChimp merge variables'),
     '#markup' => _mailchimp_campaign_build_merge_vars_html($merge_vars),
     '#description' => t(
-      'Insert merge variables from the %list_name list or one of the !standard_link.',
+      'Insert merge variables from the %list_name audience or one of the !standard_link.',
       array(
         '%list_name' => $list_name,
         '!standard_link' => l(
@@ -580,7 +580,7 @@ function _mailchimp_campaign_build_merge_vars_html($merge_vars) {
     return render($table);
   }
   else {
-    return t('No custom merge vars exist for the current list.');
+    return t('No custom merge vars exist for the current audience.');
   }
 }
 
@@ -612,7 +612,7 @@ function _mailchimp_campaign_parse_template_content($content) {
 }
 
 /**
- * List deletion form.
+ * List/audience deletion form.
  */
 function mailchimp_campaign_delete_form($form, &$form_state, MailChimpCampaign $campaign) {
   $form_state['campaign'] = $campaign;
@@ -638,7 +638,7 @@ function mailchimp_campaign_delete_form_submit($form, &$form_state) {
 }
 
 /**
- * List deletion form.
+ * List/audience deletion form.
  */
 function mailchimp_campaign_send_form($form, &$form_state, MailChimpCampaign $campaign) {
   $form_state['campaign'] = $campaign;

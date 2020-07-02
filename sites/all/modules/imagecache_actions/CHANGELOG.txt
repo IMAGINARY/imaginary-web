@@ -4,6 +4,22 @@ Imagecache Actions
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
 
+Imagecache Actions 7.x-1.12
+---------------------------
+- [#3151871]: by DamienMcKenna: EXIF autorotate support for remote images.
+- [#3117901] by jacob.embree: Curly brace syntax for accessing array elements and
+  string offsets has been deprecated in PHP 7.4.
+
+Imagecache Actions 7.x-1.11
+---------------------------
+- [#3072639]: PDOException: SQLSTATE[HY000]: General error: 25 bind or column
+  index out of range: INSERT INTO {menu_router}.
+
+Imagecache Actions 7.x-1.10
+---------------------------
+- Use json for exporting image styles.
+- [#2988487] by AdamEvertsson: Minor spelling error.
+
 Imagecache Actions 7.x-1.9
 --------------------------
 - [#2760121] by lebster, fietserwin: Add a "Perspective" effect.

@@ -431,9 +431,9 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
       $rows = array();
 
       // Render fields to trigger rewriting and other field processing.
-      $this->view->style_plugin->render_fields($this->view->result);
+      $this->render_fields($this->view->result);
 
-      if ($this->view->style_options['timeline_config']['start_at_current']) {
+      if (!empty($this->options['timeline_config']['start_at_current'])) {
         // Gives you a timestamp of the date
         $date_check = strtotime('now');
         // Holds the difference of the closest date
@@ -461,14 +461,14 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
 
           // Headline - can use any view field, uses views rendering.
           if ($target_field == 'headline') {
-            $headline_field = $this->view->style_options['timeline_fields']['headline'];
-            $rows[$count][$target_field] = decode_entities($this->view->field[$headline_field]->theme($row));
+            $headline_field = $this->options['timeline_fields']['headline'];
+            $rows[$count][$target_field] = $this->rendered_fields[$count][$headline_field];
           }
 
           // Body - can use any view field, uses views rendering.
           if ($target_field == 'text') {
-            $body_field = $this->view->style_options['timeline_fields']['bodytext'];
-            $rows[$count][$target_field] = decode_entities($this->view->field[$body_field]->theme($row));
+            $body_field = $this->options['timeline_fields']['bodytext'];
+            $rows[$count][$target_field] = $this->rendered_fields[$count][$body_field];
           }
 
           // Tag.
@@ -514,7 +514,7 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
               if (is_array($date['formatted'])) {
                 if ($target_field == 'startDate') {
                   if ($date['formatted']['value'] != "FALSE") {
-                    if ($this->view->style_options['timeline_config']['start_at_current']) {
+                    if (!empty($this->options['timeline_config']['start_at_current'])) {
                       // abs to get the absolute difference
                       $diff = abs($date['timestamp']['value'] - $date_check);
 
@@ -565,7 +565,7 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
             if (is_array($value)) {
               $value = array_shift($value);
               // Allow for imagefield image style selection.
-              if ($this->view->field[$tmp['fieldname']]->options['settings']['image_style'] && !empty($value['uri'])) {
+              if (!empty($this->view->field[$tmp['fieldname']]->options['settings']['image_style']) && !empty($value['uri'])) {
                 $value['uri'] = image_style_url($this->view->field[$tmp['fieldname']]->options['settings']['image_style'], $value['uri']);
               }
             }
@@ -600,7 +600,9 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
 
       // Allow other modules to alter timeline rows before rendering by
       // implementing hook_views_timelinejs_rows_alter().
-      drupal_alter('views_timelinejs_rows', $rows, clone $this->view);
+      $view = clone $this->view;
+      drupal_alter('views_timelinejs_rows', $rows, $view);
+      unset($view);
 
       // Prepare data array that TimelineJS understands.
       $data = array(
@@ -610,7 +612,7 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
           'date' => $rows,
         ),
       );
-      if ($this->view->style_options['timeline_config']['start_at_current']) {
+      if (!empty($this->options['timeline_config']['start_at_current'])) {
         $data['timeline']['start_at_current'] = $start_at_current;
       }
     }
@@ -634,7 +636,9 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
 
     // Allow other modules to alter timeline data before rendering by
     // implementing hook_views_timelinejs_data_alter().
-    drupal_alter('views_timelinejs_data', $data, clone $this->view);
+    $view = clone $this->view;
+    drupal_alter('views_timelinejs_data', $data, $view);
+    unset($view);
 
     // Skip rendering if view is being edited or previewed.
     if (!$this->view->editing) {
@@ -661,11 +665,10 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
    */
   protected function getDefinedUsage($type) {
     // If it's not mapped at all, don't do anything.
-    if (!isset($this->view->style_options['timeline_fields'])) {
+    if (!isset($this->options['timeline_fields'])) {
       return FALSE;
     }
-
-    if ($fields = $this->view->style_options['timeline_fields']) {
+    if ($fields = $this->options['timeline_fields']) {
       $fieldname = '';
       if (isset($fields[$type])) {
         $fieldname = $fields[$type];
@@ -675,8 +678,8 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
       }
       if (isset($fieldname) && $fieldname != '0') {
         $field_information = array(
-          'alias' => $this->view->field[$fieldname]->field_alias,
-          'handler' => $this->view->field[$fieldname]->definition['handler'],
+          'alias' => isset($this->view->field[$fieldname]) ? $this->view->field[$fieldname]->field_alias : NULL,
+          'handler' => isset($this->view->field[$fieldname]) ? $this->view->field[$fieldname]->definition['handler'] : NULL,
           'fieldname' => $fieldname,
         );
       }
