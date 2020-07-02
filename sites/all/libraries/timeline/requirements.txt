@@ -5,7 +5,7 @@ MarkupSafe==0.18
 Werkzeug==0.9.3
 boto==2.13.3
 itsdangerous==0.22
-paramiko==1.10.1
+paramiko==2.0.9
 ply==3.4
 pycrypto==2.6
 wsgiref==0.1.2
