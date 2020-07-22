@@ -4,7 +4,6 @@
  * @file
  * Tests for reCAPTCHA module.
  */
-
 class ReCaptchaBasicTest extends DrupalWebTestCase {
 
   /**
@@ -22,7 +21,7 @@ class ReCaptchaBasicTest extends DrupalWebTestCase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  function setUp() {
     parent::setUp('captcha', 'recaptcha');
     module_load_include('inc', 'captcha');
 
@@ -46,7 +45,7 @@ class ReCaptchaBasicTest extends DrupalWebTestCase {
   /**
    * Test access to the administration page.
    */
-  public function testReCaptchaAdminAccess() {
+  function testReCaptchaAdminAccess() {
     $this->drupalLogin($this->admin_user);
     $this->drupalGet('admin/config/people/captcha/recaptcha');
     $this->assertNoText(t('Access denied'), 'Admin users should be able to access the reCAPTCHA admin page', 'reCAPTCHA');
@@ -56,7 +55,7 @@ class ReCaptchaBasicTest extends DrupalWebTestCase {
   /**
    * Test the reCAPTCHA settings form.
    */
-  public function testReCaptchaAdminSettingsForm() {
+  function testReCaptchaAdminSettingsForm() {
     $this->drupalLogin($this->admin_user);
 
     $site_key = $this->randomName(40);
@@ -89,7 +88,7 @@ class ReCaptchaBasicTest extends DrupalWebTestCase {
   /**
    * Testing the protection of the user login form.
    */
-  public function testReCaptchaOnLoginForm() {
+  function testReCaptchaOnLoginForm() {
     global $language;
 
     $site_key = $this->randomName(40);;
@@ -138,12 +137,6 @@ class ReCaptchaBasicTest extends DrupalWebTestCase {
     $this->assertRaw($grecaptcha . '<noscript>', '[testReCaptchaOnLoginForm]: NoScript for reCAPTCHA is shown on form.');
     $this->assertRaw('https://www.google.com/recaptcha/api/fallback?k=' . $site_key . '&amp;hl=' . $language->language, '[testReCaptchaOnLoginForm]: Fallback URL with IFRAME has been found.');
 
-    // Check if there is a reCAPTCHA with global url on the login form.
-    variable_set('recaptcha_use_globally', 1);
-    $this->drupalGet('user/login');
-    $this->assertRaw('<script src="https://www.recaptcha.net/recaptcha/api.js?hl=' . $language->language . '" async="async" defer="defer"></script>', '[testReCaptchaOnLoginForm]: Global reCAPTCHA is shown on form.');
-    $this->assertRaw('https://www.recaptcha.net/recaptcha/api/fallback?k=' . $site_key . '&amp;hl=' . $language->language, '[testReCaptchaOnLoginForm]: Global fallback URL with IFRAME has been found.');
-
     // Check that data-size attribute does not exists.
     variable_set('recaptcha_size', '');
     $this->drupalGet('user');
@@ -177,8 +170,7 @@ class ReCaptchaBasicTest extends DrupalWebTestCase {
     // Check for error message.
     $this->assertText(t('The answer you entered for the CAPTCHA was not correct.'), 'CAPTCHA should block user login form', 'reCAPTCHA');
 
-    // And make sure that user is not logged in: check for name and password
-    // fields on ?q=user.
+    // And make sure that user is not logged in: check for name and password fields on ?q=user
     $this->drupalGet('user');
     $this->assertField('name', t('Username field found.'), 'reCAPTCHA');
     $this->assertField('pass', t('Password field found.'), 'reCAPTCHA');
