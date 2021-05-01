@@ -200,7 +200,7 @@ if (!(window.console && console.log)) {
       });
 
       //add scroll box for terms of use
-      $("#edit-terms-of-use .fieldset-wrapper").jScrollPane().css({"border": "1px black solid"});
+      $("#terms-of-use .fieldset-wrapper").jScrollPane().css({"border": "1px black solid"});
     }
 
     //menu

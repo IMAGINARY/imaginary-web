@@ -455,7 +455,7 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
           $tmp = $this->getDefinedUsage($source_field);
 
           // Don't render fields that haven't been mapped.
-          if (!isset($this->view->field[$tmp['fieldname']])) {
+          if (empty($tmp['fieldname']) || !isset($this->view->field[$tmp['fieldname']])) {
             continue;
           }
 

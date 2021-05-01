@@ -1,19 +1,24 @@
 <?php
-// $Id$
 
 /**
  * @file
  * Plugin to provide a bing geocoder.
  */
 
-/**
- * Plugin for Bing.
- */
 $plugin = array(
-  'title' => t("Bing"),
+  'title' => t('Bing'),
   'description' => t('Geocodes via Bing'),
   'callback' => 'geocoder_bing',
-  'field_types' => array('text', 'text_long', 'addressfield', 'location', 'text_with_summary', 'computed', 'taxonomy_term_reference', 'country'),
+  'field_types' => array(
+    'text',
+    'text_long',
+    'addressfield',
+    'location',
+    'text_with_summary',
+    'computed',
+    'taxonomy_term_reference',
+    'country',
+  ),
   'field_callback' => 'geocoder_bing_field',
   'terms_of_service' => 'http://msdn.microsoft.com/en-us/library/ff701714.aspx',
 );
@@ -52,7 +57,7 @@ function geocoder_bing($address, $options = array()) {
     );
   }
 
-  // Extra options
+  // Extra options.
   if (!empty($options['userLocation'])) {
     $query['userLocation'] = $options['userLocation'];
   }
@@ -75,16 +80,18 @@ function geocoder_bing($address, $options = array()) {
       '@error' => $result->error,
     );
     $msg = t('HTTP request to Bing API failed.\nCode: @code\nError: @error', $args);
+
     throw new Exception($msg);
   }
 
   $data = json_decode($result->data);
 
-  if ($data->statusCode != 200) {
+  if ($data->statusCode !== 200) {
     $msg = t('Bing API returned bad status.\nStatus: @status\n@description', array(
       '@status' => $data->statusCode,
       '@description' => $data->statusDescription,
     ));
+
     throw new Exception($msg);
   }
 
@@ -105,7 +112,8 @@ function geocoder_bing($address, $options = array()) {
   // The canonical geometry is the first result (best guess)
   $geometry = array_shift($geometries);
 
-  // If there are any other geometries, these are auxiliary geometries that represent "alternatives"
+  // If there are any other geometries, these are auxiliary geometries that
+  // represent "alternatives".
   if (count($geometries)) {
     $geometry->data->geocoder_alternatives = $geometries;
   }
@@ -113,24 +121,31 @@ function geocoder_bing($address, $options = array()) {
   return $geometry;
 }
 
+/**
+ * Plugin callback.
+ */
 function geocoder_bing_field($field, $field_item) {
-  if ($field['type'] == 'text' || $field['type'] == 'text_long' || $field['type'] == 'text_with_summary' || $field['type'] == 'computed') {
+  if ($field['type'] === 'text' || $field['type'] === 'text_long' || $field['type'] === 'text_with_summary' || $field['type'] === 'computed') {
     return geocoder_bing($field_item['value']);
   }
-  if ($field['type'] == 'addressfield' && module_exists('addressfield') && !addressfield_field_is_empty($field_item, $field)) {
+  if ($field['type'] === 'addressfield' && module_exists('addressfield') && !addressfield_field_is_empty($field_item, $field)) {
     $address = geocoder_widget_parse_addressfield($field_item);
+
     return geocoder_bing($address, array('address' => $address));
   }
-  if ($field['type'] == 'country' && module_exists('countries')) {
+  if ($field['type'] === 'country' && module_exists('countries')) {
     $address = geocoder_widget_parse_countryfield($field_item);
+
     return geocoder_bing($address, array('address' => $address));
   }
-  if ($field['type'] == 'location') {
+  if ($field['type'] === 'location') {
     $address = geocoder_widget_parse_locationfield($field_item);
+
     return geocoder_bing($address, array('address' => $address));
   }
-  if ($field['type'] == 'taxonomy_term_reference') {
+  if ($field['type'] === 'taxonomy_term_reference') {
     $term = taxonomy_term_load($field_item['tid']);
+
     return geocoder_bing($term->name);
   }
 }

@@ -20,8 +20,8 @@ features[field][] = node-timeline_date-field_timeline_media_link
 features[node][] = timeline_date
 features[views_view][] = timeline
 
-; Information added by Drupal.org packaging script on 2019-11-11
-version = "7.x-1.0"
+; Information added by Drupal.org packaging script on 2021-01-03
+version = "7.x-1.1"
 core = "7.x"
 project = "views_timelinejs"
-datestamp = "1573455186"
+datestamp = "1609650884"

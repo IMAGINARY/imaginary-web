@@ -1,22 +1,27 @@
 <?php
 
 /**
+ * @file
+ * geocoder.drush.inc
+ */
+
+/**
  * Implements hook_drush_command().
  */
 function geocoder_drush_command() {
   $items = array();
 
-  // the key in the $items array is the name of the command.
+  // The key in the $items array is the name of the command.
   $items['geocoder-backfill'] = array(
     'callback' => 'geocoder_drush_backfill',
-    'description' => "Geocodes all nodes that have a geocoder widget but no geodata.",
+    'description' => 'Geocodes all nodes that have a geocoder widget but no geodata.',
     'options' => array(
       'force' => 'Force the geocode to run, even if there is already geodata',
       'dry' => 'Collect entity ids, but do not update them.',
       'entity_type' => 'An entity type. If none is specified, entities of all types are processed.',
       'field_name' => 'A field name. If none is specified, all applicable fields are processed.',
       'bundle' => 'A bundle name. If none is specified, entities of all bundles are processed.',
-      'entity_ids' => 'A list of entity ids, separated by comma (no space). If none are specified, all entities are processed. This requires that entity_type is defined, too.'
+      'entity_ids' => 'A list of entity ids, separated by comma (no space). If none are specified, all entities are processed. This requires that entity_type is defined, too.',
     ),
   );
 
@@ -41,10 +46,12 @@ function geocoder_drush_backfill() {
   if (!$expected_entity_type) {
     if ($expected_bundle) {
       drush_log('Cannot specify a bundle, if no entity type is specified.', 'error');
+
       return;
     }
     if ($expected_entity_ids) {
       drush_log('Cannot specify entity ids, if no entity type is specified.', 'error');
+
       return;
     }
     $expected_bundle = NULL;
@@ -64,7 +71,7 @@ function geocoder_drush_backfill() {
         if ($expected_field_name && $dest_field_name !== $expected_field_name) {
           continue;
         }
-        if ('geocoder' !== $field_instance['widget']['type']) {
+        if ($field_instance['widget']['type'] !== 'geocoder') {
           continue;
         }
         if (empty($field_instance['widget']['settings']['geocoder_field'])) {
@@ -83,10 +90,10 @@ function geocoder_drush_backfill() {
           $q->leftJoin(
             'field_data_' . $dest_field_name,
             'dest',
-            "source.entity_type = dest.entity_type and source.entity_id = dest.entity_id");
+            'source.entity_type = dest.entity_type and source.entity_id = dest.entity_id');
           $q->isNull('dest.entity_id');
         }
-        $q->fields('source', ['entity_id']);
+        $q->fields('source', array('entity_id'));
         $q->groupBy('source.entity_id');
 
         if (NULL === $result = $q->execute()) {
@@ -97,6 +104,7 @@ function geocoder_drush_backfill() {
 
         if (array() === $etids_orig) {
           drush_log($entity_type . ': ' . $bundle . ': ' . $dest_field_name . ': -', 'ok');
+
           continue;
         }
 
@@ -104,10 +112,10 @@ function geocoder_drush_backfill() {
         $etids = array_keys($entities);
         $etids_orphan = array_diff($etids, $etids_orig);
 
-        drush_log($entity_type . ': ' . $bundle . ': ' . $dest_field_name . ': ' . implode(', ',$etids), 'ok');
+        drush_log($entity_type . ': ' . $bundle . ': ' . $dest_field_name . ': ' . implode(', ', $etids), 'ok');
 
         if (array() !== $etids_orphan) {
-          drush_log('Orphan etids: ' . implode(', ',$etids_orphan), 'warning');
+          drush_log('Orphan etids: ' . implode(', ', $etids_orphan), 'warning');
         }
 
         // Make sure to save every entity only once.

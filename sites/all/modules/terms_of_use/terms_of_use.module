@@ -14,20 +14,20 @@ function terms_of_use_menu() {
   $items = array();
 
   $items['admin/config/people/terms_of_use'] = array(
-    'description' => 'Add Terms of Use to the registration page.',
-    'title' => 'Terms of Use',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('terms_of_use_admin_settings'),
+    'description'      => 'Add Terms of Use to the registration page.',
+    'title'            => 'Terms of Use',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('terms_of_use_admin_settings'),
     'access arguments' => array('administer site configuration'),
-    'file' => 'terms_of_use.admin.inc',
+    'file'             => 'terms_of_use.admin.inc',
   );
 
   $items['terms_of_use/autocomplete'] = array(
-    'title' => 'Autocomplete node title',
-    'page callback' => 'terms_of_use_autocomplete',
+    'title'            => 'Autocomplete node title',
+    'page callback'    => 'terms_of_use_autocomplete',
     'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-    'file' => 'terms_of_use.admin.inc',
+    'type'             => MENU_CALLBACK,
+    'file'             => 'terms_of_use.admin.inc',
   );
 
   return $items;
@@ -40,7 +40,7 @@ function terms_of_use_form_user_register_form_alter(&$form, $form_state) {
   // Administrative users can skip this. So admin/user/user/create won't show
   // the terms of use.
   if (user_access('administer users')) {
-    return;
+    return $form;
   }
 
   $fieldset_name = filter_xss(variable_get('terms_of_use_fieldset_name', t('Terms of Use')));
@@ -48,9 +48,10 @@ function terms_of_use_form_user_register_form_alter(&$form, $form_state) {
 
   // Adding the fieldset.
   $form['terms_of_use'] = array(
-    '#type' => 'fieldset',
-    '#title' => $fieldset_name,
+    '#type'   => 'fieldset',
+    '#title'  => $fieldset_name,
     '#weight' => 10,
+    '#id' => 'terms-of-use',
   );
 
   // Getting the nid of the the Terms of Use node.
@@ -79,11 +80,12 @@ function terms_of_use_form_user_register_form_alter(&$form, $form_state) {
       // to the login form.
       elseif ($items = field_get_items('node', $node, 'body')) {
         // Limit the height of the body text with css.
-        $form['#attached']['css'] = array(
-          drupal_get_path('module', 'terms_of_use') . '/terms_of_use.css'
+        $form['#attached']['css'][] = array(
+          'data' => '#terms-of-use .fieldset-wrapper {height: 250px; overflow: auto;}',
+          'type' => 'inline',
         );
-        $form['terms_of_use']['terms_of_use_text'] = field_view_value('node', $node, 'body', $items[0]);
-        ;
+
+        $form['terms_of_use']['terms_of_use_text']['#markup'] = theme('terms_of_use', array('node' => $node, 'body' => $items[0]));
       }
       else {
         watchdog('terms_of_use', 'The body field of the "terms of use" node was empty. Please check the the nodes content.', array(), WATCHDOG_ALERT, l(t('Administer terms of use'), 'admin/config/people/terms_of_use'));
@@ -97,10 +99,10 @@ function terms_of_use_form_user_register_form_alter(&$form, $form_state) {
     watchdog('terms_of_use', 'No node is set as "terms of use" in the current language [@lang].', array('@lang' => $GLOBALS['language']->language), WATCHDOG_NOTICE, l(t('Administer terms of use'), 'admin/config/people/terms_of_use'));
   }
 
-// Adding the checkbox to the fieldset.
+  // Adding the checkbox to the fieldset.
   $form['terms_of_use']['terms_of_use'] = array(
-    '#type' => 'checkbox',
-    '#title' => $checkbox_label,
+    '#type'     => 'checkbox',
+    '#title'    => $checkbox_label,
     '#required' => TRUE,
   );
 
@@ -113,7 +115,7 @@ function terms_of_use_form_user_register_form_alter(&$form, $form_state) {
 function terms_of_use_theme() {
   return array(
     'terms_of_use' => array(
-      'variables' => array('terms' => NULL, 'node' => NULL),
+      'variables' => array('node' => NULL, 'body' => NULL),
     ),
   );
 }
@@ -121,17 +123,13 @@ function terms_of_use_theme() {
 /**
  * Output the terms of service.
  *
- * @param $terms
- *  The terms of service, already formatted.
- * @param $node
- *  The $node object, in case we need it.
- * @return
- *  HTML output.
- * @ingroup themeable
+ * The terms of service, already formatted.
+ * The $node object, in case we need it.
  */
 function theme_terms_of_use($variables) {
+  $terms = field_view_value('node', $variables['node'], 'body', $variables['body']);
   $output = '<div id="terms-of-use" class="content clear-block">';
-  $output .= $variables['terms'];
+  $output .= $terms['#markup'];
   $output .= '</div>';
 
   return $output;

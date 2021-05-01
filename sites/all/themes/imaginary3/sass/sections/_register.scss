@@ -1,12 +1,13 @@
-#edit-terms-of-use .fieldset-wrapper {
-  height: 150px;
-  overflow-y: scroll;
-}
+.form-wrapper#terms-of-use {
+  .fieldset-wrapper {
+    height: 150px;
+    overflow-y: scroll;
 
-#edit-terms-of-use .fieldset-wrapper p {
-  width:650px;
+    p {
+      width:650px;
+    }
+  }
 }
-
 
 .page-user-register {
 
@@ -95,7 +96,7 @@
   }
 
 
-  #edit-terms-of-use {
+  .form-wrapper#terms-of-use {
     background-color: #ededed;
     padding: 1em 0 1em 1em;
     font-family: $font-stack-futura;
@@ -201,8 +202,7 @@
       }
     }
 
-    #edit-terms-of-use {
-
+    .form-wrapper#terms-of-use {
       margin-bottom: 1.5em;
       padding: 1em;
 

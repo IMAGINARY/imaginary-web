@@ -59,6 +59,15 @@ Settings page is located at:
    and not queue up the request. Note that background callbacks will
    automatically be disabled if the site is in maintenance mode.
 
+For use with a hostname that is using a self-signed certificate, to avoid the
+certificate validation errors add the following to the site's settings.php file:
+
+// httprl.
+// Disable SSL cert validation.
+$conf['drupal_ssl_context_options'] = array(
+  'verify_peer' => FALSE,
+);
+
 
 API OVERVIEW
 ------------

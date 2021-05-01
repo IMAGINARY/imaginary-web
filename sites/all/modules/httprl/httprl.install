@@ -322,7 +322,7 @@ function httprl_install_http_test($mode, $blocking = FALSE, $depth = 0) {
         && ip2long($hostname) === FALSE
         && httprl_variable_get('httprl_server_hostname', FALSE) != $hostname
         ) {
-      $msg = $t('The "IP Address to send all self server requests to" setting needs to be changed to @hostname on the <a href="@url">configuration page</a>,', array(
+      $msg = $t('The "Host name of the server to send all self server requests to" setting needs to be changed to @hostname on the <a href="@url">configuration page</a>,', array(
         '@url' => url('admin/config/development/httprl'),
         '@hostname' => $hostname,
       ));

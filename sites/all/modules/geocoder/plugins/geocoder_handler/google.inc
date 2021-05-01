@@ -5,22 +5,27 @@
  * Plugin to provide a google geocoder.
  */
 
-/**
- * Plugins are described by creating a $plugin array which will be used
- * by the system that includes this file.
- */
 $plugin = array(
-  'title' => t("Google Geocoder"),
+  'title' => t('Google Geocoder'),
   'description' => t('Geocodes via google geocoder'),
   'callback' => 'geocoder_google',
-  'field_types' => array('text', 'text_long', 'addressfield', 'location', 'text_with_summary', 'computed', 'taxonomy_term_reference', 'country'),
+  'field_types' => array(
+    'text',
+    'text_long',
+    'addressfield',
+    'location',
+    'text_with_summary',
+    'computed',
+    'taxonomy_term_reference',
+    'country',
+  ),
   'field_callback' => 'geocoder_google_field',
   'settings_callback' => 'geocoder_google_form',
   'terms_of_service' => 'http://code.google.com/apis/maps/documentation/geocoding/#Limits',
 );
 
 /**
- * Process Markup
+ * Process Markup.
  */
 function geocoder_google($address, $options = array()) {
   $delay_trigger = &drupal_static(__FUNCTION__);
@@ -48,26 +53,40 @@ function geocoder_google($address, $options = array()) {
     $query['components'] = $options['biasing']['components'];
   }
 
+  // Error message in case no key/client ID has been provided.
+  $msg = t('The current HTTP request to google API does not have a key or client ID to identify your application.');
+
   // Add Google API authentication parameters.
   switch (variable_get('geocoder_google_auth_method')) {
 
     // Google Geocoding API Key.
-  case GEOCODER_GOOGLE_AUTH_KEY:
-    $geocoder_settings = variable_get("geocoder_settings", array());
-    if (!empty($geocoder_settings['geocoder_apikey_google'])) {
-      $query['key'] = $geocoder_settings['geocoder_apikey_google'];
-    }
-    break;
+    case GEOCODER_GOOGLE_AUTH_KEY:
+      $geocoder_settings = variable_get("geocoder_settings", array());
+      if (!empty($geocoder_settings['geocoder_apikey_google'])) {
+        $query['key'] = $geocoder_settings['geocoder_apikey_google'];
+      }
+      else {
+        throw new Exception($msg, WATCHDOG_ERROR);
+      }
+
+      break;
 
     // Google Maps for Work signature.
-  case GEOCODER_GOOGLE_AUTH_WORK:
-    $client_id   = variable_get('geocoder_google_client_id', FALSE);
-    $private_key = variable_get('geocoder_google_private_key', FALSE);
-    if (!empty($client_id) && !empty($private_key)) {
-      $google_maps_for_work = TRUE;
-      $query['client']      = $client_id;
-    }
-    break;
+    case GEOCODER_GOOGLE_AUTH_WORK:
+      $client_id = variable_get('geocoder_google_client_id', FALSE);
+      $private_key = variable_get('geocoder_google_private_key', FALSE);
+      if (!empty($client_id) && !empty($private_key)) {
+        $google_maps_for_work = TRUE;
+        $query['client'] = $client_id;
+      }
+      else {
+        throw new Exception($msg, WATCHDOG_ERROR);
+      }
+
+      break;
+
+    default:
+      throw new Exception($msg, WATCHDOG_ERROR);
   }
 
   $google_url = 'https://maps.googleapis.com/maps/api/geocode/json';
@@ -82,12 +101,12 @@ function geocoder_google($address, $options = array()) {
   if (!empty($google_maps_for_work)) {
 
     // Strip off the protocol and host for signing.
-    $parsed      = parse_url($url);
+    $parsed = parse_url($url);
     $url_to_sign = $parsed['path'] . '?' . $parsed['query'];
 
     // Decode the key in a URL-safe way (RFC 4648 Section 5).
     // @see https://www.ietf.org/rfc/rfc4648.txt
-    $decoded_key = base64_decode(strtr($private_key, '-_', '+/'));
+    $decoded_key = base64_decode(strtr($private_key, '-_', '+/'), TRUE);
 
     // Use HMAC SHA1 to sign the URL with the decoded key.
     $signature = hash_hmac('sha1', $url_to_sign, $decoded_key, TRUE);
@@ -107,38 +126,41 @@ function geocoder_google($address, $options = array()) {
       '@error' => $result->error,
     );
     $msg = t("HTTP request to google API failed.\nCode: @code\nError: @error", $args);
+
     throw new Exception($msg);
   }
 
   $data = json_decode($result->data);
 
-  if ($data->status == 'ZERO_RESULTS') {
+  if ($data->status === 'ZERO_RESULTS') {
     return FALSE;
   }
-  elseif ($data->status != 'OK') {
+  elseif ($data->status !== 'OK') {
     $args = array(
       '@status' => $data->status,
       '@message' => !empty($data->error_message) ? $data->error_message : t('No specific message'),
     );
     $msg = t("Google API returned bad status.\nStatus: @status\nMessage: @message", $args);
+
     throw new Exception($msg);
   }
 
   $geometries = array();
 
   foreach ($data->results as $item) {
-    // Check if we should reject these results
+    // Check if we should reject these results.
     if (isset($options['reject_results'])) {
       if (in_array($item->geometry->location_type, $options['reject_results'], TRUE)) {
         continue;
       }
     }
 
-    // Construct a geoPHP Geometry depending on what type of geometry we want returned (defaults to point)
-    if (!isset($options['geometry_type']) || $options['geometry_type'] == 'point') {
+    // Construct a geoPHP Geometry depending on what type of geometry we want
+    // returned (defaults to point).
+    if (!isset($options['geometry_type']) || $options['geometry_type'] === 'point') {
       $geom = new Point($item->geometry->location->lng, $item->geometry->location->lat);
     }
-    elseif ($options['geometry_type'] == 'bounds') {
+    elseif ($options['geometry_type'] === 'bounds') {
       if (isset($item->geometry->bounds)) {
         $points = array(
           new Point($item->geometry->bounds->southwest->lng, $item->geometry->bounds->southwest->lat),
@@ -150,7 +172,7 @@ function geocoder_google($address, $options = array()) {
         $geom = new Polygon(array(new LineString($points)));
       }
     }
-    elseif ($options['geometry_type'] == 'viewport') {
+    elseif ($options['geometry_type'] === 'viewport') {
       $points = array(
         new Point($item->geometry->viewport->southwest->lng, $item->geometry->viewport->southwest->lat),
         new Point($item->geometry->viewport->southwest->lng, $item->geometry->viewport->northeast->lat),
@@ -174,7 +196,7 @@ function geocoder_google($address, $options = array()) {
     return;
   }
 
-  // Check if we should return all results as a compound geometry
+  // Check if we should return all results as a compound geometry.
   if (isset($options['all_results'])) {
     if ($options['all_results']) {
       return geoPHP::geometryReduce($geometries);
@@ -183,7 +205,8 @@ function geocoder_google($address, $options = array()) {
   // The canonical geometry is the first result (best guess)
   $geometry = array_shift($geometries);
 
-  // If there are any other geometries, these are auxiliary geometries that represent "alternatives"
+  // If there are any other geometries, these are auxiliary geometries that
+  // represent "alternatives".
   if (count($geometries)) {
     $geometry->data['geocoder_alternatives'] = $geometries;
   }
@@ -191,31 +214,41 @@ function geocoder_google($address, $options = array()) {
   return $geometry;
 }
 
+/**
+ * Plugin callback.
+ */
 function geocoder_google_field($field, $field_item, $options = array()) {
-  if ($field['type'] == 'text' || $field['type'] == 'text_long' || $field['type'] == 'text_with_summary' || $field['type'] == 'computed') {
+  if ($field['type'] === 'text' || $field['type'] === 'text_long' || $field['type'] === 'text_with_summary' || $field['type'] === 'computed') {
     return geocoder_google($field_item['value'], $options);
   }
-  if ($field['type'] == 'addressfield' && module_exists('addressfield') && !addressfield_field_is_empty($field_item, $field)) {
+  if ($field['type'] === 'addressfield' && module_exists('addressfield') && !addressfield_field_is_empty($field_item, $field)) {
     $address = geocoder_widget_parse_addressfield($field_item);
-    if(empty($address)) {
+    if (empty($address)) {
       return FALSE;
     }
+
     return geocoder_google($address, $options);
   }
-  if ($field['type'] == 'country') {
+  if ($field['type'] === 'country') {
     $address = geocoder_widget_parse_countryfield($field_item);
+
     return geocoder_google($address, $options);
   }
-  if ($field['type'] == 'location') {
+  if ($field['type'] === 'location') {
     $address = geocoder_widget_parse_locationfield($field_item);
+
     return geocoder_google($address, $options);
   }
-  if ($field['type'] == 'taxonomy_term_reference') {
+  if ($field['type'] === 'taxonomy_term_reference') {
     $term = taxonomy_term_load($field_item['tid']);
+
     return geocoder_google($term->name, $options);
   }
 }
 
+/**
+ * Plugin callback.
+ */
 function geocoder_google_form($default_values = array()) {
   $form = array();
 
@@ -242,7 +275,7 @@ function geocoder_google_form($default_values = array()) {
     '#title' => 'Reject Results',
     '#options' => array(
       'APPROXIMATE' => 'APPROXIMATE:  indicates that the returned result is approximate.',
-      'GEOMETRIC_CENTER'   => 'GEOMETRIC_CENTER: indicates that the returned result is the geometric center of a result such as a polyline (for example, a street) or polygon (region).',
+      'GEOMETRIC_CENTER' => 'GEOMETRIC_CENTER: indicates that the returned result is the geometric center of a result such as a polyline (for example, a street) or polygon (region).',
       'RANGE_INTERPOLATED' => 'RANGE_INTERPOLATED: indicates that the returned result reflects an approximation (usually on a road) interpolated between two precise points (such as intersections). Interpolated results are generally returned when rooftop geocodes are unavailable for a street address.',
       'ROOFTOP' => 'ROOFTOP: indicates that the returned result is a precise geocode for which we have location information accurate down to street address precision.',
     ),
@@ -263,19 +296,19 @@ function geocoder_google_form($default_values = array()) {
     '#type' => 'textfield',
     '#title' => t('Viewport biasing'),
     '#description' => t('Provide latitude/longitude coordinates of the southwest and northeast corners using a pipe (|) to separate the coordinates.'),
-    '#default_value' => isset($default_values['biasing']['bounds']) ? $default_values['biasing']['bounds']: NULL,
+    '#default_value' => isset($default_values['biasing']['bounds']) ? $default_values['biasing']['bounds'] : NULL,
   );
   $form['biasing']['region'] = array(
     '#type' => 'textfield',
     '#title' => t('Region biasing'),
     '#description' => t('Provide a ccTLD for the desired region.'),
-    '#default_value' => isset($default_values['biasing']['region']) ? $default_values['biasing']['region']: NULL,
+    '#default_value' => isset($default_values['biasing']['region']) ? $default_values['biasing']['region'] : NULL,
   );
   $form['biasing']['components'] = array(
     '#type' => 'textfield',
     '#title' => t('Component filtering'),
     '#description' => t('Provide a set of component:value pairs separated by a pipe (|) to filter results.'),
-    '#default_value' => isset($default_values['biasing']['components']) ? $default_values['biasing']['components']: NULL,
+    '#default_value' => isset($default_values['biasing']['components']) ? $default_values['biasing']['components'] : NULL,
   );
 
   return $form;

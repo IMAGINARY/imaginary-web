@@ -2,12 +2,14 @@
 
 /**
  * @file
+ * The main file for the addanother module.
+ *
  * Presents users with an option to create another node of the same type after a
  * node is added.
  */
 
 /**
- * Implement hook_help().
+ * Implements hook_help().
  */
 function addanother_help($path, $arg) {
   if ($path == "admin/help#addanother") {
@@ -16,7 +18,7 @@ function addanother_help($path, $arg) {
 }
 
 /**
- * Implement hook_permission().
+ * Implements hook_permission().
  */
 function addanother_permission() {
   return array(
@@ -32,7 +34,7 @@ function addanother_permission() {
 }
 
 /**
- * Implement hook_menu().
+ * Implements hook_menu().
  */
 function addanother_menu() {
   $items = array();
@@ -66,7 +68,7 @@ function addanother_goto($node) {
 }
 
 /**
- * Implement hook_admin_paths().
+ * Implements hook_admin_paths().
  */
 function addanother_admin_paths() {
   $paths = array(
@@ -80,7 +82,10 @@ function addanother_admin_paths() {
  * Check if we should display the Add another verbage on a node.
  */
 function addanother_access($node) {
-  if (!node_access('create', $node->type)) return FALSE;
+  if (!node_access('create', $node->type)) {
+    return FALSE;
+  }
+
   if (arg(2) == "edit" &&
       !variable_get('addanother_tab_edit_' . $node->type, FALSE)) {
     return FALSE;
@@ -101,13 +106,14 @@ function addanother_access($node) {
 function addanother_admin() {
   $form['addanother_display'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Default settings for newly created content types'),  
+    '#title' => t('Default settings for newly created content types'),
   );
   $form['addanother_display']['addanother_default_button'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable <i>Display Add another button on node add form</i> for new content types.'),
-    '#default_value' => variable_get('addanother_default_button', TRUE), // can't put the word default at the end of this variable name 
-                                                                         // in the rare case that there is a content type with a machine name of 'default'
+    '#default_value' => variable_get('addanother_default_button', TRUE),
+    // Can't put the word default at the end of this variable name in the
+    // rare case that there is a content type with a machine name of 'default'.
   );
   $form['addanother_display']['addanother_default_message'] = array(
     '#type' => 'checkbox',
@@ -167,7 +173,7 @@ function addanother_form_node_type_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Implement hook_form_alter().
+ * Implements hook_form_alter().
  */
 function addanother_form_alter(&$form, $form_state, $form_id) {
   if (!empty($form['#node_edit_form']) && empty($form['nid']['#value'])) {
@@ -179,7 +185,7 @@ function addanother_form_alter(&$form, $form_state, $form_id) {
           '#type' => 'submit',
           '#value' => t('Save and add another'),
           '#weight' => -41,
-          '#submit' => array('node_form_submit', 'addanother_node_form_submit')
+          '#submit' => array('node_form_submit', 'addanother_node_form_submit'),
         );
       }
 
@@ -191,6 +197,8 @@ function addanother_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
+ * Form submit handler for node_form().
+ *
  * Submit handler for the 'Save and add another' button.
  * This allows a redirect to be set if this was the button pressed.
  */
@@ -199,11 +207,15 @@ function addanother_node_form_submit($form, &$form_state) {
     _addanother_quelch_message($node);
     theme('addanother_button_message', array('nid' => $node->nid));
 
-    $form_state['redirect'] = _addanother_node_add_path($node);
+    // If there are query parameters, keep them for the next cycle.
+    $parameters = drupal_get_query_parameters();
+    $_GET['destination'] = url(_addanother_node_add_path($node), array('query' => $parameters));
   }
 }
 
 /**
+ * Form submit handler for node_form() considering the 'message'.
+ *
  * Submit handler if the normal submit button was pressed, however
  * the node has the 'message' feature enabled.
  */
@@ -216,39 +228,37 @@ function addanother_node_form_message_submit($form, &$form_state) {
 
 
 /**
- * Internal helper function to get the node from a $form_state
+ * Internal helper function to get the node from a $form_state.
  */
 function _addanother_get_node_from_form_state(&$form_state) {
   // Check the node is in the form state - if it isn't, something has gone very
-  // wrong... Best not to continue
+  // wrong... Best not to continue.
   if (!isset($form_state['node'])) {
     return FALSE;
   }
 
-  // Return the node
+  // Return the node.
   return $form_state['node'];
 }
 
 /**
- * Implement hook_theme().
+ * Implements hook_theme().
  *
  * Concept borrowed from 6.x Submit Again.
- *
- * @return array
  */
 function addanother_theme() {
   return array(
     'addanother_message_message' => array(
-      'variables' => array('node' => NULL)
+      'variables' => array('node' => NULL),
     ),
     'addanother_button_message' => array(
-      'variables' => array('nid' => NULL)
+      'variables' => array('nid' => NULL),
     ),
   );
 }
 
 /**
- * Displays a message and link to the added/edited node after submit
+ * Displays a message and link to the added/edited node after submit.
  */
 function theme_addanother_message_message($variables) {
   $node = $variables['node'];
@@ -264,13 +274,13 @@ function theme_addanother_message_message($variables) {
 }
 
 /**
- * Displays a message and link to the added/edited node after submit
+ * Displays a message and link to the added/edited node after submit.
  */
 function theme_addanother_button_message($variables) {
   $node = node_load($variables['nid']);
   $t_args = array(
-      '@type' => node_type_get_name($node),
-      '!title' => l(drupal_placeholder($node->title), 'node/' . $node->nid, array('html' => TRUE)),
+    '@type' => node_type_get_name($node),
+    '!title' => l(drupal_placeholder($node->title), 'node/' . $node->nid, array('html' => TRUE)),
   );
   drupal_set_message(t('@type !title has been created. You may now create another.', $t_args));
   return array();
@@ -280,7 +290,9 @@ function theme_addanother_button_message($variables) {
  * Remove the default Drupal node creation message.
  */
 function _addanother_quelch_message($node) {
-  if (!isset($_SESSION['messages']['status'])) return 0;
+  if (!isset($_SESSION['messages']['status'])) {
+    return 0;
+  }
 
   $t_args = array(
     '@type' => node_type_get_name($node),
@@ -308,7 +320,8 @@ function _addanother_node_type_url($type) {
  */
 function _addanother_node_add_path($node) {
   $path = 'node/add/' . _addanother_node_type_url($node->type);
-  // If we are coming from a node creation path, re-use the path to save additional variables.
+  // If we are coming from a node creation path,re-use the path
+  // to save additional variables.
   if (arg(0) == "node" && arg(1) == "add") {
     $path = $_GET['q'];
   }

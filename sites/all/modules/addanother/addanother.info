@@ -1,4 +1,4 @@
-name = "Add another"
+name = "Add Another"
 description = "Presents users with an option to create another node of the same type after a node is added."
 core = 7.x
 package = User interface
@@ -7,10 +7,8 @@ files[] = addanother.install
 files[] = addanother.test
 configure = admin/structure/types/addanother
 
-
-; Information added by Drupal.org packaging script on 2014-05-10
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2020-08-18
+version = "7.x-2.3"
 core = "7.x"
 project = "addanother"
-datestamp = "1399687140"
-
+datestamp = "1597769279"

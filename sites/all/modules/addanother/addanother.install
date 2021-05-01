@@ -3,11 +3,10 @@
 /**
  * @file
  * Install, update and uninstall functions for the Add another module.
- *
  */
 
 /**
- * Implement hook_uninstall().
+ * Implements hook_uninstall().
  */
 function addanother_uninstall() {
   $types = node_type_get_types();
@@ -19,14 +18,18 @@ function addanother_uninstall() {
     variable_del('addanother_button_' . $typeid);
   }
 
-  variable_del('addanother_default_message'); // can't put the word default at the end of this variable name in the rare case that there is a content type with a machine name of 'default'
+  // Can't put the word default at the end of this variable name in the rare
+  // case that there is a content type with a machine name of 'default'.
+  variable_del('addanother_default_message');
   variable_del('addanother_default_tab');
   variable_del('addanother_default_tab_edit');
   variable_del('addanother_default_button');
 
 }
 
-
+/**
+ * Update last removed.
+ */
 function addanother_update_last_removed() {
   // All 5.x update functions have been removed.
   return 2;
@@ -55,8 +58,8 @@ function addanother_update_7001() {
         variable_set('addanother_tab_edit_' . $typeid, TRUE);
       }
     }
-
   }
+
   variable_del('addanother_nodetypes');
   variable_del('addanother_tab');
   variable_del('addanother_tab_edit');
@@ -65,7 +68,10 @@ function addanother_update_7001() {
 }
 
 /**
- * Clears site-wide menu cache as our callback and access arguments have changed.
+ * Implements hook_update_N().
+ *
+ * Clears site-wide menu cache as our callback
+ * and access arguments have changed.
  */
 function addanother_update_7002() {
   cache_clear_all(NULL, 'cache_menu');

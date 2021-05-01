@@ -1,13 +1,23 @@
 <?php
 
 /**
+ * @file
+ * geocoder.widget.inc
+ */
+
+/**
  * Implements hook_field_widget_info().
  */
 function geocoder_field_widget_info() {
   return array(
     'geocoder' => array(
       'label' => t('Geocode from another field'),
-      'field types' => array('geofield', 'geolocation_latlng', 'location', 'postgis'),
+      'field types' => array(
+        'geofield',
+        'geolocation_latlng',
+        'location',
+        'postgis',
+      ),
       'settings' => array(
         'geocoder_field' => NULL,
         'geocoder_handler' => NULL,
@@ -37,8 +47,8 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
   $valid_fields = array();
   $available_handlers = array();
 
-  // Add in the title/name
-  //@@TODO Do this programatically by getting entity_info
+  // Add in the title/name.
+  // @@TODO Do this programatically by getting entity_info
   switch ($instance['entity_type']) {
     case 'node':
       $all_fields['title'] = array(
@@ -47,6 +57,7 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
       );
 
       $entity_fields['title']['label'] = t('Title');
+
       break;
 
     case 'taxonomy_term':
@@ -56,6 +67,7 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
       );
 
       $entity_fields['name']['label'] = t('Name');
+
       break;
 
     case 'country':
@@ -65,22 +77,15 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
       );
 
       $entity_fields['name']['label'] = t('Name');
-      break;
 
-    case 'country':
-      $all_fields['name'] = array(
-        'field_name' => 'name',
-        'type' => 'text',
-      );
-
-      $entity_fields['name']['label'] = t('Name');
       break;
   }
 
-  // Get a list of all valid fields that we both support and are part of this entity
+  // Get a list of all valid fields that we both support and are part of this
+  // entity.
   foreach ($all_fields as $field) {
     if (array_key_exists($field['field_name'], $entity_fields)) {
-      if (in_array($field['type'], array_keys($supported_field_types)) && ($field['field_name'] != $this_field['field_name'])) {
+      if (in_array($field['type'], array_keys($supported_field_types), TRUE) && ($field['field_name'] !== $this_field['field_name'])) {
         $valid_fields[$field['field_name']] = $entity_fields[$field['field_name']]['label'];
         foreach ($supported_field_types[$field['type']] as $handler) {
           $available_handlers[$handler] = $processors[$handler]['title'];
@@ -94,7 +99,7 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
   // Extend with virtual fields.
   $info = entity_get_property_info($instance['entity_type']);
   foreach ($info as $property_name => $property) {
-    if (isset($property['type']) && in_array($property['type'], array('location', 'text'))) {
+    if (isset($property['type']) && in_array($property['type'], array('location', 'text'), TRUE)) {
       if (!isset($valid_fields[$property_name])) {
         $valid_fields[$property_name] = $property['label'];
       }
@@ -105,7 +110,7 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
   $form['geocoder_field'] = array(
     '#type' => 'select',
     '#title' => t('Geocode from field'),
-    '#default_value' => isset($settings['geocoder_field']) ? $settings['geocoder_field']: '',
+    '#default_value' => isset($settings['geocoder_field']) ? $settings['geocoder_field'] : '',
     '#options' => $valid_fields,
     '#description' => t('Select which field you would like to geocode from.'),
     '#required' => TRUE,
@@ -116,7 +121,7 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
     '#title' => t('Geocoder'),
     '#prefix' => '<div id="geocoder-handler-div">',
     '#suffix' => '</div>',
-    '#default_value' => isset($settings['geocoder_handler']) ? $settings['geocoder_handler']: '',
+    '#default_value' => isset($settings['geocoder_handler']) ? $settings['geocoder_handler'] : '',
     '#options' => $available_handlers,
     '#description' => t('Select which type of geocoding handler you would like to use'),
     '#required' => TRUE,
@@ -126,7 +131,7 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
     '#tree' => TRUE,
   );
 
-  // Add the handler settings forms
+  // Add the handler settings forms.
   foreach ($processors as $handler_id => $handler) {
     if (isset($handler['settings_callback']) || isset($handler['terms_of_service'])) {
       $default_values = isset($settings['handler_settings'][$handler_id]) ? $settings['handler_settings'][$handler_id] : array();
@@ -161,13 +166,13 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
     '#type' => 'select',
     '#title' => t('Multi-value input handling'),
     '#description' => t('Should geometries from multiple inputs be: <ul><li>Matched with each input (e.g. One POINT for each address field)</li><li>Aggregated into a single MULTIPOINT geofield (e.g. One MULTIPOINT polygon from multiple address fields)</li><li>Broken up into multiple geometries (e.g. One MULTIPOINT to multiple POINTs.)</li></ul>'),
-    '#default_value' => isset($settings['delta_handling']) ? $settings['delta_handling']: 'default',
+    '#default_value' => isset($settings['delta_handling']) ? $settings['delta_handling'] : 'default',
     '#options' => array(
       'default' => 'Match Multiples (default)',
-      'm_to_s' =>  'Multiple to Single',
-      's_to_m' =>  'Single to Multiple',
-      'c_to_s' =>  'Concatenate to Single',
-      'c_to_m' =>  'Concatenate to Multiple',
+      'm_to_s' => 'Multiple to Single',
+      's_to_m' => 'Single to Multiple',
+      'c_to_s' => 'Concatenate to Single',
+      'c_to_m' => 'Concatenate to Multiple',
     ),
     '#required' => TRUE,
   );
@@ -179,7 +184,8 @@ function geocoder_field_widget_settings_form($this_field, $instance) {
     '#description' => t('Allow the user to override geolocation lat/long values manually. Useful when geocoding is inaccurate.'),
   );
 
-  // Add javascript to sync allowed values. Note that we are not using AJAX because we do not have access to the raw form_state here
+  // Add javascript to sync allowed values. Note that we are not using AJAX
+  // because we do not have access to the raw form_state here.
   drupal_add_js(array('geocoder_widget_settings' => array('handlers' => $handlers_by_type, 'types' => $field_types)), 'setting');
   drupal_add_js(drupal_get_path('module', 'geocoder') . '/geocoder.admin.js', 'file');
 
@@ -193,7 +199,7 @@ function geocoder_field_widget_form(&$form, &$form_state, $field, $instance, $la
   $widget = $instance['widget'];
   $settings = $widget['settings'];
 
-  if ($widget['type'] == 'geocoder' && !empty($settings['latlng_override'])) {
+  if ($widget['type'] === 'geocoder' && !empty($settings['latlng_override'])) {
     $instance['widget']['type'] = 'geofield_latlon';
     $element = geofield_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $base);
     // At present, the only way we know if the user has overridden the lat/long
@@ -201,8 +207,8 @@ function geocoder_field_widget_form(&$form, &$form_state, $field, $instance, $la
     $geocoded_value = geocoder_widget_get_field_value($instance['entity_type'], $instance, $form['#entity']);
     $override_default = FALSE;
     if ($geocoded_value &&
-      (round($element['lat']['#default_value'], 3) != round($geocoded_value[$element['#language']][$delta]['lat'], 3)
-        || round($element['lon']['#default_value'], 3) != round($geocoded_value[$element['#language']][$delta]['lon'], 3))
+      (round($element['geom']['#default_value']['lat'], 3) !== round($geocoded_value[$element['#language']][$delta]['lat'], 3)
+        || round($element['geom']['#default_value']['lon'], 3) !== round($geocoded_value[$element['#language']][$delta]['lon'], 3))
     ) {
       $override_default = TRUE;
     }
@@ -243,17 +249,13 @@ function geocoder_process_override($element) {
   $parents = $element['#parents'];
   $first_parent = array_shift($parents);
   $name = $first_parent . '[' . implode('][', $parents) . '][geocoder_overridden]';
-  // Only display lat/long inputs if override is checked
-  $element['lat']['#states'] = array(
+  // Only display lat/long inputs if override is checked.
+  $element['geom']['#states'] = array(
     'visible' => array(
       ':input[name="' . $name . '"]' => array('checked' => TRUE),
     ),
   );
-  $element['lon']['#states'] = array(
-    'visible' => array(
-      ':input[name="' . $name . '"]' => array('checked' => TRUE),
-    ),
-  );
+
   return $element;
 }
 
@@ -265,16 +267,14 @@ function geocoder_field_attach_load($entity_type, $entities, $age, $options) {
   foreach ($entities as &$entity) {
     list(, , $bundle) = entity_extract_ids($entity_type, $entity);
     // Examine every geocoder field instance attached to this entity's bundle.
-    $instances = array_intersect_key(field_info_instances($entity_type, $bundle), field_read_fields(array('type' => 'geofield')));
-    foreach ($instances as $field_name => $instance) {
+    foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
       if ($instance['widget']['type'] === 'geocoder'
         && !empty($instance['widget']['settings']['latlng_override'])
-        && !empty($entity->{$field_name})
         && ($geocoded_value = geocoder_widget_get_field_value($entity_type, $instance, $entity))) {
         foreach ($entity->{$field_name} as $langcode => $items) {
           foreach ($items as $delta => $item) {
-            if ((round($item['lat'], 3) != round($geocoded_value[$langcode][$delta]['lat'], 3)
-              || round($item['lon'], 3) != round($geocoded_value[$langcode][$delta]['lon'], 3))
+            if ((round($item['lat'], 3) !== round($geocoded_value[$langcode][$delta]['lat'], 3)
+              || round($item['lon'], 3) !== round($geocoded_value[$langcode][$delta]['lon'], 3))
             ) {
               $entity->geocoder_overridden[$field_name][$langcode][$delta] = TRUE;
             }
@@ -292,13 +292,12 @@ function geocoder_field_attach_load($entity_type, $entities, $age, $options) {
  * and fully processed fields values are accessed.
  */
 function geocoder_field_attach_presave($entity_type, $entity) {
-  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
-  $instances = array_intersect_key(field_info_instances($entity_type, $bundle), field_read_fields(array('type' => 'geofield')));
-  // Loop over any geofield using our geocode widget
-  foreach ($instances as $field_name => $instance) {
-    if ($instance['widget']['type'] === 'geocoder'
-      && !empty($entity->{$field_name})
-      && ($geocoded_value = geocoder_widget_get_field_value($entity_type, $instance, $entity))) {
+  list(,, $bundle) = entity_extract_ids($entity_type, $entity);
+  // Loop over any geofield using our geocode widget.
+  foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
+    if ($instance['widget']['type'] === 'geocoder') {
+      if ($geocoded_value = geocoder_widget_get_field_value($entity_type, $instance, $entity)) {
+        if (!empty($entity->{$field_name})) {
       foreach ($entity->{$field_name} as $langcode => $items) {
         if (empty($items)) {
           $entity->{$field_name} = $geocoded_value;
@@ -306,13 +305,18 @@ function geocoder_field_attach_presave($entity_type, $entity) {
         }
         foreach ($items as $delta => $item) {
           // Check the entity value.
-          if (!(isset($entity->geocoder_overridden)
-            && isset($entity->geocoder_overridden[$field_name])
-            && isset($entity->geocoder_overridden[$field_name][$langcode])
-            && !empty($entity->geocoder_overridden[$field_name][$langcode][$delta]))) {
+              if (!(isset($entity->geocoder_overridden) && isset($entity->geocoder_overridden[$field_name]) && isset($entity->geocoder_overridden[$field_name][$langcode]) && !empty($entity->geocoder_overridden[$field_name][$langcode][$delta]))) {
             $entity->{$field_name}[$langcode][$delta] = $geocoded_value[$langcode][$delta];
           }
         }
+      }
+    }
+        else {
+          $entity->{$field_name} = $geocoded_value;
+  }
+}
+      else {
+        $entity->{$field_name} = $geocoded_value;
       }
     }
   }
@@ -325,8 +329,9 @@ function geocoder_widget_get_field_info($entity_type, $field_instance, $entity) 
   $entity_info = entity_get_info($entity_type);
   $field_name = is_array($field_instance['widget']['settings']['geocoder_field']) ? reset($field_instance['widget']['settings']['geocoder_field']) : $field_instance['widget']['settings']['geocoder_field'];
 
-  // Determine the source type, if it's a entity-key, we mock it as a "text" field
-  if (in_array($field_name, $entity_info['entity keys']) && $entity) {
+  // Determine the source type, if it's a entity-key, we mock it as a "text"
+  // field.
+  if (in_array($field_name, $entity_info['entity keys'], TRUE) && $entity) {
     $field_info = array('type' => 'text', 'entity_key' => TRUE);
   }
   else {
@@ -348,16 +353,22 @@ function geocoder_widget_get_entity_field_value($entity_type, $field_instance, $
   $field_name = is_array($field_instance['widget']['settings']['geocoder_field']) ? reset($field_instance['widget']['settings']['geocoder_field']) : $field_instance['widget']['settings']['geocoder_field'];
   $field_info = geocoder_widget_get_field_info($entity_type, $field_instance, $entity);
 
-  // Get the source values
+  // Get the source values.
   if ($field_info['entity_key'] && $entity) {
     $source_field_values = array(array('value' => $entity->$field_name));
   }
-  else if ($entity) {
+  elseif ($entity) {
     $wrapper = entity_metadata_wrapper($entity_type, $entity);
-    $field_wrapper = $wrapper->value()->$field_name;
-    $value = $field_wrapper[LANGUAGE_NONE];
+    if (!empty($wrapper->value()->$field_name)) {
+      $field_wrapper = $wrapper->value()->$field_name;
+    }
+    else {
+      return FALSE;
+    }
+    $langcode = field_language($entity_type, $entity, $field_name);
+    $value = $field_wrapper[$langcode];
     $values = array_filter(is_array($value) && isset($value[0]) ? $value : array($value));
-    $source_field_values = array_map(function($value) {
+    $source_field_values = array_map(function ($value) {
       if (is_array($value)) {
         // Clean up array from Addressfield, for diff.
         unset($value['element_key']);
@@ -372,7 +383,7 @@ function geocoder_widget_get_entity_field_value($entity_type, $field_instance, $
     }, $values);
   }
   else {
-    // We can't find the source values
+    // We can't find the source values.
     return FALSE;
   }
 
@@ -382,28 +393,29 @@ function geocoder_widget_get_entity_field_value($entity_type, $field_instance, $
 /**
  * Get a field's value based on geocoded data.
  *
- * @param $entity_type
- *   Type of entity
- * @para field_instance
- *   Field instance definition array
- * @param $entity
- *  Optionally, the entity. You must pass either the entity or $source_field_values
- * @param $source_field_values
- *  Array of deltas / source field values. You must pass either this or $entity.
+ * @param string $entity_type
+ *   Type of entity.
+ * @param array $field_instance
+ *   Field instance definition array.
+ * @param mixed $entity
+ *   Optionally, the entity. Pass either the entity or $source_field_values.
+ * @param array $source_field_values
+ *   Array of deltas / source field values. Pass either this or $entity.
  *
- * @return
- *  Three possibilities could be returned by this function:
+ * @return bool|array
+ *   Three possibilities could be returned by this function:
  *    - FALSE: do nothing.
  *    - An empty array: use it to unset the existing field value.
  *    - A populated array: assign a new field value.
  */
-function geocoder_widget_get_field_value($entity_type, $field_instance, $entity = NULL, $source_field_values = NULL) {
+function geocoder_widget_get_field_value($entity_type, array $field_instance, $entity = NULL, array $source_field_values = NULL) {
   if (!$source_field_values && !$entity) {
     trigger_error('geocoder_widget_get_field_value: You must pass either $source_field_values OR $entity', E_USER_ERROR);
+
     return FALSE;
   }
 
-  // Required settings
+  // Required settings.
   if (isset($field_instance['widget']['settings']['geocoder_handler']) && isset($field_instance['widget']['settings']['geocoder_field'])) {
     $handler = geocoder_get_handler($field_instance['widget']['settings']['geocoder_handler']);
     $field_name = is_array($field_instance['widget']['settings']['geocoder_field']) ? reset($field_instance['widget']['settings']['geocoder_field']) : $field_instance['widget']['settings']['geocoder_field'];
@@ -411,7 +423,7 @@ function geocoder_widget_get_field_value($entity_type, $field_instance, $entity 
 
     $field_info = geocoder_widget_get_field_info($entity_type, $field_instance, $entity);
 
-    // Get the source values
+    // Get the source values.
     if (!$source_field_values) {
       $source_field_values = geocoder_widget_get_entity_field_value($entity_type, $field_instance, $entity);
     }
@@ -421,7 +433,7 @@ function geocoder_widget_get_field_value($entity_type, $field_instance, $entity 
       return array();
     }
 
-    // Get the handler-specific-settings
+    // Get the handler-specific-settings.
     if (isset($field_instance['widget']['settings']['handler_settings'][$handler['name']])) {
       $handler_settings = $field_instance['widget']['settings']['handler_settings'][$handler['name']];
     }
@@ -437,8 +449,8 @@ function geocoder_widget_get_field_value($entity_type, $field_instance, $entity 
       $delta_handling = $field_instance['widget']['settings']['delta_handling'];
     }
 
-    // Check to see if we should be concatenating
-    if ($delta_handling == 'c_to_s' || $delta_handling == 'c_to_m') {
+    // Check to see if we should be concatenating.
+    if ($delta_handling === 'c_to_s' || $delta_handling === 'c_to_m') {
       $source_field_values = geocoder_widget_get_field_concat($source_field_values);
     }
 
@@ -456,7 +468,7 @@ function geocoder_widget_get_field_value($entity_type, $field_instance, $entity 
         }
 
         // No cache record, so fetch live.
-        if ($geometry === NULL) {
+        if ($geometry === NULL || ($geometry === FALSE && !variable_get('geocoder_cache_empty_results'))) {
           // Geocode any value from our source field.
           try {
             $geometry = call_user_func($handler['field_callback'], $field_info, $item, $handler_settings);
@@ -467,6 +479,7 @@ function geocoder_widget_get_field_value($entity_type, $field_instance, $entity 
           // Exception affects just this one field item.
           catch (Exception $e) {
             watchdog_exception('geocoder', $e, NULL, array(), WATCHDOG_ERROR, geocoder_widget_get_link($entity_type, $entity));
+
             continue;
           }
         }
@@ -484,27 +497,26 @@ function geocoder_widget_get_field_value($entity_type, $field_instance, $entity 
         // order to delete its saved data.
         return array();
       }
-      else {
-        // Resolve multiple-values - get back values from our delta-resolver
-        $values = geocoder_widget_resolve_deltas($geometries, $delta_handling, $target_info);
 
-        // Set the values - geofields do not support languages
-        return array(LANGUAGE_NONE => $values);
-      }
+      // Resolve multiple-values - get back values from our delta-resolver.
+      $values = geocoder_widget_resolve_deltas($geometries, $delta_handling, $target_info);
+
+      // Set the values - geofields do not support languages.
+      return array(LANGUAGE_NONE => $values);
     }
   }
 }
 
-
 /**
- * Get field items and info
+ * Get field items and info.
  *
- * We always pass the full field-item array (with all columns) to the handler, but there is some preprocessing
- * that we need to do for the special case of entity-labels and multi-field concatenation
- * For these two special cases we "mock-up" a text-field and pass it back for geocoding
+ * We always pass the full field-item array (with all columns) to the handler,
+ * but there is some preprocessing that we need to do for the special case of
+ * entity-labels and multi-field concatenation. For these two special cases we
+ * "mock-up" a text-field and pass it back for geocoding.
  */
 function geocoder_widget_get_field_concat($items) {
-  // Check if we should concatenate
+  // Check if we should concatenate.
   $concat = '';
   foreach ($items as $item) {
     if (!empty($item['value'])) {
@@ -513,11 +525,12 @@ function geocoder_widget_get_field_concat($items) {
   }
   $concat = trim($concat, ', ');
   $items = array(array('value' => $concat));
+
   return $items;
 }
 
 /**
- * Geocoder Widget - Resolve Deltas
+ * Geocoder Widget - Resolve Deltas.
  *
  * Given a list of geometries, and user configuration on how to handle deltas,
  * we created a list of items to be inserted into the fields.
@@ -525,17 +538,25 @@ function geocoder_widget_get_field_concat($items) {
 function geocoder_widget_resolve_deltas($geometries, $delta_handling = 'default', $target_info) {
   $values = array();
 
-  // Default delta handling: just pass one delta to the next
-  if ($delta_handling == 'default') {
+  // Default delta handling: just pass one delta to the next.
+  if ($delta_handling === 'default') {
     foreach ($geometries as $geometry) {
       $values[] = geocoder_widget_values_from_geometry($geometry, $target_info);
     }
   }
 
-  // Single-to-multiple handling - if we can, explode out the component geometries
-  if ($delta_handling == 's_to_m' || $delta_handling == 'c_to_m') {
+  // Single-to-multiple handling - if we can, explode out the component
+  // geometries.
+  if ($delta_handling === 's_to_m' || $delta_handling === 'c_to_m') {
     $type = $geometries[0]->geometryType();
-    if (in_array($type, array('MultiPoint', 'MultiLineString', 'MultiPolygon', 'GeometryCollection'))) {
+    $geometry_types = array(
+      'MultiPoint',
+      'MultiLineString',
+      'MultiPolygon',
+      'GeometryCollection',
+    );
+
+    if (in_array($type, $geometry_types, TRUE)) {
       $components = $geometries[0]->getComponents();
       foreach ($components as $component) {
         $values[] = geocoder_widget_values_from_geometry($component, $target_info);
@@ -546,8 +567,8 @@ function geocoder_widget_resolve_deltas($geometries, $delta_handling = 'default'
     }
   }
 
-  // For multiple-to-single handling, run it though geometryReduce
-  if ($delta_handling == 'm_to_s' || $delta_handling == 'c_to_s') {
+  // For multiple-to-single handling, run it though geometryReduce.
+  if ($delta_handling === 'm_to_s' || $delta_handling === 'c_to_s') {
     $reduced_geom = geoPHP::geometryReduce($geometries);
     $values[] = geocoder_widget_values_from_geometry($reduced_geom, $target_info);
   }
@@ -556,14 +577,16 @@ function geocoder_widget_resolve_deltas($geometries, $delta_handling = 'default'
 }
 
 /**
- * Geocoder Widget - Field values from geometry
+ * Geocoder Widget - Field values from geometry.
  *
- * Given a geometry and the field type, return back a values array for that field.
- * The passed back array represents a single delta.
+ * Given a geometry and the field type, return back a values array for that
+ * field. The passed back array represents a single delta.
  */
 function geocoder_widget_values_from_geometry($geometry, $target_info) {
-  if ($target_info['type'] == 'geofield') return geofield_get_values_from_geometry($geometry);
-  if ($target_info['type'] == 'geolocation_latlng') {
+  if ($target_info['type'] === 'geofield') {
+    return geofield_get_values_from_geometry($geometry);
+  }
+  if ($target_info['type'] === 'geolocation_latlng') {
     $centroid = $geometry->centroid();
     $lat = $centroid->y();
     $lng = $centroid->x();
@@ -576,20 +599,22 @@ function geocoder_widget_values_from_geometry($geometry, $target_info) {
       'lng_rad' => deg2rad($lng),
     );
   }
-  if ($target_info['type'] == 'location') {
+  if ($target_info['type'] === 'location') {
     $centroid = $geometry->centroid();
+
     return array(
       'latitude' => $centroid->y(),
       'longitude' => $centroid->x(),
       'source' => 2,
     );
   }
-  if ($target_info['type'] == 'postgis') {
+  if ($target_info['type'] === 'postgis') {
     $srid = $geometry->getSRID() ? $geometry->getSRID() : '4326';
     $type = $target_info['settings']['type'];
     $postgis_geometry = new PostgisGeometry($type, $srid);
     $postgis_geometry->fromText($geometry->asText());
     $postgis_geometry->transform($target_info['settings']['srid']);
+
     return array(
       'geometry' => $postgis_geometry->getGeometry(),
     );
@@ -610,7 +635,8 @@ function geocoder_widget_parse_addressfield($field_item) {
   $address[] = !empty($field_item['postal_code']) ? $field_item['postal_code'] : NULL;
   if (!empty($field_item['country']) && !empty($field_item['administrative_area'])) {
     module_load_include('inc', 'addressfield', 'addressfield.administrative_areas');
-    $address[] = addressfield_get_administrative_areas($field_item['country'])[$field_item['administrative_area']];
+    $areas = addressfield_get_administrative_areas($field_item['country']);
+    $address[] = $areas[$field_item['administrative_area']];
   }
   else {
     $address[] = !empty($field_item['administrative_area']) ? $field_item['administrative_area'] : NULL;
@@ -637,19 +663,29 @@ function geocoder_widget_parse_addressfield($field_item) {
 }
 
 /**
- * Geocoder Widget - Parse a location field
+ * Geocoder Widget - Parse a location field.
  */
 function geocoder_widget_parse_locationfield($field_item) {
   $address = '';
-  if (!empty($field_item['street']))      $address .= $field_item['street'] . ',';
-  if (!empty($field_item['additional']))  $address .= $field_item['additional'] . ',';
-  if (!empty($field_item['city']))        $address .= $field_item['city'] . ',';
-  if (!empty($field_item['postal_code'])) $address .= $field_item['postal_code'] . ',';
+  if (!empty($field_item['street'])) {
+    $address .= $field_item['street'] . ',';
+  }
+  if (!empty($field_item['additional'])) {
+    $address .= $field_item['additional'] . ',';
+  }
+  if (!empty($field_item['city'])) {
+    $address .= $field_item['city'] . ',';
+  }
+  if (!empty($field_item['postal_code'])) {
+    $address .= $field_item['postal_code'] . ',';
+  }
   if (!empty($field_item['province']) && function_exists('location_province_name')) {
     $province_fullname = location_province_name($field_item['country'], $field_item['province']);
-    $address .=  $province_fullname . ',';
+    $address .= $province_fullname . ',';
   }
-  if (!empty($field_item['country']))     $address .= $field_item['country'] . ',';
+  if (!empty($field_item['country'])) {
+    $address .= $field_item['country'] . ',';
+  }
 
   $address = rtrim($address, ', ');
 
@@ -665,11 +701,14 @@ function geocoder_widget_parse_countryfield($field_item) {
   if ($country) {
     $address = $country->name;
   }
+
   return $address;
 }
 
 /**
- * Geocoder Widget utility function to build a link for an entity, ready for use in watchdog().
+ * Geocoder Widget utility function to build a link for an entity.
+ *
+ * Ready for use in watchdog().
  */
 function geocoder_widget_get_link($entity_type, $entity) {
   if ($uri_info = entity_uri($entity_type, $entity)) {

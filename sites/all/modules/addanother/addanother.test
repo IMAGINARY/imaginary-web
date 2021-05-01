@@ -5,9 +5,17 @@
  * Unit tests for Add another module.
  */
 
+/**
+ * Class AddanotherTestCase.
+ */
 class AddanotherTestCase extends DrupalWebTestCase {
+  // @codingStandardsIgnoreStart
   protected $privileged_user;
+  // @codingStandardsIgnoreEnd
 
+  /**
+   * Function getInfo.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Add another',
@@ -16,10 +24,16 @@ class AddanotherTestCase extends DrupalWebTestCase {
     );
   }
 
+  /**
+   * Function setUp.
+   */
   public function setUp() {
     parent::setUp('addanother');
   }
 
+  /**
+   * Function testAddanother.
+   */
   public function testAddanother() {
     $nodetype = $this->randomName(8);
     variable_set("addanother_button_$nodetype", TRUE);
@@ -35,7 +49,13 @@ class AddanotherTestCase extends DrupalWebTestCase {
     $type_exists = db_query('SELECT 1 FROM {node_type} WHERE type = :type', array(':type' => $type->type))->fetchField();
     $this->assertTrue($type_exists, 'The new content type has been created in the database.');
 
-    $web_user = $this->drupalCreateUser(array('bypass node access', 'administer content types', 'use add another', 'administer add another'));
+    $web_user = $this->drupalCreateUser(array(
+      'bypass node access',
+      'administer content types',
+      'use add another',
+      'administer add another',
+    ));
+
     $this->drupalLogin($web_user);
 
     // Create a node.
@@ -45,7 +65,7 @@ class AddanotherTestCase extends DrupalWebTestCase {
     $edit["body[$langcode][0][value]"] = $this->randomName(16);
     $this->drupalPost("node/add/$nodetype", $edit, t('Save'));
 
-    // Check that the node has been created
+    // Check that the node has been created.
     $this->assertRaw(t('!post %title has been created.', array('!post' => $nodetype, '%title' => $edit["title"])), t('Node created.'));
     $this->assertText(t('You may add another !type.', array('!type' => $nodetype)), t('Addanother message was presented.'));
     $this->assertLink('Add another');
@@ -57,8 +77,28 @@ class AddanotherTestCase extends DrupalWebTestCase {
     $edit["body[$langcode][0][value]"] = $this->randomName(16);
     $this->drupalPost("node/add/$nodetype", $edit, t('Save and add another'));
 
-    // Check that the node has been created
+    // Check that we ended up back at node add page.
     $this->assertUrl("node/add/$nodetype");
+
+    // Create a node with a destination and add another.
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+    $edit["title"] = $this->randomName(8);
+    $edit["body[$langcode][0][value]"] = $this->randomName(16);
+    $this->drupalPost("node/add/$nodetype", $edit, t('Save and add another'), array('query' => array('destination' => 'user')));
+
+    // Check that we ended up back at node add page.
+    $this->assertEqual($this->getUrl(), url("node/add/$nodetype", array('query' => array('destination' => 'user'), 'absolute' => TRUE)), 'Destination was retained.');
+
+    // Create a node with a destination and follow through to destination.
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+    $edit["title"] = $this->randomName(8);
+    $edit["body[$langcode][0][value]"] = $this->randomName(16);
+    $this->drupalPost("node/add/$nodetype", $edit, t('Save'), array('query' => array('destination' => 'user')));
+
+    // Check that we ended up back at node add page.
+    $this->assertUrl("user");
   }
 
 }

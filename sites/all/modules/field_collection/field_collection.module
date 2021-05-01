@@ -444,7 +444,13 @@ class FieldCollectionItemEntity extends Entity {
           $query->age(FIELD_LOAD_REVISION);
         }
         $result = $query->execute();
-        list($this->hostEntityType, $data) = each($result);
+        // Remove use of deprecated function each
+        // list($this->hostEntityType, $data) = each($result);
+        foreach ($result as $key => $value) {
+          $this->hostEntityType = $key;
+          $data = $value;
+          break;
+        }
 
         if ($this->isInUse()) {
           $this->hostEntityId = $data ? key($data) : FALSE;

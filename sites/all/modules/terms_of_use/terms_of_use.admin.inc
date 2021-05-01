@@ -7,8 +7,8 @@
 
 /**
  * Menu callback; show settings form.
- * @see terms_of_use_admin_settings_validate()
  *
+ * @see terms_of_use_admin_settings_validate()
  */
 function terms_of_use_admin_settings() {
 
@@ -98,7 +98,7 @@ function terms_of_use_admin_settings_validate($form, &$form_state) {
 }
 
 /**
- * Helper function for autocompletion
+ * Helper function for autocompletion.
  */
 function terms_of_use_autocomplete($string = '') {
   $matches = array();

@@ -6776,12 +6776,11 @@ ul.event-grid {
   font-weight: normal;
   color: #007818; }
 
-#edit-terms-of-use .fieldset-wrapper {
+.form-wrapper#terms-of-use .fieldset-wrapper {
   height: 150px;
   overflow-y: scroll; }
-
-#edit-terms-of-use .fieldset-wrapper p {
-  width: 650px; }
+  .form-wrapper#terms-of-use .fieldset-wrapper p {
+    width: 650px; }
 
 .page-user-register ul.vertical-tabs-list {
   display: none; }
@@ -6839,22 +6838,22 @@ ul.event-grid {
 .page-user-register #recaptcha_widget_div td {
   background: none !important; }
 
-.page-user-register #edit-terms-of-use {
+.page-user-register .form-wrapper#terms-of-use {
   background-color: #ededed;
   padding: 1em 0 1em 1em;
   font-family: FuturaPTMedium-Reg, sans-serif;
   margin-bottom: 3em; }
-  .page-user-register #edit-terms-of-use .jspScrollable {
+  .page-user-register .form-wrapper#terms-of-use .jspScrollable {
     border: none !important;
     background-color: white !important;
     padding: 0em 0 0em 1em !important; }
-  .page-user-register #edit-terms-of-use h2 {
+  .page-user-register .form-wrapper#terms-of-use h2 {
     font-family: FuturaPTMedium-Reg, sans-serif;
     font-style: normal;
     color: #666;
     font-weight: normal;
     font-size: 1em; }
-  .page-user-register #edit-terms-of-use p {
+  .page-user-register .form-wrapper#terms-of-use p {
     font-family: FuturaPTMedium-Reg, sans-serif; }
 
 .page-user-register .captcha {
@@ -6908,17 +6907,17 @@ ul.event-grid {
     margin-bottom: 1.5em; }
     .page-user-register #edit-simplenews .fieldset-description {
       width: auto; }
-  .page-user-register #edit-terms-of-use {
+  .page-user-register .form-wrapper#terms-of-use {
     margin-bottom: 1.5em;
     padding: 1em; }
-    .page-user-register #edit-terms-of-use .fieldset-wrapper {
+    .page-user-register .form-wrapper#terms-of-use .fieldset-wrapper {
       width: auto; }
-      .page-user-register #edit-terms-of-use .fieldset-wrapper p, .page-user-register #edit-terms-of-use .fieldset-wrapper h2, .page-user-register #edit-terms-of-use .fieldset-wrapper ul {
+      .page-user-register .form-wrapper#terms-of-use .fieldset-wrapper p, .page-user-register .form-wrapper#terms-of-use .fieldset-wrapper h2, .page-user-register .form-wrapper#terms-of-use .fieldset-wrapper ul {
         width: auto;
         padding: 0 5px; }
-      .page-user-register #edit-terms-of-use .fieldset-wrapper ul {
+      .page-user-register .form-wrapper#terms-of-use .fieldset-wrapper ul {
         padding-left: 2em; }
-    .page-user-register #edit-terms-of-use .jspScrollable {
+    .page-user-register .form-wrapper#terms-of-use .jspScrollable {
       padding: 0 !important; }
   .page-user-register .captcha {
     width: auto;
