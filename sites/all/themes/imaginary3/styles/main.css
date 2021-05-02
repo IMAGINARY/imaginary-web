@@ -7064,9 +7064,9 @@ div.vertical-tabs {
 #edit-preview {
   display: none; }
 
-html.js fieldset.collapsed {
+html fieldset.collapsed {
   height: 1.4em; }
-  html.js fieldset.collapsed .fieldset-title {
+  html fieldset.collapsed .fieldset-title {
     padding-bottom: 0; }
 
 #edit-field-image-collection-und-0-remove-button {
@@ -7290,7 +7290,7 @@ fieldset:not(.collapsible) > legend > .fieldset-legend {
   tr.odd .form-item,
   tr.even .form-item {
     white-space: initial; }
-  html.js fieldset.collapsed {
+  html fieldset.collapsed {
     height: auto;
     margin-bottom: 15px; }
   .horizontal-tabs ul.horizontal-tabs-list {

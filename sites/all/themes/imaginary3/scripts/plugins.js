@@ -2285,8 +2285,7 @@ function handler(event) {
 	};
 
 	// global
-	var $window = $( window ),
-		Modernizr = window.Modernizr;
+	var $window = $( window );
 
 	$.Slicebox = function( options, element ) {
 
@@ -2355,7 +2354,7 @@ function handler(event) {
 			};
 
 			// suport for css 3d transforms and css transitions
-			this.support = Modernizr.csstransitions && Modernizr.csstransforms3d;
+			this.support = true;
 
 			// current image index
 			this.current = 0;
