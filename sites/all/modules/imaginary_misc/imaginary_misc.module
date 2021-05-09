@@ -209,3 +209,11 @@ function imaginary_misc_ctools_plugin_directory($owner, $plugin_type) {
     return "plugins/$plugin_type";
   }
 }
+
+/**
+ * Implements hook_security_review_file_ignore_alter().
+ */
+function imaginary_misc_security_review_file_ignore_alter(&$ignore) {
+  // Mark the boost directory as safe
+  $ignore[] = realpath('./cache');
+}
