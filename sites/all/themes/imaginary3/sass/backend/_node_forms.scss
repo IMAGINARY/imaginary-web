@@ -42,14 +42,21 @@
   display:none;
 }
 
-/* tips under the wysiwyg editor */
-/* switch to Filtered HTML, text */
-/* word count in tinymce */
-.node-form .tips,
-.node-form .filter-wrapper,
-.node-form .mceStatusbar
-{
-  display: none;
+.text-format-wrapper {
+  .filter-wrapper {
+    padding: 1em 0 0.5em;
+    margin: -1px 0 2em;
+    border: 1px solid #cccccc;
+    background-color: #eeeeee;
+
+    .form-type-select, .filter-help {
+      margin-bottom: 0.5em;
+    }
+
+    .form-type-select {
+      margin-top: 0;
+    }
+  }
 }
 
 .node-type-program .node-form .filter-wrapper {
@@ -130,4 +137,14 @@ fieldset:not(.collapsible) > legend > .fieldset-legend {
   padding: 10px 0;
   font-family: $font-stack-futura;
   font-size: 18px;
+}
+
+.mceIframeContainer {
+  iframe {
+    border: none !important;
+  }
+}
+
+.defaultSkin .mceStatusbar {
+  display: table-cell !important;
 }
