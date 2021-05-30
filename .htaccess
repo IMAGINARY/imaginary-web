@@ -61,7 +61,6 @@ DirectoryIndex index.php index.html index.htm
 <IfModule mod_rewrite.c>
   RewriteEngine on
 
-  Redirect 301 /workplan http://workplan.imaginary.org
   Redirect 301 /entdeckerbox http://imaginary.org/de/imaginary-entdeckerbox
 
   # Always use https
